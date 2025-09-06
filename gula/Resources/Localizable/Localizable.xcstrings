@@ -7,7 +7,19 @@
     "¡Bienvenido a Gula!" : {
 
     },
+    "¡Todo listo!" : {
+
+    },
     "•" : {
+
+    },
+    "1. Abre Terminal" : {
+
+    },
+    "2. Pega este comando:" : {
+
+    },
+    "3. Presiona Enter y sigue las instrucciones" : {
 
     },
     "Abrir" : {
@@ -28,10 +40,25 @@
     "Compartir" : {
 
     },
+    "Configuración Inicial" : {
+
+    },
+    "Continuar a la aplicación" : {
+
+    },
+    "Copiar" : {
+
+    },
+    "Dependencias requeridas" : {
+
+    },
     "Documentos por día" : {
 
     },
     "Eliminar" : {
+
+    },
+    "Error de verificación" : {
 
     },
     "Esta semana" : {
@@ -43,6 +70,18 @@
     "Herramientas" : {
 
     },
+    "Instalando..." : {
+
+    },
+    "Instalar automáticamente" : {
+
+    },
+    "Instalar Gula CLI" : {
+
+    },
+    "Intentar de nuevo" : {
+
+    },
     "Limpiar" : {
 
     },
@@ -52,7 +91,13 @@
     "Más info" : {
 
     },
+    "Necesitamos verificar que las dependencias estén instaladas" : {
+
+    },
     "No hay favoritos" : {
+
+    },
+    "Para instalar Homebrew:" : {
 
     },
     "Principal" : {
@@ -61,13 +106,25 @@
     "Restablecer" : {
 
     },
+    "Saltar verificación (Debug)" : {
+
+    },
     "Tema" : {
+
+    },
+    "Todas las dependencias están instaladas correctamente" : {
 
     },
     "Tu espacio de trabajo personal" : {
 
     },
     "Usar" : {
+
+    },
+    "Verificando dependencias..." : {
+
+    },
+    "Verificar de nuevo" : {
 
     }
   },
