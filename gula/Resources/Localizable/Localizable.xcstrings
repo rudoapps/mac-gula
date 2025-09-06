@@ -1,0 +1,75 @@
+{
+  "sourceLanguage" : "es",
+  "strings" : {
+    "" : {
+
+    },
+    "¡Bienvenido a Gula!" : {
+
+    },
+    "•" : {
+
+    },
+    "Abrir" : {
+
+    },
+    "Actividad Reciente" : {
+
+    },
+    "Actividad Semanal" : {
+
+    },
+    "Buscar documentos..." : {
+
+    },
+    "Cambiar" : {
+
+    },
+    "Compartir" : {
+
+    },
+    "Documentos por día" : {
+
+    },
+    "Eliminar" : {
+
+    },
+    "Esta semana" : {
+
+    },
+    "Gula" : {
+
+    },
+    "Herramientas" : {
+
+    },
+    "Limpiar" : {
+
+    },
+    "Los elementos que marques como favoritos aparecerán aquí" : {
+
+    },
+    "Más info" : {
+
+    },
+    "No hay favoritos" : {
+
+    },
+    "Principal" : {
+
+    },
+    "Restablecer" : {
+
+    },
+    "Tema" : {
+
+    },
+    "Tu espacio de trabajo personal" : {
+
+    },
+    "Usar" : {
+
+    }
+  },
+  "version" : "1.0"
+}
