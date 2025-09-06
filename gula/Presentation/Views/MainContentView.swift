@@ -61,17 +61,17 @@ struct DetailView: View {
             Group {
                 switch selectedItem {
                 case .home:
-                    HomeView()
+                    HomeBuilder.build()
                 case .documents:
-                    DocumentsView()
+                    DocumentsBuilder.build()
                 case .favorites:
-                    FavoritesView()
+                    FavoritesBuilder.build()
                 case .settings:
-                    SettingsView()
+                    SettingsBuilder.build()
                 case .analytics:
-                    AnalyticsView()
+                    AnalyticsBuilder.build()
                 case .tools:
-                    ToolsView()
+                    ToolsBuilder.build()
                 }
             }
             .padding()

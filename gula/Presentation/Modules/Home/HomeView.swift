@@ -1,15 +1,20 @@
 import SwiftUI
 
 struct HomeView: View {
+    @StateObject private var viewModel = HomeViewModel()
+    
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
                 HeaderSection()
-                StatsGrid()
-                RecentActivity()
+                StatsGrid(stats: viewModel.stats)
+                RecentActivity(activities: viewModel.recentActivities)
                 Spacer(minLength: 20)
             }
             .padding(.vertical)
+        }
+        .onAppear {
+            viewModel.loadData()
         }
     }
 }
@@ -36,12 +41,7 @@ struct HeaderSection: View {
 }
 
 struct StatsGrid: View {
-    let stats = [
-        StatItem(title: "Proyectos", value: "12", icon: "folder.fill", color: .blue),
-        StatItem(title: "Documentos", value: "48", icon: "doc.fill", color: .green),
-        StatItem(title: "Favoritos", value: "8", icon: "heart.fill", color: .red),
-        StatItem(title: "Herramientas", value: "24", icon: "wrench.fill", color: .orange)
-    ]
+    let stats: [StatItem]
     
     var body: some View {
         LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 16), count: 2), spacing: 16) {
@@ -81,6 +81,8 @@ struct StatCard: View {
 }
 
 struct RecentActivity: View {
+    let activities: [ActivityItem]
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Actividad Reciente")
@@ -88,12 +90,8 @@ struct RecentActivity: View {
                 .fontWeight(.semibold)
             
             VStack(spacing: 8) {
-                ForEach(0..<5) { index in
-                    ActivityRow(
-                        title: "Documento modificado",
-                        subtitle: "Proyecto \(index + 1).md",
-                        time: "\(index + 1)h"
-                    )
+                ForEach(activities) { activity in
+                    ActivityRow(activity: activity)
                 }
             }
         }
@@ -107,9 +105,7 @@ struct RecentActivity: View {
 }
 
 struct ActivityRow: View {
-    let title: String
-    let subtitle: String
-    let time: String
+    let activity: ActivityItem
     
     var body: some View {
         HStack(spacing: 12) {
@@ -118,31 +114,23 @@ struct ActivityRow: View {
                 .frame(width: 8, height: 8)
             
             VStack(alignment: .leading, spacing: 2) {
-                Text(title)
+                Text(activity.title)
                     .font(.body)
                     .fontWeight(.medium)
                 
-                Text(subtitle)
+                Text(activity.subtitle)
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
             
             Spacer()
             
-            Text(time)
+            Text(activity.time)
                 .font(.caption)
                 .foregroundColor(.secondary)
         }
         .padding(.vertical, 4)
     }
-}
-
-struct StatItem: Identifiable {
-    let id = UUID()
-    let title: String
-    let value: String
-    let icon: String
-    let color: Color
 }
 
 #Preview {

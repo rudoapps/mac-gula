@@ -1,25 +1,25 @@
 import SwiftUI
 
 struct AnalyticsView: View {
+    @StateObject private var viewModel = AnalyticsViewModel()
+    
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
-                OverviewCards()
-                ChartsSection()
-                RecentMetrics()
+                OverviewCards(metrics: viewModel.metrics)
+                ChartsSection(weekData: viewModel.weekData, weekDays: viewModel.weekDays)
+                RecentMetrics(recentItems: viewModel.recentItems)
             }
             .padding()
+        }
+        .onAppear {
+            viewModel.loadData()
         }
     }
 }
 
 struct OverviewCards: View {
-    let metrics = [
-        MetricCard(title: "Documentos Creados", value: "156", change: "+12%", changeType: .positive, icon: "doc.text.fill", color: .blue),
-        MetricCard(title: "Tiempo Activo", value: "48h", change: "+5%", changeType: .positive, icon: "clock.fill", color: .green),
-        MetricCard(title: "Proyectos", value: "24", change: "0%", changeType: .neutral, icon: "folder.fill", color: .orange),
-        MetricCard(title: "Colaboradores", value: "8", change: "+2", changeType: .positive, icon: "person.2.fill", color: .purple)
-    ]
+    let metrics: [MetricCard]
     
     var body: some View {
         LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 16), count: 2), spacing: 16) {
@@ -71,13 +71,16 @@ struct MetricCardView: View {
 }
 
 struct ChartsSection: View {
+    let weekData: [Int]
+    let weekDays: [String]
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Actividad Semanal")
                 .font(.title2)
                 .fontWeight(.semibold)
             
-            WeeklyChart()
+            WeeklyChart(weekData: weekData, weekDays: weekDays)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(20)
@@ -89,8 +92,8 @@ struct ChartsSection: View {
 }
 
 struct WeeklyChart: View {
-    let weekData = [3, 7, 5, 8, 6, 9, 4]
-    let weekDays = ["L", "M", "X", "J", "V", "S", "D"]
+    let weekData: [Int]
+    let weekDays: [String]
     
     var body: some View {
         VStack(spacing: 16) {
@@ -124,13 +127,7 @@ struct WeeklyChart: View {
 }
 
 struct RecentMetrics: View {
-    let recentItems = [
-        RecentMetric(action: "Documento creado", item: "Informe Q3.docx", time: "Hace 2h"),
-        RecentMetric(action: "Proyecto actualizado", item: "App Mobile", time: "Hace 4h"),
-        RecentMetric(action: "Archivo compartido", item: "Presentación.pdf", time: "Hace 6h"),
-        RecentMetric(action: "Comentario añadido", item: "Notas reunión", time: "Hace 8h"),
-        RecentMetric(action: "Tarea completada", item: "Revisión código", time: "Hace 1d")
-    ]
+    let recentItems: [RecentMetric]
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -177,43 +174,6 @@ struct RecentMetricRow: View {
             Text(metric.time)
                 .font(.caption)
                 .foregroundColor(.secondary)
-        }
-    }
-}
-
-struct MetricCard: Identifiable {
-    let id = UUID()
-    let title: String
-    let value: String
-    let change: String
-    let changeType: ChangeType
-    let icon: String
-    let color: Color
-}
-
-struct RecentMetric: Identifiable {
-    let id = UUID()
-    let action: String
-    let item: String
-    let time: String
-}
-
-enum ChangeType {
-    case positive, negative, neutral
-    
-    var color: Color {
-        switch self {
-        case .positive: return .green
-        case .negative: return .red
-        case .neutral: return .secondary
-        }
-    }
-    
-    var icon: String {
-        switch self {
-        case .positive: return "arrow.up"
-        case .negative: return "arrow.down"
-        case .neutral: return "minus"
         }
     }
 }

@@ -1,13 +1,15 @@
 import SwiftUI
 
 struct SettingsView: View {
+    @StateObject private var viewModel = SettingsViewModel()
+    
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
-                GeneralSettings()
-                AppearanceSettings()
-                NotificationSettings()
-                AdvancedSettings()
+                GeneralSettings(viewModel: viewModel)
+                AppearanceSettings(viewModel: viewModel)
+                NotificationSettings(viewModel: viewModel)
+                AdvancedSettings(viewModel: viewModel)
             }
             .padding()
         }
@@ -15,36 +17,32 @@ struct SettingsView: View {
 }
 
 struct GeneralSettings: View {
-    @State private var autoSave = true
-    @State private var showFileExtensions = false
+    @ObservedObject var viewModel: SettingsViewModel
     
     var body: some View {
         SettingsSection(title: "General") {
             SettingsRow(icon: "folder.fill", title: "Directorio de trabajo", subtitle: "~/Documents/Gula") {
                 Button("Cambiar") {
-                    
+                    viewModel.changeWorkingDirectory()
                 }
                 .buttonStyle(.bordered)
             }
             
-            SettingsToggle(icon: "square.and.arrow.down", title: "Guardar automáticamente", subtitle: "Guarda cambios automáticamente", isOn: $autoSave)
+            SettingsToggle(icon: "square.and.arrow.down", title: "Guardar automáticamente", subtitle: "Guarda cambios automáticamente", isOn: $viewModel.autoSave)
             
-            SettingsToggle(icon: "doc.text", title: "Mostrar extensiones", subtitle: "Muestra extensiones de archivo", isOn: $showFileExtensions)
+            SettingsToggle(icon: "doc.text", title: "Mostrar extensiones", subtitle: "Muestra extensiones de archivo", isOn: $viewModel.showFileExtensions)
         }
     }
 }
 
 struct AppearanceSettings: View {
-    @State private var selectedTheme = "Sistema"
-    @State private var useVibrancy = true
-    
-    let themes = ["Claro", "Oscuro", "Sistema"]
+    @ObservedObject var viewModel: SettingsViewModel
     
     var body: some View {
         SettingsSection(title: "Apariencia") {
             SettingsRow(icon: "paintbrush.fill", title: "Tema", subtitle: "Apariencia de la aplicación") {
-                Picker("Tema", selection: $selectedTheme) {
-                    ForEach(themes, id: \.self) { theme in
+                Picker("Tema", selection: $viewModel.selectedTheme) {
+                    ForEach(viewModel.themes, id: \.self) { theme in
                         Text(theme).tag(theme)
                     }
                 }
@@ -52,38 +50,39 @@ struct AppearanceSettings: View {
                 .frame(width: 120)
             }
             
-            SettingsToggle(icon: "sparkles", title: "Efectos de vibración", subtitle: "Usar efectos visuales semitransparentes", isOn: $useVibrancy)
+            SettingsToggle(icon: "sparkles", title: "Efectos de vibración", subtitle: "Usar efectos visuales semitransparentes", isOn: $viewModel.useVibrancy)
         }
     }
 }
 
 struct NotificationSettings: View {
-    @State private var enableNotifications = true
-    @State private var soundEnabled = true
+    @ObservedObject var viewModel: SettingsViewModel
     
     var body: some View {
         SettingsSection(title: "Notificaciones") {
-            SettingsToggle(icon: "bell.fill", title: "Activar notificaciones", subtitle: "Recibe notificaciones de la app", isOn: $enableNotifications)
+            SettingsToggle(icon: "bell.fill", title: "Activar notificaciones", subtitle: "Recibe notificaciones de la app", isOn: $viewModel.enableNotifications)
             
-            SettingsToggle(icon: "speaker.wave.2.fill", title: "Sonidos", subtitle: "Reproducir sonidos de notificación", isOn: $soundEnabled)
-                .disabled(!enableNotifications)
+            SettingsToggle(icon: "speaker.wave.2.fill", title: "Sonidos", subtitle: "Reproducir sonidos de notificación", isOn: $viewModel.soundEnabled)
+                .disabled(!viewModel.enableNotifications)
         }
     }
 }
 
 struct AdvancedSettings: View {
+    @ObservedObject var viewModel: SettingsViewModel
+    
     var body: some View {
         SettingsSection(title: "Avanzado") {
             SettingsRow(icon: "trash.fill", title: "Limpiar caché", subtitle: "Elimina archivos temporales") {
                 Button("Limpiar") {
-                    
+                    viewModel.clearCache()
                 }
                 .buttonStyle(.bordered)
             }
             
             SettingsRow(icon: "arrow.clockwise", title: "Restablecer configuración", subtitle: "Volver a valores predeterminados") {
                 Button("Restablecer") {
-                    
+                    viewModel.resetSettings()
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(.red)
@@ -91,7 +90,7 @@ struct AdvancedSettings: View {
             
             SettingsRow(icon: "info.circle.fill", title: "Acerca de Gula", subtitle: "Versión 1.0.0") {
                 Button("Más info") {
-                    
+                    viewModel.showAbout()
                 }
                 .buttonStyle(.bordered)
             }

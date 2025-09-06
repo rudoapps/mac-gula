@@ -1,17 +1,23 @@
 import SwiftUI
 
 struct FavoritesView: View {
-    @State private var favorites: [FavoriteItem] = FavoriteItem.sampleFavorites
+    @StateObject private var viewModel = FavoritesViewModel()
     
     var body: some View {
         VStack(spacing: 20) {
-            if favorites.isEmpty {
+            if viewModel.favorites.isEmpty {
                 EmptyFavoritesView()
             } else {
-                FavoritesGrid(favorites: $favorites)
+                FavoritesGrid(
+                    favorites: $viewModel.favorites,
+                    onRemove: viewModel.removeFavorite
+                )
             }
         }
         .padding()
+        .onAppear {
+            viewModel.loadFavorites()
+        }
     }
 }
 
@@ -38,6 +44,7 @@ struct EmptyFavoritesView: View {
 
 struct FavoritesGrid: View {
     @Binding var favorites: [FavoriteItem]
+    let onRemove: (FavoriteItem) -> Void
     
     let columns = Array(repeating: GridItem(.flexible(), spacing: 16), count: 3)
     
@@ -47,7 +54,7 @@ struct FavoritesGrid: View {
                 ForEach($favorites) { $favorite in
                     FavoriteCard(favorite: $favorite) {
                         withAnimation(.easeInOut(duration: 0.3)) {
-                            favorites.removeAll { $0.id == favorite.id }
+                            onRemove(favorite)
                         }
                     }
                 }
@@ -118,37 +125,6 @@ struct FavoriteCard: View {
             }
         }
     }
-}
-
-struct FavoriteItem: Identifiable, Equatable {
-    let id = UUID()
-    let name: String
-    let category: String
-    let icon: String
-    let iconColor: Color
-    let dateAdded: Date
-    var isPressed = false
-    
-    var formattedDate: String {
-        let formatter = RelativeDateTimeFormatter()
-        formatter.dateTimeStyle = .named
-        return formatter.localizedString(for: dateAdded, relativeTo: Date())
-    }
-    
-    static func == (lhs: FavoriteItem, rhs: FavoriteItem) -> Bool {
-        lhs.id == rhs.id
-    }
-}
-
-extension FavoriteItem {
-    static let sampleFavorites = [
-        FavoriteItem(name: "Proyecto Gula", category: "Proyecto", icon: "folder.fill", iconColor: .blue, dateAdded: Date().addingTimeInterval(-86400)),
-        FavoriteItem(name: "Diseño UI/UX", category: "Documento", icon: "doc.text.fill", iconColor: .green, dateAdded: Date().addingTimeInterval(-172800)),
-        FavoriteItem(name: "Tutorial SwiftUI", category: "Video", icon: "video.fill", iconColor: .purple, dateAdded: Date().addingTimeInterval(-259200)),
-        FavoriteItem(name: "Notas Reunión", category: "Documento", icon: "note.text", iconColor: .orange, dateAdded: Date().addingTimeInterval(-345600)),
-        FavoriteItem(name: "Mockups App", category: "Imagen", icon: "photo.fill", iconColor: .pink, dateAdded: Date().addingTimeInterval(-432000)),
-        FavoriteItem(name: "Base de Datos", category: "Archivo", icon: "server.rack", iconColor: .cyan, dateAdded: Date().addingTimeInterval(-518400))
-    ]
 }
 
 #Preview {
