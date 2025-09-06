@@ -13,15 +13,15 @@ struct SystemDependency: Identifiable {
         name: "Homebrew",
         description: "El gestor de paquetes para macOS necesario para instalar gula",
         installCommand: "/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\"",
-        checkCommand: "which brew",
+        checkCommand: "test -f /usr/local/bin/brew || test -f /opt/homebrew/bin/brew",
         isRequired: true
     )
     
     static let gula = SystemDependency(
         name: "Gula CLI",
         description: "La herramienta de línea de comandos de Gula",
-        installCommand: "brew install gula",
-        checkCommand: "which gula",
+        installCommand: "/usr/local/bin/brew install gula || /opt/homebrew/bin/brew install gula",
+        checkCommand: "test -f /usr/local/bin/gula || test -f /opt/homebrew/bin/gula || command -v gula",
         isRequired: true
     )
 }
