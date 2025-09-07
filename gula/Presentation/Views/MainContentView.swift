@@ -1,13 +1,14 @@
 import SwiftUI
 
 struct MainContentView: View {
+    let project: Project
     @State private var selectedItem: SidebarItem? = .home
     
     var body: some View {
         NavigationSplitView {
-            SidebarView(selection: $selectedItem)
+            SidebarView(selection: $selectedItem, project: project)
         } detail: {
-            DetailView(selectedItem: selectedItem ?? .home)
+            DetailView(selectedItem: selectedItem ?? .home, project: project)
         }
         .navigationSplitViewStyle(.balanced)
     }
@@ -15,6 +16,7 @@ struct MainContentView: View {
 
 struct SidebarView: View {
     @Binding var selection: SidebarItem?
+    let project: Project
     
     var body: some View {
         List(selection: $selection) {
@@ -34,7 +36,7 @@ struct SidebarView: View {
                 }
             }
         }
-        .navigationTitle("Gula")
+        .navigationTitle("Gula - \(project.name)")
         .frame(minWidth: 200)
         #if os(macOS)
         .background(VisualEffectView())
@@ -46,6 +48,7 @@ struct SidebarView: View {
 
 struct DetailView: View {
     let selectedItem: SidebarItem
+    let project: Project
     
     var body: some View {
         ZStack {
@@ -118,5 +121,10 @@ enum SidebarItem: String, CaseIterable, Identifiable, Hashable {
 }
 
 #Preview {
-    MainContentView()
+    let sampleProject = Project(
+        name: "Sample Project",
+        path: "/Users/sample/project",
+        type: .flutter
+    )
+    return MainContentView(project: sampleProject)
 }

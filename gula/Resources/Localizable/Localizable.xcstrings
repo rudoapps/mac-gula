@@ -10,10 +10,31 @@
     "¡Todo listo!" : {
 
     },
+    "(%@)" : {
+
+    },
     "•" : {
 
     },
+    "🍎" : {
+
+    },
+    "🐍" : {
+
+    },
+    "🤖" : {
+
+    },
+    "🦋" : {
+
+    },
     "Abrir" : {
+
+    },
+    "ABRIR EXISTENTE" : {
+
+    },
+    "Acelerador de Desarrollo" : {
 
     },
     "Actividad Reciente" : {
@@ -22,10 +43,22 @@
     "Actividad Semanal" : {
 
     },
+    "Android" : {
+
+    },
     "Buscar documentos..." : {
 
     },
     "Cambiar" : {
+
+    },
+    "Cancelar" : {
+
+    },
+    "Cargar módulos" : {
+
+    },
+    "Clave de API" : {
 
     },
     "Compartir" : {
@@ -40,7 +73,22 @@
     "Copiar" : {
 
     },
+    "Creando proyecto..." : {
+
+    },
+    "CREAR NUEVO" : {
+
+    },
+    "Crear Nuevo Proyecto" : {
+
+    },
+    "Crear Proyecto" : {
+
+    },
     "Dependencias requeridas" : {
+
+    },
+    "Detectar tipo" : {
 
     },
     "Documentos por día" : {
@@ -49,19 +97,31 @@
     "Eliminar" : {
 
     },
+    "Error" : {
+
+    },
     "Error de verificación" : {
 
     },
     "Esta semana" : {
 
     },
-    "Gula" : {
+    "Flutter" : {
+
+    },
+    "GULA" : {
+
+    },
+    "Gula - %@" : {
 
     },
     "Herramientas" : {
 
     },
     "Homebrew es requerido para instalar Gula CLI" : {
+
+    },
+    "Ingresa tu clave de API" : {
 
     },
     "Instalando..." : {
@@ -76,6 +136,12 @@
     "Intentar de nuevo" : {
 
     },
+    "iOS" : {
+
+    },
+    "La clave de API es necesaria para descargar los arquetipos de proyecto desde los repositorios privados." : {
+
+    },
     "Limpiar" : {
 
     },
@@ -85,16 +151,34 @@
     "Más info" : {
 
     },
+    "Mi Proyecto" : {
+
+    },
     "Necesitamos verificar que las dependencias estén instaladas" : {
 
     },
     "No hay favoritos" : {
 
     },
+    "Nombre del Proyecto" : {
+
+    },
     "O instalar manualmente:" : {
 
     },
+    "OK" : {
+
+    },
     "Principal" : {
+
+    },
+    "PROYECTO" : {
+
+    },
+    "Proyectos Recientes" : {
+
+    },
+    "Python" : {
 
     },
     "Restablecer" : {
@@ -106,13 +190,22 @@
     "Tema" : {
 
     },
+    "Tipo de Proyecto" : {
+
+    },
     "Todas las dependencias están instaladas correctamente" : {
 
     },
     "Tu espacio de trabajo personal" : {
 
     },
+    "Ubicación" : {
+
+    },
     "Usar" : {
+
+    },
+    "Ver estructura" : {
 
     },
     "Verificando dependencias..." : {
