@@ -13,15 +13,6 @@
     "•" : {
 
     },
-    "1. Abre Terminal" : {
-
-    },
-    "2. Pega este comando:" : {
-
-    },
-    "3. Presiona Enter y sigue las instrucciones" : {
-
-    },
     "Abrir" : {
 
     },
@@ -70,13 +61,16 @@
     "Herramientas" : {
 
     },
+    "Homebrew es requerido para instalar Gula CLI" : {
+
+    },
     "Instalando..." : {
 
     },
     "Instalar automáticamente" : {
 
     },
-    "Instalar Gula CLI" : {
+    "Instalar Homebrew primero" : {
 
     },
     "Intentar de nuevo" : {
@@ -97,7 +91,7 @@
     "No hay favoritos" : {
 
     },
-    "Para instalar Homebrew:" : {
+    "O instalar manualmente:" : {
 
     },
     "Principal" : {

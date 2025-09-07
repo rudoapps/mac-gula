@@ -20,7 +20,7 @@ struct SystemDependency: Identifiable {
     static let gula = SystemDependency(
         name: "Gula CLI",
         description: "La herramienta de línea de comandos de Gula",
-        installCommand: "/usr/local/bin/brew install gula || /opt/homebrew/bin/brew install gula",
+        installCommand: "brew tap rudoapps/gula && brew install gula",
         checkCommand: "test -f /usr/local/bin/gula || test -f /opt/homebrew/bin/gula || command -v gula",
         isRequired: true
     )
