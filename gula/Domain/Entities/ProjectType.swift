@@ -34,6 +34,19 @@ enum ProjectType: String, CaseIterable, Identifiable, Codable {
         }
     }
     
+    var sfSymbol: String {
+        switch self {
+        case .android:
+            return "app.badge"
+        case .ios:
+            return "apple.logo"
+        case .flutter:
+            return "paintbrush.pointed"
+        case .python:
+            return "terminal"
+        }
+    }
+    
     var description: String {
         switch self {
         case .android:
