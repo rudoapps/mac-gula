@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 
 struct NewProjectView: View {
     @StateObject private var viewModel = NewProjectViewModel()
@@ -13,10 +14,23 @@ struct NewProjectView: View {
             if viewModel.isCreating {
                 creatingView
             } else {
-                formView
+                ScrollView(.vertical, showsIndicators: true) {
+                    formView
+                }
+                .scrollBounceBehavior(.basedOnSize)
             }
         }
-        .frame(width: 600, height: 500)
+        .frame(width: 650, height: 550)
+        .background(
+            LinearGradient(
+                colors: [
+                    Color(NSColor.windowBackgroundColor),
+                    Color(NSColor.controlBackgroundColor).opacity(0.3)
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        )
         .alert("Error", isPresented: $viewModel.showingError) {
             Button("OK") { }
         } message: {
@@ -25,52 +39,83 @@ struct NewProjectView: View {
     }
     
     private var headerView: some View {
-        VStack(spacing: 8) {
-            HStack {
+        VStack(spacing: 16) {
+            HStack(spacing: 12) {
                 Image(systemName: "plus.circle.fill")
-                    .font(.title)
+                    .font(.system(size: 20, weight: .medium))
                     .foregroundColor(.blue)
                 
                 Text("Crear Nuevo Proyecto")
-                    .font(.title)
-                    .fontWeight(.semibold)
+                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                    .foregroundColor(.primary)
+                
+                Spacer()
             }
+            .padding(.horizontal, 24)
             .padding(.top, 20)
             
-            Rectangle()
-                .fill(Color.gray.opacity(0.3))
-                .frame(height: 1)
-                .padding(.horizontal, 20)
+            Divider()
+                .padding(.horizontal, 24)
         }
-        .background(Color(NSColor.windowBackgroundColor))
+        .background(.ultraThinMaterial)
     }
     
     private var formView: some View {
-        VStack(spacing: 24) {
+        LazyVStack(spacing: 28) {
             // Project Name
             VStack(alignment: .leading, spacing: 8) {
                 Text("Nombre del Proyecto")
                     .font(.headline)
+                    .fontWeight(.medium)
                 
                 TextField("Mi Proyecto", text: $viewModel.projectName)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .font(.body)
+                    .textFieldStyle(.roundedBorder)
+                
+                if !viewModel.projectName.isEmpty && !viewModel.isValidProjectName {
+                    Text("Usa solo letras, números, guiones (-), guiones bajos (_) y puntos (.)")
+                        .font(.caption)
+                        .foregroundColor(.red)
+                }
             }
             
             // Project Type Selection
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 10) {
                 Text("Tipo de Proyecto")
                     .font(.headline)
+                    .fontWeight(.medium)
                 
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 12) {
+                VStack(spacing: 6) {
                     ForEach(ProjectType.allCases) { type in
-                        ProjectTypeCard(
-                            type: type,
-                            isSelected: viewModel.selectedType == type,
-                            onTap: {
-                                viewModel.selectedType = type
+                        Button(action: {
+                            viewModel.selectedType = type
+                        }) {
+                            HStack {
+                                Text(type.icon)
+                                    .font(.title2)
+                                
+                                VStack(alignment: .leading) {
+                                    Text(type.displayName)
+                                        .font(.headline)
+                                    Text(type.description)
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                                
+                                Spacer()
+                                
+                                if viewModel.selectedType == type {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .foregroundColor(.blue)
+                                }
                             }
-                        )
+                            .padding()
+                            .background(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(viewModel.selectedType == type ? Color.blue.opacity(0.1) : Color.clear)
+                                    .stroke(viewModel.selectedType == type ? Color.blue : Color.secondary.opacity(0.3), lineWidth: 1)
+                            )
+                        }
+                        .buttonStyle(PlainButtonStyle())
                     }
                 }
             }
@@ -79,15 +124,12 @@ struct NewProjectView: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text("Ubicación")
                     .font(.headline)
+                    .fontWeight(.medium)
                 
                 HStack {
                     Text(viewModel.selectedLocationDisplay)
-                        .font(.body)
-                        .foregroundColor(.secondary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 6)
-                        .background(Color(NSColor.controlBackgroundColor))
+                        .padding()
+                        .background(Color.gray.opacity(0.1))
                         .cornerRadius(6)
                     
                     Button("Cambiar") {
@@ -99,24 +141,82 @@ struct NewProjectView: View {
                 }
             }
             
+            // Python Stack (only for Python projects)
+            if viewModel.selectedType == .python {
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("Stack de Python")
+                        .font(.headline)
+                        .fontWeight(.medium)
+                    
+                    VStack(spacing: 6) {
+                        ForEach(PythonStack.allCases) { stack in
+                            Button(action: {
+                                viewModel.selectedPythonStack = stack
+                            }) {
+                                HStack {
+                                    Text(stack.icon)
+                                        .font(.title2)
+                                    
+                                    VStack(alignment: .leading) {
+                                        Text(stack.displayName)
+                                            .font(.headline)
+                                        Text(stack.description)
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                    }
+                                    
+                                    Spacer()
+                                    
+                                    if viewModel.selectedPythonStack == stack {
+                                        Image(systemName: "checkmark.circle.fill")
+                                            .foregroundColor(.blue)
+                                    }
+                                }
+                                .padding()
+                                .background(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .fill(viewModel.selectedPythonStack == stack ? Color.blue.opacity(0.1) : Color.clear)
+                                        .stroke(viewModel.selectedPythonStack == stack ? Color.blue : Color.secondary.opacity(0.3), lineWidth: 1)
+                                )
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                        }
+                    }
+                }
+            }
+            
+            // Package Name (only for mobile projects)
+            if viewModel.selectedType != .python {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Package Name")
+                        .font(.headline)
+                        .fontWeight(.medium)
+                    
+                    TextField("com.empresa.miapp", text: $viewModel.packageName)
+                        .textFieldStyle(.roundedBorder)
+                    
+                    Text("Identificador único del paquete (ej: com.empresa.miapp).")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
+            
             // API Key
             VStack(alignment: .leading, spacing: 8) {
                 Text("Clave de API")
                     .font(.headline)
+                    .fontWeight(.medium)
                 
                 SecureField("Ingresa tu clave de API", text: $viewModel.apiKey)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .font(.body)
+                    .textFieldStyle(.roundedBorder)
                 
-                Text("La clave de API es necesaria para descargar los arquetipos de proyecto desde los repositorios privados.")
+                Text("Necesaria para descargar arquetipos desde repositorios privados.")
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
             
-            Spacer()
-            
             // Action Buttons
-            HStack(spacing: 16) {
+            HStack(spacing: 12) {
                 Button("Cancelar") {
                     dismiss()
                 }
@@ -135,16 +235,15 @@ struct NewProjectView: View {
                 .disabled(!viewModel.isValid)
                 .keyboardShortcut(.return)
             }
-            .padding(.bottom, 20)
+            .padding(.top, 8)
         }
-        .padding(.horizontal, 40)
-        .padding(.top, 20)
+        .padding(.horizontal, 32)
+        .padding(.top, 28)
+        .padding(.bottom, 32)
     }
     
     private var creatingView: some View {
-        VStack(spacing: 24) {
-            Spacer()
-            
+        VStack(spacing: 20) {
             ProgressView()
                 .scaleEffect(1.5)
             
@@ -155,57 +254,16 @@ struct NewProjectView: View {
                 .font(.body)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
-            
-            Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding()
     }
 }
 
-struct ProjectTypeCard: View {
-    let type: ProjectType
-    let isSelected: Bool
-    let onTap: () -> Void
-    
-    var body: some View {
-        Button(action: onTap) {
-            HStack(spacing: 12) {
-                Text(type.icon)
-                    .font(.title)
-                
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(type.displayName)
-                        .font(.headline)
-                        .foregroundColor(.primary)
-                    
-                    Text(type.description)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .lineLimit(2)
-                }
-                
-                Spacer()
-                
-                if isSelected {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(.blue)
-                        .font(.title3)
-                }
-            }
-            .padding(12)
-            .background(isSelected ? Color.blue.opacity(0.1) : Color(NSColor.controlBackgroundColor))
-            .cornerRadius(8)
-            .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(isSelected ? Color.blue : Color.gray.opacity(0.3), lineWidth: isSelected ? 2 : 1)
-            )
+struct NewProjectView_Previews: PreviewProvider {
+    static var previews: some View {
+        NewProjectView { _ in
+            
         }
-        .buttonStyle(PlainButtonStyle())
-    }
-}
-
-#Preview {
-    NewProjectView { _ in
-        
     }
 }
