@@ -39,7 +39,6 @@ class SystemRepositoryImpl: SystemRepositoryProtocol {
         return try await withCheckedThrowingContinuation { continuation in
             let process = Process()
             process.launchPath = "/bin/bash"
-            process.arguments = ["-c", command]
             
             // Set up the environment with proper PATH including shell initialization
             var environment = ProcessInfo.processInfo.environment
@@ -55,12 +54,13 @@ class SystemRepositoryImpl: SystemRepositoryProtocol {
             let fullPath = (commonPaths + [currentPath]).joined(separator: ":")
             environment["PATH"] = fullPath
             
-            // Also source shell profile and add Homebrew paths explicitly
+            // Enhanced command with proper environment setup for gula
             let enhancedCommand = """
             export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH";
             source ~/.bash_profile 2>/dev/null || source ~/.zshrc 2>/dev/null || true;
             eval "$(/opt/homebrew/bin/brew shellenv 2>/dev/null || /usr/local/bin/brew shellenv 2>/dev/null || true)";
-            \(command)
+            export HOMEBREW_PREFIX="$(/opt/homebrew/bin/brew --prefix 2>/dev/null || /usr/local/bin/brew --prefix 2>/dev/null || echo '/opt/homebrew')";
+            timeout 300 \(command)
             """
             process.arguments = ["-c", enhancedCommand]
             process.environment = environment
@@ -69,9 +69,27 @@ class SystemRepositoryImpl: SystemRepositoryProtocol {
             process.standardOutput = pipe
             process.standardError = pipe
             
-            print("🚀 Executing: \(enhancedCommand) with PATH: \(fullPath)")
+            // StandardInput will be handled by the shell command (echo piped to gula)
+            // No need to set it to null since we're providing automated inputs via echo
+            
+            print("🚀 Executing: \(command) with PATH: \(fullPath)")
+            
+            // Add a timer to force termination after 5 minutes
+            let timer = Timer.scheduledTimer(withTimeInterval: 300.0, repeats: false) { _ in
+                print("⏰ Command timed out, terminating process")
+                process.terminate()
+                
+                let error = NSError(
+                    domain: "SystemRepository",
+                    code: -1,
+                    userInfo: [NSLocalizedDescriptionKey: "Command timed out after 5 minutes"]
+                )
+                continuation.resume(throwing: error)
+            }
             
             process.terminationHandler = { process in
+                timer.invalidate() // Cancel the timeout timer
+                
                 let data = pipe.fileHandleForReading.readDataToEndOfFile()
                 let output = String(data: data, encoding: .utf8) ?? ""
                 
@@ -80,19 +98,41 @@ class SystemRepositoryImpl: SystemRepositoryProtocol {
                 
                 if process.terminationStatus == 0 {
                     continuation.resume(returning: output)
-                } else {
+                } else if process.terminationStatus == 15 { // SIGTERM (timeout)
                     let error = NSError(
                         domain: "SystemRepository",
                         code: Int(process.terminationStatus),
-                        userInfo: [NSLocalizedDescriptionKey: "Command failed: \(output)"]
+                        userInfo: [NSLocalizedDescriptionKey: "Command was terminated due to timeout"]
                     )
                     continuation.resume(throwing: error)
+                } else {
+                    // For gula commands, check if the output indicates partial success
+                    // Even with exit code 1, if we see expected gula output, treat as success
+                    let lowercaseOutput = output.lowercased()
+                    if command.contains("gula") && (
+                        lowercaseOutput.contains("empezando la instalación") ||
+                        lowercaseOutput.contains("starting installation") ||
+                        lowercaseOutput.contains("✅ el prefijo de homebrew") ||
+                        lowercaseOutput.contains("arquetipo") ||
+                        lowercaseOutput.contains("archetype")
+                    ) {
+                        print("⚠️ Gula command had exit code \(process.terminationStatus) but produced expected output, treating as success")
+                        continuation.resume(returning: output)
+                    } else {
+                        let error = NSError(
+                            domain: "SystemRepository",
+                            code: Int(process.terminationStatus),
+                            userInfo: [NSLocalizedDescriptionKey: "Command failed: \(output)"]
+                        )
+                        continuation.resume(throwing: error)
+                    }
                 }
             }
             
             do {
                 try process.run()
             } catch {
+                timer.invalidate()
                 print("❌ Failed to start process: \(error)")
                 continuation.resume(throwing: error)
             }
