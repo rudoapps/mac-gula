@@ -6,8 +6,9 @@ class ProjectSelectionViewModel: ObservableObject {
     @Published var showingError = false
     @Published var errorMessage = ""
     @Published var isLoading = false
+    @Published var recentProjects: [Project] = []
     
-    private let projectManager: ProjectManager
+    private var projectManager: ProjectManager
     private let filePickerService: FilePickerService
     
     // Callback to notify when a project is selected
@@ -17,10 +18,9 @@ class ProjectSelectionViewModel: ObservableObject {
          filePickerService: FilePickerService = FilePickerService.shared) {
         self.projectManager = projectManager
         self.filePickerService = filePickerService
-    }
-    
-    var recentProjects: [Project] {
-        return projectManager.recentProjects
+        
+        // Initialize with current projects
+        self.recentProjects = projectManager.recentProjects
     }
     
     // MARK: - Actions
@@ -51,17 +51,23 @@ class ProjectSelectionViewModel: ObservableObject {
     func selectRecentProject(_ project: Project) {
         if project.exists {
             projectManager.currentProject = project
-            projectManager.addRecentProject(project) // Update last opened time
+            projectManager.updateProjectAccessDate(project) // Update last opened time
+            // Update local copy to reflect date change
+            recentProjects = projectManager.recentProjects
             onProjectSelected?(project)
         } else {
             showError("El proyecto ya no existe en la ubicación: \(project.displayPath)")
             projectManager.removeRecentProject(project)
+            // Update local copy immediately
+            recentProjects = projectManager.recentProjects
         }
     }
     
     @MainActor
     func removeRecentProject(_ project: Project) {
         projectManager.removeRecentProject(project)
+        // Update local copy immediately
+        recentProjects = projectManager.recentProjects
     }
     
     private func showError(_ message: String) {
