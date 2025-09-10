@@ -30,5 +30,8 @@ enum DependencyStatus {
     case checking
     case allInstalled
     case missingDependencies([SystemDependency])
+    case gulaUpdateRequired(String) // current version
+    case updatingGula
+    case gulaUpdated
     case error(String)
 }

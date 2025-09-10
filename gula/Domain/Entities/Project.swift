@@ -40,13 +40,23 @@ extension Project {
             return .android
         }
         
-        // Check for iOS project
-        let pathURL = URL(fileURLWithPath: path)
-        let projectName = pathURL.lastPathComponent
-        if fileManager.fileExists(atPath: "\(path)/\(projectName).xcodeproj") ||
-           fileManager.fileExists(atPath: "\(path)/\(projectName).xcworkspace") ||
-           path.hasSuffix(".xcodeproj") || path.hasSuffix(".xcworkspace") {
-            return .ios
+        // Check for iOS project - look for any .xcodeproj or .xcworkspace
+        do {
+            let contents = try fileManager.contentsOfDirectory(atPath: path)
+            for item in contents {
+                if item.hasSuffix(".xcodeproj") || item.hasSuffix(".xcworkspace") {
+                    return .ios
+                }
+            }
+        } catch {
+            // If we can't read directory contents, try the old method as fallback
+            let pathURL = URL(fileURLWithPath: path)
+            let projectName = pathURL.lastPathComponent
+            if fileManager.fileExists(atPath: "\(path)/\(projectName).xcodeproj") ||
+               fileManager.fileExists(atPath: "\(path)/\(projectName).xcworkspace") ||
+               path.hasSuffix(".xcodeproj") || path.hasSuffix(".xcworkspace") {
+                return .ios
+            }
         }
         
         // Check for Flutter project
