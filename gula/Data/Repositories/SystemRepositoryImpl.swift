@@ -38,7 +38,7 @@ class SystemRepositoryImpl: SystemRepositoryProtocol {
         #if os(macOS)
         return try await withCheckedThrowingContinuation { continuation in
             let process = Process()
-            process.launchPath = "/bin/bash"
+            process.executableURL = URL(fileURLWithPath: "/bin/bash")
             
             // Set up the environment with proper PATH including shell initialization
             var environment = ProcessInfo.processInfo.environment
@@ -54,13 +54,36 @@ class SystemRepositoryImpl: SystemRepositoryProtocol {
             let fullPath = (commonPaths + [currentPath]).joined(separator: ":")
             environment["PATH"] = fullPath
             
+            // Extract working directory from command if it starts with cd
+            var workingDirectory: String? = nil
+            var actualCommand = command
+            
+            // Check if command starts with cd and extract the directory
+            if command.hasPrefix("cd \"") {
+                // Find the first occurrence of '" && ' to split correctly
+                if let range = command.range(of: "\" && ") {
+                    let cdPart = String(command[..<range.lowerBound])
+                    workingDirectory = String(cdPart.dropFirst(4)) // Remove 'cd "' prefix (4 characters)
+                    actualCommand = String(command[range.upperBound...])
+                    print("🔍 Extracted working directory: '\(workingDirectory ?? "none")'")
+                    print("🔍 Extracted command: '\(actualCommand)'")
+                }
+            }
+            
+            // Set the working directory if extracted
+            if let workingDir = workingDirectory {
+                let url = URL(fileURLWithPath: workingDir)
+                process.currentDirectoryURL = url
+                print("📁 Set process working directory to: \(workingDir)")
+            }
+            
             // Enhanced command with proper environment setup for gula
             let enhancedCommand = """
             export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH";
             source ~/.bash_profile 2>/dev/null || source ~/.zshrc 2>/dev/null || true;
             eval "$(/opt/homebrew/bin/brew shellenv 2>/dev/null || /usr/local/bin/brew shellenv 2>/dev/null || true)";
             export HOMEBREW_PREFIX="$(/opt/homebrew/bin/brew --prefix 2>/dev/null || /usr/local/bin/brew --prefix 2>/dev/null || echo '/opt/homebrew')";
-            timeout 300 \(command)
+            \(actualCommand)
             """
             process.arguments = ["-c", enhancedCommand]
             process.environment = environment
