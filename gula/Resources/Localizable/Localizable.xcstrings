@@ -4,13 +4,31 @@
     "" : {
 
     },
+    "¡Actualización completada!" : {
+
+    },
     "¡Bienvenido a Gula!" : {
+
+    },
+    "¡Bienvenido a tu proyecto!" : {
 
     },
     "¡Todo listo!" : {
 
     },
-    "(%@)" : {
+    "¿Qué quieres hacer?" : {
+
+    },
+    "(opcional)" : {
+
+    },
+    "%lld" : {
+
+    },
+    "%lld módulos encontrados" : {
+
+    },
+    "%lld templates encontrados" : {
 
     },
     "•" : {
@@ -31,7 +49,10 @@
     "Abrir" : {
 
     },
-    "ABRIR EXISTENTE" : {
+    "Abrir Proyecto Existente" : {
+
+    },
+    "Acciones Rápidas" : {
 
     },
     "Acelerador de Desarrollo" : {
@@ -43,7 +64,13 @@
     "Actividad Semanal" : {
 
     },
-    "Android" : {
+    "Actualización requerida" : {
+
+    },
+    "Actualizando Gula CLI..." : {
+
+    },
+    "Auto-detecta" : {
 
     },
     "Buscar documentos..." : {
@@ -55,16 +82,25 @@
     "Cancelar" : {
 
     },
-    "Cargar módulos" : {
+    "Carga módulos" : {
 
     },
-    "Clave de API" : {
+    "Cargando Módulos..." : {
 
     },
     "Compartir" : {
 
     },
+    "Conectando con gula CLI" : {
+
+    },
+    "Configuración" : {
+
+    },
     "Configuración Inicial" : {
+
+    },
+    "Continúa trabajando en un proyecto ya iniciado" : {
 
     },
     "Continuar a la aplicación" : {
@@ -76,9 +112,6 @@
     "Creando proyecto..." : {
 
     },
-    "CREAR NUEVO" : {
-
-    },
     "Crear Nuevo Proyecto" : {
 
     },
@@ -88,10 +121,10 @@
     "Dependencias requeridas" : {
 
     },
-    "Detectar tipo" : {
+    "Documentos por día" : {
 
     },
-    "Documentos por día" : {
+    "Ejecutando comando gula" : {
 
     },
     "Eliminar" : {
@@ -106,22 +139,40 @@
     "Esta semana" : {
 
     },
-    "Flutter" : {
+    "Esto puede tardar unos minutos" : {
+
+    },
+    "Finalizando..." : {
+
+    },
+    "Generando código..." : {
+
+    },
+    "Generando Template..." : {
+
+    },
+    "Generar" : {
 
     },
     "GULA" : {
 
     },
-    "Gula - %@" : {
-
-    },
-    "Herramientas" : {
+    "Gula CLI ha sido actualizado exitosamente" : {
 
     },
     "Homebrew es requerido para instalar Gula CLI" : {
 
     },
-    "Ingresa tu clave de API" : {
+    "Información de Módulos" : {
+
+    },
+    "Inicia un proyecto desde cero con arquetipos optimizados" : {
+
+    },
+    "Instalado" : {
+
+    },
+    "Instalando módulo..." : {
 
     },
     "Instalando..." : {
@@ -136,22 +187,19 @@
     "Intentar de nuevo" : {
 
     },
-    "iOS" : {
-
-    },
-    "La clave de API es necesaria para descargar los arquetipos de proyecto desde los repositorios privados." : {
-
-    },
     "Limpiar" : {
 
     },
     "Los elementos que marques como favoritos aparecerán aquí" : {
 
     },
+    "Los proyectos que abras aparecerán aquí" : {
+
+    },
     "Más info" : {
 
     },
-    "Mi Proyecto" : {
+    "Módulos Disponibles" : {
 
     },
     "Necesitamos verificar que las dependencias estén instaladas" : {
@@ -160,34 +208,58 @@
     "No hay favoritos" : {
 
     },
-    "Nombre del Proyecto" : {
+    "No hay proyectos recientes" : {
 
     },
     "O instalar manualmente:" : {
 
     },
+    "Obteniendo la lista de módulos disponibles desde gula CLI. Por favor espera..." : {
+
+    },
     "OK" : {
 
     },
-    "Principal" : {
+    "Para ver la lista de módulos disponibles, ingresa tu clave API y ejecuta el botón 'Cargar Módulos'. Los módulos se obtendrán directamente del script gula." : {
 
     },
-    "PROYECTO" : {
+    "Por favor, espera mientras se genera el template" : {
+
+    },
+    "Preparando archivos..." : {
 
     },
     "Proyectos Recientes" : {
 
     },
-    "Python" : {
+    "Reemplazar módulos existentes automáticamente" : {
 
     },
     "Restablecer" : {
 
     },
+    "Resultado de Generación" : {
+
+    },
+    "Resultado de Instalación" : {
+
+    },
     "Saltar verificación (Debug)" : {
 
     },
+    "Seleccionar" : {
+
+    },
+    "Stack de Python" : {
+
+    },
     "Tema" : {
+
+    },
+    "Templates Disponibles" : {
+
+    },
+    "Tipo de Arquitectura" : {
 
     },
     "Tipo de Proyecto" : {
@@ -199,19 +271,31 @@
     "Tu espacio de trabajo personal" : {
 
     },
+    "Tu versión de Gula CLI (%@) necesita ser actualizada" : {
+
+    },
     "Ubicación" : {
 
     },
-    "Usar" : {
+    "Usa las herramientas de Gula para acelerar tu desarrollo con módulos prediseñados y templates automáticos." : {
 
     },
-    "Ver estructura" : {
+    "Usar" : {
 
     },
     "Verificando dependencias..." : {
 
     },
     "Verificar de nuevo" : {
+
+    },
+    "Versión actual: %@" : {
+
+    },
+    "Volver a Proyectos" : {
+
+    },
+    "y más..." : {
 
     }
   },
