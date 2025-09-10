@@ -5,17 +5,7 @@ import Foundation
 // Import domain entities and services
 // Note: These would normally be imported from separate modules
 
-// Extension to add accent colors to ProjectType
-extension ProjectType {
-    var accentColor: Color {
-        switch self {
-        case .android: return .green
-        case .ios: return .blue
-        case .flutter: return .cyan
-        case .python: return .orange
-        }
-    }
-}
+
 
 // Note: ProjectManager is imported from Services layer
 
@@ -34,7 +24,7 @@ struct MainContentView: View {
             GulaSidebarView(selection: $selectedAction, project: project, onBack: onBack)
         } detail: {
             GulaDashboardDetailView(
-                selectedAction: selectedAction ?? .overview,
+                selectedAction: $selectedAction,
                 project: project,
                 projectManager: projectManager,
                 showingError: $showingError,
@@ -385,7 +375,7 @@ struct SidebarItem: View {
 }
 
 struct GulaDashboardDetailView: View {
-    let selectedAction: GulaDashboardAction
+    @Binding var selectedAction: GulaDashboardAction?
     let project: Project
     @ObservedObject var projectManager: ProjectManager
     @Binding var showingError: Bool
@@ -396,7 +386,6 @@ struct GulaDashboardDetailView: View {
     @State private var commandOutput: String = ""
     @State private var availableModules: [Module] = []
     @State private var selectedModules: Set<Module> = []
-    @State private var isLoadingModules = false
     
     var body: some View {
         ZStack {
@@ -409,27 +398,17 @@ struct GulaDashboardDetailView: View {
                 .ignoresSafeArea()
             #endif
             
-            if isLoading {
-                VStack(spacing: 16) {
-                    ProgressView()
-                        .scaleEffect(1.2)
-                    Text("Ejecutando comando gula...")
-                        .font(.headline)
-                        .foregroundColor(.secondary)
-                }
-            } else {
-                contentView
-            }
+            contentView
         }
-        .navigationTitle(selectedAction.title)
+        .navigationTitle((selectedAction ?? .overview).title)
         .frame(minWidth: 700, minHeight: 500)
     }
     
     @ViewBuilder
     private var contentView: some View {
-        switch selectedAction {
+        switch selectedAction ?? .overview {
         case .overview:
-            ProjectOverviewView(project: project)
+            ProjectOverviewView(project: project, selectedAction: $selectedAction)
         case .modules:
             ModuleManagerView(
                 project: project,
@@ -504,6 +483,7 @@ enum GulaDashboardAction: String, CaseIterable, Identifiable, Hashable {
 
 struct ProjectOverviewView: View {
     let project: Project
+    @Binding var selectedAction: GulaDashboardAction?
     
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
@@ -605,7 +585,9 @@ struct ProjectOverviewView: View {
                             icon: "list.bullet.rectangle",
                             color: .green,
                             gradient: [.green, .mint]
-                        )
+                        ) {
+                            selectedAction = .modules
+                        }
                         
                         QuickActionCard(
                             title: "Instalar Módulo",
@@ -613,7 +595,9 @@ struct ProjectOverviewView: View {
                             icon: "square.and.arrow.down",
                             color: .orange,
                             gradient: [.orange, .yellow]
-                        )
+                        ) {
+                            selectedAction = .modules
+                        }
                         
                         QuickActionCard(
                             title: "Generar Template",
@@ -621,7 +605,9 @@ struct ProjectOverviewView: View {
                             icon: "doc.badge.plus",
                             color: .purple,
                             gradient: [.purple, .pink]
-                        )
+                        ) {
+                            selectedAction = .generateTemplate
+                        }
                     }
                 }
                 
@@ -640,40 +626,43 @@ struct QuickActionCard: View {
     let icon: String
     let color: Color
     let gradient: [Color]
+    let action: () -> Void
     @State private var isHovered = false
     
     var body: some View {
-        VStack(spacing: 16) {
-            // Icon with gradient background
-            ZStack {
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: gradient.map { $0.opacity(isHovered ? 0.8 : 0.6) },
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
+        Button(action: action) {
+            VStack(spacing: 16) {
+                // Icon with gradient background
+                ZStack {
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: gradient.map { $0.opacity(isHovered ? 0.8 : 0.6) },
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
                         )
-                    )
-                    .frame(width: 48, height: 48)
-                    .shadow(color: color.opacity(0.3), radius: isHovered ? 8 : 4, x: 0, y: 2)
+                        .frame(width: 48, height: 48)
+                        .shadow(color: color.opacity(0.3), radius: isHovered ? 8 : 4, x: 0, y: 2)
+                    
+                    Image(systemName: icon)
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundColor(.white)
+                }
                 
-                Image(systemName: icon)
-                    .font(.system(size: 20, weight: .semibold))
-                    .foregroundColor(.white)
-            }
-            
-            VStack(spacing: 8) {
-                Text(title)
-                    .font(.system(size: 16, weight: .bold, design: .rounded))
-                    .foregroundColor(.primary)
-                    .multilineTextAlignment(.center)
-                
-                Text(description)
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(.secondary)
-                    .multilineTextAlignment(.center)
-                    .lineLimit(2)
-                    .fixedSize(horizontal: false, vertical: true)
+                VStack(spacing: 8) {
+                    Text(title)
+                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .foregroundColor(.primary)
+                        .multilineTextAlignment(.center)
+                    
+                    Text(description)
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
             }
         }
         .frame(height: 140)
@@ -695,6 +684,8 @@ struct QuickActionCard: View {
         .shadow(color: .black.opacity(0.06), radius: isHovered ? 12 : 6, x: 0, y: isHovered ? 6 : 3)
         .shadow(color: color.opacity(0.1), radius: isHovered ? 8 : 0, x: 0, y: 2)
         .scaleEffect(isHovered ? 1.05 : 1.0)
+        .contentShape(Rectangle())
+        .buttonStyle(PlainButtonStyle())
         .onHover { hovering in
             withAnimation(.easeInOut(duration: 0.2)) {
                 isHovered = hovering
@@ -723,8 +714,18 @@ struct ModuleManagerView: View {
     @State private var moduleListOutput: String = ""
     @State private var availableModules: [Module] = []
     @State private var selectedModules: Set<Module> = []
+    @State private var installingModules: Set<UUID> = []
+    @State private var currentlyInstallingModule: String? = nil
+    @State private var autoReplaceModules: Bool = true
     @State private var commandOutput: String = ""
     @State private var showingModuleList = false
+    @State private var isLoadingModules = false
+    @State private var rotationAngle: Double = 0
+    @State private var pulseScale: CGFloat = 1.0
+    @State private var shimmerOffset: CGFloat = -1.0
+    @State private var barAnimationTimer: Timer?
+    @State private var barScales: [CGFloat] = [0.3, 0.7, 1.0, 0.5, 0.8]
+    @StateObject private var moduleDataSource = ModuleDataSource()
     
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
@@ -765,6 +766,11 @@ struct ModuleManagerView: View {
                             }
                         )
                         
+                        // Auto Replace Option
+                        Toggle("Reemplazar módulos existentes automáticamente", isOn: $autoReplaceModules)
+                            .font(.system(size: 14, weight: .medium))
+                            .padding(.vertical, 4)
+                        
                         // Professional Action Buttons
                         HStack(spacing: 20) {
                             ProfessionalButton(
@@ -772,10 +778,12 @@ struct ModuleManagerView: View {
                                 icon: "magnifyingglass.circle.fill",
                                 gradientColors: [.green, .mint],
                                 style: .primary,
-                                isDisabled: apiKey.isEmpty
+                                isDisabled: false
                             ) {
-                                Task {
-                                    await loadModules()
+                                if !isLoadingModules {
+                                    Task {
+                                        await loadModules()
+                                    }
                                 }
                             }
                             
@@ -795,8 +803,203 @@ struct ModuleManagerView: View {
                         }
                     }
                 }
+                .onAppear {
+                    // No load modules automatically - wait for script execution
+                }
+                .onChange(of: isLoadingModules) { newValue in
+                    if newValue {
+                        startLoadingAnimations()
+                    } else {
+                        stopLoadingAnimations()
+                    }
+                }
+                .onDisappear {
+                    stopLoadingAnimations()
+                }
+
+                // Installation Progress Indicator
+                if let currentModule = currentlyInstallingModule {
+                    VStack(spacing: 16) {
+                        HStack(spacing: 12) {
+                            ProgressView()
+                                .scaleEffect(0.8)
+                                .progressViewStyle(CircularProgressViewStyle(tint: .orange))
+                            
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Instalando módulo...")
+                                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                                    .foregroundColor(.primary)
+                                
+                                Text(currentModule)
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(.orange)
+                            }
+                            
+                            Spacer()
+                        }
+                    }
+                    .padding(.horizontal, 32)
+                    .padding(.vertical, 20)
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(.ultraThinMaterial)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .strokeBorder(
+                                        LinearGradient(
+                                            colors: [Color.orange.opacity(0.3), Color.yellow.opacity(0.2)],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        ),
+                                        lineWidth: 1
+                                    )
+                            )
+                    )
+                    .shadow(
+                        color: Color.orange.opacity(0.1),
+                        radius: 8,
+                        x: 0,
+                        y: 4
+                    )
+                }
 
                 // Enhanced Modules List Section
+                if availableModules.isEmpty && !isLoading {
+                    VStack(spacing: 16) {
+                        HStack(spacing: 12) {
+                            ZStack {
+                                Circle()
+                                    .fill(LinearGradient(colors: [.blue, .cyan], startPoint: .topLeading, endPoint: .bottomTrailing))
+                                    .frame(width: 32, height: 32)
+                                
+                                Image(systemName: "info.circle.fill")
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .foregroundColor(.white)
+                            }
+                            
+                            Text("Información de Módulos")
+                                .font(.system(size: 18, weight: .bold, design: .rounded))
+                                .foregroundColor(.primary)
+                            
+                            Spacer()
+                        }
+                        
+                        Text("Para ver la lista de módulos disponibles, ingresa tu clave API y ejecuta el botón 'Cargar Módulos'. Los módulos se obtendrán directamente del script gula.")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.leading)
+                            .lineLimit(nil)
+                    }
+                    .padding(.horizontal, 32)
+                    .padding(.vertical, 24)
+                    .background(
+                        RoundedRectangle(cornerRadius: 24)
+                            .fill(.ultraThinMaterial)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 24)
+                                    .strokeBorder(
+                                        LinearGradient(
+                                            colors: [Color.blue.opacity(0.15), Color.cyan.opacity(0.1)],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        ),
+                                        lineWidth: 1.5
+                                    )
+                            )
+                            .shadow(color: .black.opacity(0.06), radius: 12, x: 0, y: 4)
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 24))
+                }
+                
+                // Loading State for Modules
+                if isLoadingModules {
+                    VStack(spacing: 24) {
+                        // Animated header with spinning icon
+                        HStack(spacing: 16) {
+                            ZStack {
+                                Circle()
+                                    .fill(LinearGradient(colors: [.orange, .yellow], startPoint: .topLeading, endPoint: .bottomTrailing))
+                                    .frame(width: 40, height: 40)
+                                    .scaleEffect(pulseScale)
+                                
+                                Image(systemName: "arrow.triangle.2.circlepath")
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .foregroundColor(.white)
+                                    .rotationEffect(.degrees(rotationAngle))
+                            }
+                            
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Cargando Módulos...")
+                                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                                    .foregroundColor(.primary)
+                                
+                                Text("Conectando con gula CLI")
+                                    .font(.system(size: 13, weight: .medium))
+                                    .foregroundColor(.secondary)
+                            }
+                            
+                            Spacer()
+                        }
+                        
+                        // Animated progress description
+                        Text("Obteniendo la lista de módulos disponibles desde gula CLI. Por favor espera...")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.center)
+                            .opacity(pulseScale > 1.05 ? 0.8 : 1.0)
+                        
+                        // Enhanced loading animation with pulsing dots
+                        HStack(spacing: 12) {
+                            ForEach(0..<5) { index in
+                                RoundedRectangle(cornerRadius: 2)
+                                    .fill(LinearGradient(colors: [.orange, .yellow], startPoint: .leading, endPoint: .trailing))
+                                    .frame(width: 6, height: 20)
+                                    .scaleEffect(y: index < barScales.count ? barScales[index] : 0.5)
+                                    .animation(.easeInOut(duration: 0.6), value: barScales)
+                            }
+                        }
+                        .padding(.top, 12)
+                        
+                        // Shimmer effect
+                        Rectangle()
+                            .fill(
+                                LinearGradient(
+                                    colors: [
+                                        .clear,
+                                        .orange.opacity(0.2),
+                                        .yellow.opacity(0.3),
+                                        .orange.opacity(0.2),
+                                        .clear
+                                    ],
+                                    startPoint: UnitPoint(x: shimmerOffset, y: 0.5),
+                                    endPoint: UnitPoint(x: shimmerOffset + 0.3, y: 0.5)
+                                )
+                            )
+                            .frame(height: 2)
+                            .clipShape(Capsule())
+                            .opacity(1.0)
+                    }
+                    .padding(.horizontal, 32)
+                    .padding(.vertical, 24)
+                    .background(
+                        RoundedRectangle(cornerRadius: 24)
+                            .fill(.ultraThinMaterial)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 24)
+                                    .strokeBorder(
+                                        LinearGradient(
+                                            colors: [Color.orange.opacity(0.15), Color.yellow.opacity(0.1)],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        ),
+                                        lineWidth: 1.5
+                                    )
+                            )
+                            .shadow(color: .black.opacity(0.06), radius: 12, x: 0, y: 4)
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 24))
+                }
+                
                 if !availableModules.isEmpty {
                     VStack(alignment: .leading, spacing: 24) {
                         // Section Header with enhanced styling
@@ -824,13 +1027,10 @@ struct ModuleManagerView: View {
                             }
                         }
                         
-                        // Enhanced Modules Grid
-                        LazyVGrid(columns: [
-                            GridItem(.flexible(), spacing: 16),
-                            GridItem(.flexible(), spacing: 16)
-                        ], spacing: 16) {
+                        // Enhanced Modules List
+                        LazyVStack(spacing: 6) {
                             ForEach(availableModules) { module in
-                                EnhancedModuleCard(
+                                ModuleListRow(
                                     module: module,
                                     isSelected: selectedModules.contains(module)
                                 ) {
@@ -915,30 +1115,51 @@ struct ModuleManagerView: View {
                     .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
                 
+                
                 Spacer(minLength: 20)
             }
             .padding(.vertical, 24)
+            .padding(.horizontal, 32)
         }
         .scrollBounceBehavior(.basedOnSize)
     }
     
+    
     private func loadModules() async {
-        isLoading = true
+        isLoadingModules = true
         selectedModules.removeAll()
         
         do {
+            print("Loading modules with API key: \(apiKey)")
+            print("Branch: \(branch.isEmpty ? "default" : branch)")
+            
             let result = try await projectManager.listModules(
                 apiKey: apiKey,
                 branch: branch.isEmpty ? nil : branch
             )
+            
+            print("Module list output: \(result)")
             moduleListOutput = result
+            
+            // Debug: print each line to see the exact format
+            let lines = result.components(separatedBy: .newlines)
+            for (index, line) in lines.enumerated() {
+                let trimmed = line.trimmingCharacters(in: .whitespaces)
+                if trimmed.contains("Lista de módulos") || trimmed.hasPrefix("---") || (!trimmed.isEmpty && index > 20 && index < 40) {
+                    print("Line \(index): '\(trimmed)'")
+                }
+            }
+            
             parseModulesFromOutput(result)
+            
+            print("Parsed \(availableModules.count) modules")
         } catch {
+            print("Error loading modules: \(error)")
             errorMessage = error.localizedDescription
             showingError = true
         }
         
-        isLoading = false
+        isLoadingModules = false
     }
     
     private func parseModulesFromOutput(_ output: String) {
@@ -946,6 +1167,9 @@ struct ModuleManagerView: View {
     }
     
     private func toggleModuleSelection(_ module: Module) {
+        // Only allow selection if module is not installed and not currently installing
+        guard module.installationStatus == .notInstalled else { return }
+        
         if selectedModules.contains(module) {
             selectedModules.remove(module)
         } else {
@@ -954,10 +1178,12 @@ struct ModuleManagerView: View {
     }
     
     private func toggleSelectAll() {
-        if selectedModules.count == availableModules.count {
+        let selectableModules = availableModules.filter { $0.installationStatus == .notInstalled }
+        
+        if selectedModules.count == selectableModules.count {
             selectedModules.removeAll()
         } else {
-            selectedModules = Set(availableModules)
+            selectedModules = Set(selectableModules)
         }
     }
     
@@ -966,22 +1192,420 @@ struct ModuleManagerView: View {
         
         isLoading = true
         var results: [String] = []
+        let totalModules = selectedModules.count
+        var processedCount = 0
         
         for module in selectedModules {
-            do {
-                let result = try await projectManager.installModule(
-                    module.name,
-                    apiKey: apiKey,
-                    branch: branch.isEmpty ? nil : branch
-                )
-                results.append("✅ \(module.name): \(result)")
-            } catch {
-                results.append("❌ \(module.name): \(error.localizedDescription)")
+            processedCount += 1
+            
+            // Update module status to installing and set current installing module
+            await MainActor.run {
+                if let index = availableModules.firstIndex(where: { $0.id == module.id }) {
+                    availableModules[index].installationStatus = .installing
+                }
+                installingModules.insert(module.id)
+                let autoReplaceStatus = autoReplaceModules ? " (reemplazo automático)" : ""
+                currentlyInstallingModule = "\(module.displayName) (\(processedCount)/\(totalModules))\(autoReplaceStatus)"
             }
+            
+            do {
+                // Add timeout wrapper for installation
+                let result = try await withTimeout(seconds: 300) { // 5 minute timeout
+                    try await projectManager.installModule(
+                        module.name,
+                        apiKey: apiKey,
+                        branch: branch.isEmpty ? nil : branch,
+                        autoReplace: autoReplaceModules
+                    )
+                }
+                
+                // Update module status to installed
+                await MainActor.run {
+                    if let index = availableModules.firstIndex(where: { $0.id == module.id }) {
+                        availableModules[index].installationStatus = .installed
+                    }
+                    installingModules.remove(module.id)
+                }
+                
+                results.append("✅ \(module.displayName): Instalado correctamente")
+                print("✅ Successfully installed module: \(module.displayName)")
+                
+            } catch {
+                // Update module status to failed
+                await MainActor.run {
+                    if let index = availableModules.firstIndex(where: { $0.id == module.id }) {
+                        let errorMessage = error.localizedDescription.contains("timeout") ? 
+                                         "Timeout - La instalación tomó demasiado tiempo" : 
+                                         error.localizedDescription
+                        availableModules[index].installationStatus = .failed(errorMessage)
+                    }
+                    installingModules.remove(module.id)
+                }
+                
+                let errorMessage = error.localizedDescription.contains("timeout") ? 
+                                 "Timeout - La instalación tomó demasiado tiempo" : 
+                                 error.localizedDescription
+                results.append("❌ \(module.displayName): \(errorMessage)")
+                print("❌ Failed to install module: \(module.displayName), error: \(error)")
+            }
+            
+            // Small delay between installations to prevent overwhelming the system
+            try? await Task.sleep(nanoseconds: 1_000_000_000) // 1 second
+        }
+        
+        // Clear selection and current installing module after installation attempt
+        await MainActor.run {
+            selectedModules.removeAll()
+            currentlyInstallingModule = nil
         }
         
         commandOutput = results.joined(separator: "\n\n")
         isLoading = false
+        
+        print("🏁 Installation process completed. Results:")
+        print(commandOutput)
+    }
+    
+    // Helper function to add timeout to async operations
+    private func withTimeout<T>(seconds: TimeInterval, operation: @escaping () async throws -> T) async throws -> T {
+        return try await withThrowingTaskGroup(of: T.self) { group in
+            group.addTask {
+                try await operation()
+            }
+            
+            group.addTask {
+                try await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000))
+                throw TimeoutError()
+            }
+            
+            guard let result = try await group.next() else {
+                throw TimeoutError()
+            }
+            
+            group.cancelAll()
+            return result
+        }
+    }
+    
+    struct TimeoutError: Error {
+        var localizedDescription: String {
+            return "timeout"
+        }
+    }
+    
+    // MARK: - Animation Functions
+    
+    private func startLoadingAnimations() {
+        withAnimation(.linear(duration: 2.0).repeatForever(autoreverses: false)) {
+            rotationAngle = 360
+        }
+        
+        withAnimation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true)) {
+            pulseScale = 1.1
+        }
+        
+        withAnimation(.linear(duration: 1.5).repeatForever(autoreverses: false)) {
+            shimmerOffset = 1.0
+        }
+        
+        // Start bar animation timer
+        startBarAnimation()
+    }
+    
+    private func stopLoadingAnimations() {
+        withAnimation(.easeOut(duration: 0.3)) {
+            rotationAngle = 0
+            pulseScale = 1.0
+            shimmerOffset = -1.0
+        }
+        
+        // Stop bar animation timer
+        stopBarAnimation()
+    }
+    
+    private func startBarAnimation() {
+        barAnimationTimer = Timer.scheduledTimer(withTimeInterval: 0.15, repeats: true) { _ in
+            withAnimation(.easeInOut(duration: 0.4)) {
+                barScales = barScales.map { _ in
+                    CGFloat.random(in: 0.3...1.5)
+                }
+            }
+        }
+    }
+    
+    private func stopBarAnimation() {
+        barAnimationTimer?.invalidate()
+        barAnimationTimer = nil
+        withAnimation(.easeOut(duration: 0.3)) {
+            barScales = [0.3, 0.7, 1.0, 0.5, 0.8]
+        }
+    }
+    
+    // MARK: - Template Functions
+    
+}
+
+struct ModuleListRow: View {
+    let module: Module
+    let isSelected: Bool
+    let onTap: () -> Void
+    @State private var isHovered = false
+    
+    var body: some View {
+        Button(action: onTap) {
+            HStack(spacing: 12) {
+                // Module Icon
+                ZStack {
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    isSelected ? Color.blue : Color.secondary.opacity(0.6),
+                                    isSelected ? Color.cyan : Color.secondary.opacity(0.4)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 32, height: 32)
+                        .shadow(color: (isSelected ? Color.blue : Color.secondary).opacity(0.2), radius: 2, x: 0, y: 1)
+                    
+                    Image(systemName: module.icon)
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(.white)
+                }
+                
+                // Module Info
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(module.displayName)
+                        .font(.system(size: 14, weight: .bold, design: .rounded))
+                        .foregroundColor(.primary)
+                        .lineLimit(1)
+                    
+                    Text(module.description)
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.secondary)
+                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                
+                Spacer()
+                
+                // Category Badge
+                Text(module.category.rawValue)
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundColor(isSelected ? .white : .secondary)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(
+                        Capsule()
+                            .fill(isSelected ? Color.blue.opacity(0.3) : Color.secondary.opacity(0.1))
+                    )
+                
+                // Installation Status Indicator
+                installationStatusView
+                
+                // Selection Indicator
+                if module.installationStatus == .notInstalled {
+                    ZStack {
+                        Circle()
+                            .fill(
+                                isSelected 
+                                    ? LinearGradient(colors: [.blue, .cyan], startPoint: .topLeading, endPoint: .bottomTrailing)
+                                    : LinearGradient(colors: [Color.secondary.opacity(0.1)], startPoint: .topLeading, endPoint: .bottomTrailing)
+                            )
+                            .overlay(
+                                Circle()
+                                    .strokeBorder(
+                                        isSelected ? Color.clear : Color.secondary.opacity(0.3),
+                                        lineWidth: 1
+                                    )
+                            )
+                            .frame(width: 20, height: 20)
+                        
+                        if isSelected {
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundColor(.white)
+                        }
+                    }
+                    .animation(.easeInOut(duration: 0.2), value: isSelected)
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(.regularMaterial)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(
+                        isSelected 
+                            ? LinearGradient(colors: [.blue.opacity(0.6), .cyan.opacity(0.4)], startPoint: .topLeading, endPoint: .bottomTrailing)
+                            : LinearGradient(colors: [Color.secondary.opacity(isHovered ? 0.3 : 0.15)], startPoint: .topLeading, endPoint: .bottomTrailing),
+                        lineWidth: isSelected ? 2 : 1
+                    )
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .shadow(
+                color: isSelected ? Color.blue.opacity(0.15) : Color.black.opacity(isHovered ? 0.04 : 0.02),
+                radius: isSelected ? 4 : (isHovered ? 3 : 2),
+                x: 0,
+                y: isSelected ? 2 : 1
+            )
+            .scaleEffect(isHovered ? 1.005 : 1.0)
+            .animation(.easeInOut(duration: 0.2), value: isHovered)
+            .animation(.easeInOut(duration: 0.15), value: isSelected)
+        }
+        .buttonStyle(.plain)
+        .onHover { hovering in
+            withAnimation(.easeInOut(duration: 0.2)) {
+                isHovered = hovering
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private var installationStatusView: some View {
+        switch module.installationStatus {
+        case .notInstalled:
+            EmptyView()
+        case .installing:
+            HStack(spacing: 6) {
+                ProgressView()
+                    .scaleEffect(0.7)
+                    .progressViewStyle(CircularProgressViewStyle(tint: .blue))
+                Text("Instalando...")
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundColor(.blue)
+            }
+        case .installed:
+            HStack(spacing: 6) {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(.green)
+                Text("Instalado")
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundColor(.green)
+            }
+        case .failed(let error):
+            HStack(spacing: 6) {
+                Image(systemName: "xmark.circle.fill")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(.red)
+                Text("Error")
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundColor(.red)
+            }
+            .help(error)
+        }
+    }
+}
+
+struct CompactModuleCard: View {
+    let module: Module
+    let isSelected: Bool
+    let onTap: () -> Void
+    @State private var isHovered = false
+    
+    var body: some View {
+        Button(action: onTap) {
+            VStack(spacing: 8) {
+                // Module Icon
+                ZStack {
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    isSelected ? Color.blue : Color.secondary.opacity(0.6),
+                                    isSelected ? Color.cyan : Color.secondary.opacity(0.4)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 28, height: 28)
+                        .shadow(color: (isSelected ? Color.blue : Color.secondary).opacity(0.2), radius: 2, x: 0, y: 1)
+                    
+                    Image(systemName: module.icon)
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(.white)
+                }
+                
+                // Module Info
+                VStack(spacing: 4) {
+                    Text(module.displayName)
+                        .font(.system(size: 11, weight: .bold, design: .rounded))
+                        .foregroundColor(.primary)
+                        .lineLimit(1)
+                        .multilineTextAlignment(.center)
+                    
+                    Text(module.description)
+                        .font(.system(size: 9, weight: .medium))
+                        .foregroundColor(.secondary)
+                        .lineLimit(2)
+                        .multilineTextAlignment(.center)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                
+                // Selection Indicator
+                ZStack {
+                    Circle()
+                        .fill(
+                            isSelected 
+                                ? LinearGradient(colors: [.blue, .cyan], startPoint: .topLeading, endPoint: .bottomTrailing)
+                                : LinearGradient(colors: [Color.secondary.opacity(0.1)], startPoint: .topLeading, endPoint: .bottomTrailing)
+                        )
+                        .overlay(
+                            Circle()
+                                .strokeBorder(
+                                    isSelected ? Color.clear : Color.secondary.opacity(0.3),
+                                    lineWidth: 0.5
+                                )
+                        )
+                        .frame(width: 16, height: 16)
+                    
+                    if isSelected {
+                        Image(systemName: "checkmark")
+                            .font(.system(size: 8, weight: .bold))
+                            .foregroundColor(.white)
+                    }
+                }
+                .animation(.easeInOut(duration: 0.2), value: isSelected)
+            }
+            .padding(12)
+            .frame(maxWidth: .infinity)
+            .frame(height: 100)
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(.regularMaterial)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .strokeBorder(
+                                isSelected 
+                                    ? LinearGradient(colors: [.blue.opacity(0.6), .cyan.opacity(0.4)], startPoint: .topLeading, endPoint: .bottomTrailing)
+                                    : LinearGradient(colors: [Color.secondary.opacity(isHovered ? 0.3 : 0.2)], startPoint: .topLeading, endPoint: .bottomTrailing),
+                                lineWidth: isSelected ? 1.5 : 0.5
+                            )
+                    )
+            )
+            .shadow(
+                color: isSelected ? Color.blue.opacity(0.15) : Color.black.opacity(isHovered ? 0.04 : 0.02),
+                radius: isSelected ? 4 : (isHovered ? 3 : 2),
+                x: 0,
+                y: isSelected ? 2 : 1
+            )
+            .scaleEffect(isHovered ? 1.01 : 1.0)
+            .animation(.easeInOut(duration: 0.2), value: isHovered)
+            .animation(.easeInOut(duration: 0.15), value: isSelected)
+        }
+        .buttonStyle(.plain)
+        .onHover { hovering in
+            withAnimation(.easeInOut(duration: 0.2)) {
+                isHovered = hovering
+            }
+        }
     }
 }
 
@@ -1134,6 +1758,136 @@ struct EnhancedModuleCard: View {
     }
 }
 
+struct TemplateCard: View {
+    let template: Template
+    let isSelected: Bool
+    let selectedType: TemplateType
+    let onSelect: () -> Void
+    let onGenerate: () -> Void
+    @State private var isHovered = false
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            // Template Header
+            HStack(spacing: 12) {
+                // Template Icon
+                ZStack {
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    isSelected ? Color.purple : Color.secondary.opacity(0.6),
+                                    isSelected ? Color.pink : Color.secondary.opacity(0.4)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 48, height: 48)
+                        .shadow(color: (isSelected ? Color.purple : Color.secondary).opacity(0.3), radius: 6, x: 0, y: 3)
+                    
+                    Image(systemName: template.icon)
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundColor(.white)
+                }
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(template.displayName)
+                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .foregroundColor(.primary)
+                        .lineLimit(1)
+                    
+                    Text(template.category.rawValue)
+                        .font(.caption)
+                        .foregroundColor(.purple)
+                        .fontWeight(.medium)
+                }
+                
+                Spacer()
+            }
+            
+            // Template Description
+            Text(template.description)
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
+            
+            // Supported Types
+            HStack {
+                ForEach(template.supportedTypes.prefix(2), id: \.self) { type in
+                    HStack(spacing: 4) {
+                        Image(systemName: type.icon)
+                            .font(.caption2)
+                        Text(type.displayName)
+                            .font(.caption2)
+                    }
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(type == selectedType ? Color.purple.opacity(0.2) : Color.secondary.opacity(0.1))
+                    )
+                    .foregroundColor(type == selectedType ? .purple : .secondary)
+                }
+                
+                Spacer()
+            }
+            
+            // Action Buttons
+            HStack(spacing: 8) {
+                Button("Seleccionar") {
+                    onSelect()
+                }
+                .font(.caption)
+                .foregroundColor(isSelected ? .white : .purple)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(isSelected ? LinearGradient(colors: [.purple, .pink], startPoint: .leading, endPoint: .trailing) : LinearGradient(colors: [Color.purple.opacity(0.1)], startPoint: .leading, endPoint: .trailing))
+                        .stroke(Color.purple, lineWidth: isSelected ? 0 : 1)
+                )
+                
+                Button("Generar") {
+                    onGenerate()
+                }
+                .font(.caption)
+                .fontWeight(.medium)
+                .foregroundColor(.white)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(LinearGradient(colors: [.purple, .pink], startPoint: .leading, endPoint: .trailing))
+                )
+                
+                Spacer()
+            }
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(.regularMaterial)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(
+                            isSelected 
+                            ? LinearGradient(colors: [.purple, .pink], startPoint: .topLeading, endPoint: .bottomTrailing)
+                            : LinearGradient(colors: [Color.secondary.opacity(0.2)], startPoint: .topLeading, endPoint: .bottomTrailing),
+                            lineWidth: isSelected ? 2 : 1
+                        )
+                )
+        )
+        .scaleEffect(isHovered ? 1.02 : 1.0)
+        .animation(.easeInOut(duration: 0.2), value: isHovered)
+        .onHover { hovering in
+            isHovered = hovering
+        }
+    }
+}
+
 // MARK: - Professional Form Components
 
 struct ProfessionalFormContainer<Content: View>: View {
@@ -1222,202 +1976,6 @@ struct ProfessionalFormContainer<Content: View>: View {
     }
 }
 
-struct ProfessionalTextField: View {
-    let title: String
-    let placeholder: String
-    let icon: String
-    @Binding var text: String
-    let isSecure: Bool
-    let isOptional: Bool
-    let validation: ((String) -> ValidationResult)?
-    
-    @State private var isFocused = false
-    @State private var isHovered = false
-    
-    struct ValidationResult {
-        let isValid: Bool
-        let message: String?
-    }
-    
-    init(
-        title: String,
-        placeholder: String,
-        icon: String,
-        text: Binding<String>,
-        isSecure: Bool = false,
-        isOptional: Bool = false,
-        validation: ((String) -> ValidationResult)? = nil
-    ) {
-        self.title = title
-        self.placeholder = placeholder
-        self.icon = icon
-        self._text = text
-        self.isSecure = isSecure
-        self.isOptional = isOptional
-        self.validation = validation
-    }
-    
-    private var validationResult: ValidationResult? {
-        return validation?(text)
-    }
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            // Label with enhanced styling
-            HStack(spacing: 8) {
-                Text(title)
-                    .font(.system(size: 15, weight: .semibold, design: .rounded))
-                    .foregroundColor(.primary)
-                
-                if isOptional {
-                    Text("(opcional)")
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundColor(.secondary.opacity(0.8))
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 2)
-                        .background(
-                            Capsule()
-                                .fill(Color.secondary.opacity(0.1))
-                        )
-                }
-                
-                Spacer()
-            }
-            
-            // Enhanced text field container
-            HStack(spacing: 14) {
-                // Icon with improved styling
-                ZStack {
-                    Circle()
-                        .fill(iconBackgroundColor)
-                        .frame(width: 32, height: 32)
-                    
-                    Image(systemName: icon)
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(iconForegroundColor)
-                }
-                
-                Group {
-                    if isSecure {
-                        SecureField(placeholder, text: $text)
-                            .font(.system(size: 15, weight: .medium, design: .monospaced))
-                            .textFieldStyle(.plain)
-                    } else {
-                        TextField(placeholder, text: $text)
-                            .font(.system(size: 15, weight: .medium))
-                            .textFieldStyle(.plain)
-                    }
-                }
-                .onFocus { focused in
-                    withAnimation(.easeInOut(duration: 0.2)) {
-                        isFocused = focused
-                    }
-                }
-            }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 16)
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(backgroundMaterial)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .strokeBorder(borderColor, lineWidth: borderWidth)
-            )
-            .shadow(color: shadowColor, radius: shadowRadius, x: 0, y: shadowOffset)
-            .scaleEffect(isHovered ? 1.02 : 1.0)
-            .onHover { hovering in
-                withAnimation(.easeInOut(duration: 0.15)) {
-                    isHovered = hovering
-                }
-            }
-            .animation(.easeInOut(duration: 0.2), value: isFocused)
-            .animation(.easeInOut(duration: 0.2), value: text.isEmpty)
-            
-            // Enhanced validation message
-            if let result = validationResult, !text.isEmpty, !result.isValid, let message = result.message {
-                HStack(spacing: 8) {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundColor(.red.opacity(0.8))
-                    
-                    Text(message)
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundColor(.red.opacity(0.9))
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                .padding(.leading, 8)
-                .transition(.opacity.combined(with: .move(edge: .top)))
-            }
-        }
-    }
-    
-    private var backgroundMaterial: Material {
-        if isFocused {
-            return .regular
-        } else if isHovered {
-            return .regularMaterial
-        } else {
-            return .regularMaterial
-        }
-    }
-    
-    private var iconBackgroundColor: Color {
-        if isFocused {
-            return validationResult?.isValid == false ? Color.red.opacity(0.1) : Color.green.opacity(0.1)
-        } else {
-            return Color.secondary.opacity(0.08)
-        }
-    }
-    
-    private var iconForegroundColor: Color {
-        if isFocused {
-            return validationResult?.isValid == false ? .red : .green
-        } else {
-            return .secondary
-        }
-    }
-    
-    private var borderColor: Color {
-        if isFocused {
-            if let result = validationResult, !text.isEmpty {
-                return result.isValid ? Color.green.opacity(0.6) : Color.red.opacity(0.6)
-            } else {
-                return Color.blue.opacity(0.6)
-            }
-        } else if isHovered {
-            return Color.secondary.opacity(0.4)
-        } else if text.isEmpty {
-            return Color.secondary.opacity(0.25)
-        } else {
-            return Color.green.opacity(0.4)
-        }
-    }
-    
-    private var borderWidth: CGFloat {
-        isFocused ? 2 : (text.isEmpty ? 1 : 1.5)
-    }
-    
-    private var shadowColor: Color {
-        if isFocused {
-            if let result = validationResult, !text.isEmpty {
-                return result.isValid ? Color.green.opacity(0.2) : Color.red.opacity(0.2)
-            } else {
-                return Color.blue.opacity(0.2)
-            }
-        } else {
-            return Color.black.opacity(0.04)
-        }
-    }
-    
-    private var shadowRadius: CGFloat {
-        isFocused ? 8 : 3
-    }
-    
-    private var shadowOffset: CGFloat {
-        isFocused ? 3 : 1
-    }
-}
 
 struct ProfessionalButton: View {
     let title: String
@@ -1454,18 +2012,18 @@ struct ProfessionalButton: View {
     
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 10) {
+            HStack(spacing: 8) {
                 if let icon = icon {
                     Image(systemName: icon)
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(.system(size: 14, weight: .semibold))
                 }
                 
                 Text(title)
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.system(size: 14, weight: .semibold))
             }
             .foregroundColor(foregroundColor)
-            .padding(.horizontal, 24)
-            .padding(.vertical, 16)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
             .background(backgroundView)
             .shadow(color: shadowColor, radius: shadowRadius, x: 0, y: shadowOffset)
             .scaleEffect(isPressed ? 0.96 : (isHovered ? 1.02 : 1.0))
@@ -1495,7 +2053,7 @@ struct ProfessionalButton: View {
     private var backgroundView: some View {
         switch style {
         case .primary:
-            RoundedRectangle(cornerRadius: 12)
+            RoundedRectangle(cornerRadius: 8)
                 .fill(
                     LinearGradient(
                         colors: gradientColors.map { isHovered ? $0 : $0.opacity(0.9) },
@@ -1504,14 +2062,14 @@ struct ProfessionalButton: View {
                     )
                 )
         case .secondary:
-            RoundedRectangle(cornerRadius: 12)
+            RoundedRectangle(cornerRadius: 8)
                 .fill(.ultraThinMaterial)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 12)
+                    RoundedRectangle(cornerRadius: 8)
                         .strokeBorder(Color.secondary.opacity(0.3), lineWidth: 1)
                 )
         case .outline:
-            RoundedRectangle(cornerRadius: 12)
+            RoundedRectangle(cornerRadius: 8)
                 .strokeBorder(
                     LinearGradient(
                         colors: gradientColors,
@@ -1521,7 +2079,7 @@ struct ProfessionalButton: View {
                     lineWidth: 2
                 )
                 .background(
-                    RoundedRectangle(cornerRadius: 12)
+                    RoundedRectangle(cornerRadius: 8)
                         .fill(isHovered ? gradientColors.first?.opacity(0.05) ?? .clear : .clear)
                 )
         }
@@ -1628,7 +2186,7 @@ struct TemplateGeneratorView: View {
                         // Enhanced Template Name Input with validation
                         ProfessionalTextField(
                             title: "Nombre del Template",
-                            placeholder: "crud, model, controller, service",
+                            placeholder: "user, car, product ...",
                             icon: "doc.text.fill",
                             text: $templateName,
                             validation: { name in
@@ -1676,7 +2234,7 @@ struct TemplateGeneratorView: View {
                 }
                 
                 // Enhanced Output Section
-                if !commandOutput.isEmpty {
+                if !commandOutput.isEmpty || isLoading {
                     VStack(alignment: .leading, spacing: 20) {
                         HStack(spacing: 12) {
                             ZStack {
@@ -1688,12 +2246,18 @@ struct TemplateGeneratorView: View {
                                     ))
                                     .frame(width: 32, height: 32)
                                 
-                                Image(systemName: "checkmark.circle.fill")
-                                    .font(.system(size: 16, weight: .semibold))
-                                    .foregroundColor(.white)
+                                if isLoading {
+                                    ProgressView()
+                                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                        .scaleEffect(0.6)
+                                } else {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .font(.system(size: 16, weight: .semibold))
+                                        .foregroundColor(.white)
+                                }
                             }
                             
-                            Text("Resultado de Generación")
+                            Text(isLoading ? "Generando Template..." : "Resultado de Generación")
                                 .font(.system(size: 20, weight: .bold, design: .rounded))
                                 .foregroundColor(.primary)
                             
@@ -1701,38 +2265,101 @@ struct TemplateGeneratorView: View {
                         }
                         
                         ScrollView(.vertical, showsIndicators: true) {
-                            Text(commandOutput)
-                                .font(.system(size: 14, weight: .medium, design: .monospaced))
-                                .foregroundColor(.primary)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(24)
-                                .background(
+                            if isLoading {
+                                VStack(spacing: 24) {
+                                    // Animated generator icon
+                                    ZStack {
+                                        Circle()
+                                            .fill(LinearGradient(colors: [.purple, .pink], startPoint: .topLeading, endPoint: .bottomTrailing))
+                                            .frame(width: 60, height: 60)
+                                            .scaleEffect(isLoading ? 1.1 : 0.9)
+                                            .animation(Animation.easeInOut(duration: 1.2).repeatForever(autoreverses: true), value: isLoading)
+                                        
+                                        Image(systemName: "gearshape.2")
+                                            .font(.system(size: 24, weight: .semibold))
+                                            .foregroundColor(.white)
+                                            .rotationEffect(.degrees(isLoading ? 360 : 0))
+                                            .animation(Animation.linear(duration: 3.0).repeatForever(autoreverses: false), value: isLoading)
+                                    }
+                                    
+                                    VStack(spacing: 8) {
+                                        Text("Generando Template...")
+                                            .font(.system(size: 18, weight: .bold, design: .rounded))
+                                            .foregroundColor(.primary)
+                                        
+                                        Text("Ejecutando comando gula")
+                                            .font(.system(size: 14, weight: .medium))
+                                            .foregroundColor(.secondary)
+                                    }
+                                    
+                                    // Animated progress bars
+                                    VStack(spacing: 8) {
+                                        ForEach(0..<3) { index in
+                                            HStack {
+                                                Text(["Preparando archivos...", "Generando código...", "Finalizando..."][index])
+                                                    .font(.system(size: 12, weight: .medium))
+                                                    .foregroundColor(.secondary)
+                                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                                
+                                                Circle()
+                                                    .fill(LinearGradient(colors: [.purple, .pink], startPoint: .leading, endPoint: .trailing))
+                                                    .frame(width: 6, height: 6)
+                                                    .scaleEffect(isLoading ? 1.5 : 0.5)
+                                                    .opacity(isLoading ? 1.0 : 0.3)
+                                                    .animation(
+                                                        Animation.easeInOut(duration: 0.6)
+                                                            .repeatForever()
+                                                            .delay(Double(index) * 0.3),
+                                                        value: isLoading
+                                                    )
+                                            }
+                                        }
+                                    }
+                                    .padding(.top, 8)
+                                    
+                                    Text("Por favor, espera mientras se genera el template")
+                                        .font(.system(size: 13, weight: .regular))
+                                        .foregroundColor(.secondary.opacity(0.8))
+                                        .multilineTextAlignment(.center)
+                                        .opacity(isLoading ? 0.7 : 1.0)
+                                        .animation(Animation.easeInOut(duration: 2.0).repeatForever(autoreverses: true), value: isLoading)
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding(40)
+                            } else {
+                                Text(commandOutput)
+                                    .font(.system(size: 14, weight: .medium, design: .monospaced))
+                                    .foregroundColor(.primary)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .padding(24)
+                            }
+                        }
+                        .background(
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(.regularMaterial)
+                                .overlay(
                                     RoundedRectangle(cornerRadius: 16)
-                                        .fill(.regularMaterial)
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 16)
-                                                .strokeBorder(
-                                                    LinearGradient(
-                                                        colors: [.purple.opacity(0.3), .pink.opacity(0.2)],
-                                                        startPoint: .topLeading,
-                                                        endPoint: .bottomTrailing
-                                                    ),
-                                                    lineWidth: 1.5
-                                                )
+                                        .strokeBorder(
+                                            LinearGradient(
+                                                colors: [.purple.opacity(0.3), .pink.opacity(0.2)],
+                                                startPoint: .topLeading,
+                                                endPoint: .bottomTrailing
+                                            ),
+                                            lineWidth: 1.5
                                         )
                                 )
-                                .shadow(color: .purple.opacity(0.1), radius: 8, x: 0, y: 4)
-                        }
+                        )
+                        .shadow(color: .purple.opacity(0.1), radius: 8, x: 0, y: 4)
                         .frame(maxHeight: 350)
                         .scrollBounceBehavior(.basedOnSize)
                     }
-                    .padding(.horizontal, 32)
                     .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
                 
                 Spacer(minLength: 30)
             }
             .padding(.vertical, 32)
+            .padding(.horizontal, 32)
         }
         .scrollBounceBehavior(.basedOnSize)
     }
@@ -1753,6 +2380,23 @@ struct TemplateGeneratorView: View {
     }
 }
 
+// MARK: - Extensions
+
+// Extension to add accent colors to ProjectType
+extension ProjectType {
+    var accentColor: Color {
+        switch self {
+        case .android:
+            return .green
+        case .ios:
+            return .blue
+        case .flutter:
+            return .cyan
+        case .python:
+            return .orange
+        }
+    }
+}
 
 struct MainContentView_Previews: PreviewProvider {
     static var previews: some View {
