@@ -123,6 +123,8 @@ class OnboardingViewModel: ObservableObject {
             return !missing.contains { $0.name == "Homebrew" }
         case .checking, .error:
             return false
+        case .gulaUpdateRequired, .updatingGula, .gulaUpdated:
+            return true // If we're dealing with gula updates, homebrew is installed
         }
     }
     

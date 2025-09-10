@@ -29,6 +29,12 @@ struct OnboardingView: View {
                 ErrorView(message: message) {
                     viewModel.recheckDependencies()
                 }
+            case .gulaUpdateRequired(let version):
+                UpdateRequiredView(currentVersion: version)
+            case .updatingGula:
+                UpdatingView()
+            case .gulaUpdated:
+                UpdateCompletedView()
             }
             
             Spacer()
@@ -281,6 +287,8 @@ struct DependencyCard: View {
             return !missing.contains { $0.name == "Homebrew" }
         case .checking, .error:
             return false
+        case .gulaUpdateRequired, .updatingGula, .gulaUpdated:
+            return true // If we're dealing with gula updates, homebrew is installed
         }
     }
     
@@ -401,6 +409,70 @@ struct ErrorView: View {
                 onRetry()
             }
             .buttonStyle(.borderedProminent)
+        }
+        .padding(.top, 40)
+        .padding(.horizontal)
+    }
+}
+
+struct UpdateRequiredView: View {
+    let currentVersion: String
+    
+    var body: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "arrow.up.circle.fill")
+                .font(.system(size: 48))
+                .foregroundColor(.orange)
+            
+            Text("Actualización requerida")
+                .font(.title2)
+                .fontWeight(.semibold)
+            
+            Text("Tu versión de Gula CLI (\(currentVersion)) necesita ser actualizada")
+                .font(.body)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .padding(.top, 40)
+        .padding(.horizontal)
+    }
+}
+
+struct UpdatingView: View {
+    var body: some View {
+        VStack(spacing: 16) {
+            ProgressView()
+                .scaleEffect(1.5)
+            
+            Text("Actualizando Gula CLI...")
+                .font(.title2)
+                .fontWeight(.semibold)
+            
+            Text("Esto puede tardar unos minutos")
+                .font(.body)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .padding(.top, 40)
+        .padding(.horizontal)
+    }
+}
+
+struct UpdateCompletedView: View {
+    var body: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 48))
+                .foregroundColor(.green)
+            
+            Text("¡Actualización completada!")
+                .font(.title2)
+                .fontWeight(.semibold)
+            
+            Text("Gula CLI ha sido actualizado exitosamente")
+                .font(.body)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
         }
         .padding(.top, 40)
         .padding(.horizontal)
