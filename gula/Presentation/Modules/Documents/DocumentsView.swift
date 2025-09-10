@@ -20,18 +20,45 @@ struct SearchBar: View {
     @Binding var text: String
     
     var body: some View {
-        HStack {
-            Image(systemName: "magnifyingglass")
-                .foregroundColor(.secondary)
-            
-            TextField("Buscar documentos...", text: $text)
-                .textFieldStyle(PlainTextFieldStyle())
+        VStack(spacing: 0) {
+            HStack(spacing: 14) {
+                // Icon
+                ZStack {
+                    Circle()
+                        .fill(Color.secondary.opacity(0.08))
+                        .frame(width: 28, height: 28)
+                    
+                    Image(systemName: "magnifyingglass")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.secondary)
+                }
+                
+                TextField("Buscar documentos...", text: $text)
+                    .font(.system(size: 14, weight: .medium))
+                    .textFieldStyle(.plain)
+                
+                if !text.isEmpty {
+                    Button {
+                        text = ""
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 16))
+                            .foregroundColor(.secondary.opacity(0.6))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(.regularMaterial)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .strokeBorder(Color.secondary.opacity(0.2), lineWidth: 1)
+            )
         }
-        .padding(12)
-        .background(
-            RoundedRectangle(cornerRadius: 8)
-                .fill(.regularMaterial)
-        )
         .padding(.bottom, 16)
     }
 }

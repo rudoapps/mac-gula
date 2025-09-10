@@ -63,20 +63,12 @@ struct NewProjectView: View {
     private var formView: some View {
         LazyVStack(spacing: 28) {
             // Project Name
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Nombre del Proyecto")
-                    .font(.headline)
-                    .fontWeight(.medium)
-                
-                TextField("Mi Proyecto", text: $viewModel.projectName)
-                    .textFieldStyle(.roundedBorder)
-                
-                if !viewModel.projectName.isEmpty && !viewModel.isValidProjectName {
-                    Text("Usa solo letras, números, guiones (-), guiones bajos (_) y puntos (.)")
-                        .font(.caption)
-                        .foregroundColor(.red)
-                }
-            }
+            ProfessionalTextField(
+                title: "Nombre del Proyecto",
+                placeholder: "Mi Proyecto",
+                icon: "folder.badge.plus",
+                text: $viewModel.projectName
+            )
             
             // Project Type Selection
             VStack(alignment: .leading, spacing: 10) {
@@ -187,33 +179,31 @@ struct NewProjectView: View {
             
             // Package Name (only for mobile projects)
             if viewModel.selectedType != .python {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Package Name")
-                        .font(.headline)
-                        .fontWeight(.medium)
-                    
-                    TextField("com.empresa.miapp", text: $viewModel.packageName)
-                        .textFieldStyle(.roundedBorder)
-                    
-                    Text("Identificador único del paquete (ej: com.empresa.miapp).")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
+                ProfessionalTextField(
+                    title: "Package Name",
+                    placeholder: "com.empresa.miapp",
+                    icon: "app.badge",
+                    text: $viewModel.packageName
+                )
             }
             
             // API Key
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Clave de API")
-                    .font(.headline)
-                    .fontWeight(.medium)
-                
-                SecureField("Ingresa tu clave de API", text: $viewModel.apiKey)
-                    .textFieldStyle(.roundedBorder)
-                
-                Text("Necesaria para descargar arquetipos desde repositorios privados.")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
+            ProfessionalTextField(
+                title: "Clave de API",
+                placeholder: "Ingresa tu clave de API",
+                icon: "key.fill",
+                text: $viewModel.apiKey,
+                isSecure: true,
+                validation: { text in
+                    if text.isEmpty {
+                        return ProfessionalTextField.ValidationResult(isValid: false, message: "La clave API es necesaria para descargar arquetipos")
+                    } else if text.count < 3 {
+                        return ProfessionalTextField.ValidationResult(isValid: false, message: "La clave API parece muy corta")
+                    } else {
+                        return ProfessionalTextField.ValidationResult(isValid: true, message: nil)
+                    }
+                }
+            )
             
             // Action Buttons
             HStack(spacing: 12) {
