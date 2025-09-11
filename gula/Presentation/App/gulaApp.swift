@@ -8,6 +8,7 @@ struct gulaApp: App {
     @State private var dependencyStatus: DependencyStatus = .checking
     
     private let dependenciesUseCase = CheckSystemDependenciesUseCase(systemRepository: SystemRepositoryImpl())
+    @ObservedObject private var projectManager = ProjectManager.shared
     
     var body: some Scene {
         WindowGroup {
@@ -33,23 +34,32 @@ struct gulaApp: App {
                 .task {
                     await checkDependenciesOnStartup()
                 }
+                .onAppear {
+                    print("🚀 gulaApp: Checking dependencies...")
+                }
             } else if showOnboarding {
                 OnboardingBuilder.build {
                     showOnboarding = false
                 }
                 .frame(minWidth: 900, minHeight: 600)
-            } else if selectedProject == nil {
+            } else if projectManager.currentProject == nil {
                 ProjectSelectionBuilder.build { project in
                     // Update access date when entering project
                     ProjectManager.shared.updateProjectAccessDate(project)
-                    selectedProject = project
+                    // El ProjectManager ya establece currentProject internamente
                 }
-.frame(minWidth: 650, minHeight: 550)
+                .frame(minWidth: 650, minHeight: 550)
+                .onAppear {
+                    print("🚀 gulaApp: Mostrando ProjectSelection - currentProject es nil")
+                }
             } else {
-                MainContentView(project: selectedProject!) {
-                    selectedProject = nil
+                MainContentView(project: projectManager.currentProject!) {
+                    projectManager.currentProject = nil
                 }
                 .frame(minWidth: 900, minHeight: 600)
+                .onAppear {
+                    print("🚀 gulaApp: Mostrando MainContentView - currentProject: \(projectManager.currentProject!.name)")
+                }
             }
         }
         #if os(macOS)
@@ -79,22 +89,31 @@ struct gulaApp: App {
     
     @MainActor
     private func checkDependenciesOnStartup() async {
+        print("🚀 gulaApp: checkDependenciesOnStartup iniciado")
+        
         let finalStatus = await dependenciesUseCase.execute { status in
             Task { @MainActor in
                 dependencyStatus = status
+                print("🚀 gulaApp: Dependency status actualizado: \(status)")
             }
         }
         
+        print("🚀 gulaApp: Final status: \(finalStatus)")
+        
         switch finalStatus {
         case .allInstalled:
+            print("🚀 gulaApp: Todas las dependencias instaladas")
             // All dependencies are installed and up to date
             isCheckingDependencies = false
             showOnboarding = false
             
         case .missingDependencies(_), .error(_), .checking, .gulaUpdateRequired(_), .updatingGula, .gulaUpdated:
+            print("🚀 gulaApp: Mostrando onboarding debido a: \(finalStatus)")
             // Missing dependencies or error, show onboarding
             isCheckingDependencies = false
             showOnboarding = true
         }
+        
+        print("🚀 gulaApp: checkDependenciesOnStartup completado - isCheckingDependencies: \(isCheckingDependencies), showOnboarding: \(showOnboarding)")
     }
 }
