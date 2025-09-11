@@ -11,8 +11,11 @@ class ProjectManager: ObservableObject {
     private let systemRepository: SystemRepositoryProtocol
     
     init(systemRepository: SystemRepositoryProtocol = SystemRepositoryImpl()) {
+        print("🚀 ProjectManager: Inicializando...")
         self.systemRepository = systemRepository
         loadRecentProjects()
+        loadCurrentProject()
+        print("🚀 ProjectManager: Inicialización completada")
     }
     
     // MARK: - Recent Projects Management
@@ -61,6 +64,26 @@ class ProjectManager: ObservableObject {
         }
     }
     
+    private func loadCurrentProject() {
+        // Establecer el proyecto más reciente como el actual si existe
+        if let mostRecentProject = recentProjects.first {
+            print("📁 ProjectManager: Proyecto más reciente encontrado: \(mostRecentProject.name)")
+            print("📁 ProjectManager: Ruta del proyecto: \(mostRecentProject.path)")
+            print("📁 ProjectManager: ¿Existe el proyecto?: \(mostRecentProject.exists)")
+            
+            if mostRecentProject.exists {
+                print("📁 ProjectManager: Estableciendo proyecto actual: \(mostRecentProject.name)")
+                currentProject = mostRecentProject
+            } else {
+                print("📁 ProjectManager: El proyecto no existe en el sistema de archivos")
+                currentProject = nil
+            }
+        } else {
+            print("📁 ProjectManager: No hay proyectos recientes disponibles")
+            currentProject = nil
+        }
+    }
+    
     // MARK: - Project Operations
     
     func openProject(at path: String) -> Project? {
@@ -70,6 +93,8 @@ class ProjectManager: ObservableObject {
         
         currentProject = project
         addRecentProject(project)
+        saveRecentProjects()
+        print("📁 ProjectManager: Proyecto abierto y establecido como actual: \(project.name)")
         return project
     }
     
@@ -169,6 +194,8 @@ class ProjectManager: ObservableObject {
                 
                 currentProject = project
                 addRecentProject(project)
+                saveRecentProjects()
+                print("📁 ProjectManager: Proyecto creado y establecido como actual: \(project.name)")
                 
                 return project
             } else {
@@ -209,7 +236,7 @@ class ProjectManager: ObservableObject {
         }
         
         // Construir el comando con cd explícito
-        var gulaCommand = "/opt/homebrew/bin/gula list --key=\(apiKey)"
+        var gulaCommand = "PATH=\"/opt/homebrew/bin:$PATH\" /opt/homebrew/Cellar/gula/0.0.82/bin/gula list --key=\(apiKey)"
         if let branch = branch {
             gulaCommand += " --branch=\(branch)"
         }
@@ -258,7 +285,7 @@ class ProjectManager: ObservableObject {
             throw ProjectError.projectNotFound("El directorio del proyecto no existe: \(project.path)")
         }
         
-        var gulaCommand = "/opt/homebrew/bin/gula install \(moduleName) --key=\(apiKey)"
+        var gulaCommand = "PATH=\"/opt/homebrew/bin:$PATH\" /opt/homebrew/Cellar/gula/0.0.82/bin/gula install \(moduleName) --key=\(apiKey)"
         if let branch = branch {
             gulaCommand += " --branch=\(branch)"
         }
@@ -357,7 +384,7 @@ class ProjectManager: ObservableObject {
         }
         
         // Usar un script más robusto que asegure el cambio de directorio
-        var gulaCommand = "/opt/homebrew/bin/gula template \(templateName)"
+        var gulaCommand = "PATH=\"/opt/homebrew/bin:$PATH\" /opt/homebrew/Cellar/gula/0.0.82/bin/gula template \(templateName)"
         if let type = type {
             gulaCommand += " --type=\(type)"
         }
@@ -392,7 +419,7 @@ class ProjectManager: ObservableObject {
         }
         
         let command = """
-        cd "\(project.path)" && pwd && echo "Ejecutando desde: $(pwd)" && /opt/homebrew/bin/gula template --list
+        cd "\(project.path)" && pwd && echo "Ejecutando desde: $(pwd)" && PATH="/opt/homebrew/bin:$PATH" /opt/homebrew/Cellar/gula/0.0.82/bin/gula template --list
         """
         
         print("📋 Listando templates disponibles")
@@ -437,6 +464,126 @@ class ProjectManager: ObservableObject {
             Tipos disponibles: clean, fastapi
             """
         }
+    }
+    
+    func getProjectStatus() async throws -> GulaStatus {
+        guard let project = currentProject else {
+            throw ProjectError.noCurrentProject
+        }
+        
+        let command = """
+        cd "\(project.path)" && PATH="/opt/homebrew/bin:$PATH" /opt/homebrew/Cellar/gula/0.0.82/bin/gula status
+        """
+        
+        print("📊 Obteniendo status del proyecto")
+        print("📁 Directorio del proyecto: \(project.path)")
+        print("📊 Comando a ejecutar: \(command)")
+        
+        do {
+            let result = try await systemRepository.executeCommand(command)
+            return parseGulaStatus(from: result)
+        } catch {
+            print("❌ Error obteniendo status: \(error)")
+            // Retornar un status vacío en caso de error
+            return GulaStatus(
+                projectCreated: nil,
+                gulaVersion: "Desconocida",
+                installedModules: [],
+                hasProject: false
+            )
+        }
+    }
+    
+    private func parseGulaStatus(from output: String) -> GulaStatus {
+        var projectCreated: Date?
+        var gulaVersion = "Desconocida"
+        var installedModules: [GulaModule] = []
+        var hasProject = false
+        
+        let lines = output.components(separatedBy: .newlines)
+        
+        // Buscar versión de gula
+        for line in lines {
+            if line.contains("versión:") {
+                let components = line.components(separatedBy: ":")
+                if components.count > 1 {
+                    gulaVersion = components[1].trimmingCharacters(in: .whitespaces)
+                }
+            }
+            
+            // Buscar fecha de creación del proyecto
+            if line.contains("Proyecto creado:") {
+                let components = line.components(separatedBy: ":")
+                if components.count > 1 {
+                    let dateString = components[1].trimmingCharacters(in: .whitespaces)
+                    let formatter = ISO8601DateFormatter()
+                    projectCreated = formatter.date(from: dateString)
+                    hasProject = true
+                }
+            }
+        }
+        
+        // Parsear módulos instalados
+        var inModulesSection = false
+        for line in lines {
+            if line.contains("MÓDULOS INSTALADOS:") {
+                inModulesSection = true
+                continue
+            }
+            
+            if inModulesSection {
+                if line.contains("ÚLTIMAS OPERACIONES:") {
+                    break
+                }
+                
+                // Buscar líneas que contengan información de módulos
+                if line.contains("→") && line.contains("(") && line.contains(")") {
+                    let components = line.components(separatedBy: "→")
+                    if components.count >= 2 {
+                        let platform = components[0].trimmingCharacters(in: .whitespaces)
+                        let moduleInfo = components[1].trimmingCharacters(in: .whitespaces)
+                        
+                        // Extraer nombre del módulo y fecha
+                        let moduleComponents = moduleInfo.components(separatedBy: " (")
+                        if moduleComponents.count >= 2 {
+                            let moduleName = moduleComponents[0].trimmingCharacters(in: .whitespaces)
+                            let remainingInfo = moduleComponents[1]
+                            
+                            // Extraer branch y fecha
+                            let branchAndDate = remainingInfo.components(separatedBy: ") - ")
+                            let branch = branchAndDate[0]
+                            var installDate: Date?
+                            
+                            if branchAndDate.count > 1 {
+                                let dateString = branchAndDate[1].replacingOccurrences(of: "Z", with: "")
+                                let formatter = ISO8601DateFormatter()
+                                installDate = formatter.date(from: dateString + "Z")
+                            }
+                            
+                            let module = GulaModule(
+                                name: moduleName,
+                                platform: platform,
+                                branch: branch,
+                                installDate: installDate
+                            )
+                            installedModules.append(module)
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Si no encontramos el archivo de log, marcar como sin proyecto
+        if output.contains("No se encontró archivo de log") {
+            hasProject = false
+        }
+        
+        return GulaStatus(
+            projectCreated: projectCreated,
+            gulaVersion: gulaVersion,
+            installedModules: installedModules,
+            hasProject: hasProject
+        )
     }
 }
 
