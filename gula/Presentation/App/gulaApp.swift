@@ -1,4 +1,5 @@
 import SwiftUI
+import Sparkle
 
 @main
 struct gulaApp: App {
@@ -9,6 +10,15 @@ struct gulaApp: App {
     
     private let dependenciesUseCase = CheckSystemDependenciesUseCase(systemRepository: SystemRepositoryImpl())
     @ObservedObject private var projectManager = ProjectManager.shared
+    private let updaterController: SPUStandardUpdaterController
+    
+    init() {
+        updaterController = SPUStandardUpdaterController(
+            startingUpdater: true,
+            updaterDelegate: nil,
+            userDriverDelegate: nil
+        )
+    }
     
     var body: some Scene {
         WindowGroup {
@@ -66,6 +76,14 @@ struct gulaApp: App {
         .windowStyle(.hiddenTitleBar)
         .windowToolbarStyle(.unified)
         #endif
+        
+        #if os(macOS)
+        .commands {
+            CommandGroup(after: .appInfo) {
+                CheckForUpdatesView(updater: updaterController.updater)
+            }
+        }
+        #endif
     }
     
     private var statusMessage: String {
@@ -117,3 +135,16 @@ struct gulaApp: App {
         print("🚀 gulaApp: checkDependenciesOnStartup completado - isCheckingDependencies: \(isCheckingDependencies), showOnboarding: \(showOnboarding)")
     }
 }
+
+#if os(macOS)
+struct CheckForUpdatesView: View {
+    let updater: SPUUpdater
+    
+    var body: some View {
+        Button("Check for Updates...") {
+            updater.checkForUpdates()
+        }
+        .disabled(!updater.canCheckForUpdates)
+    }
+}
+#endif
