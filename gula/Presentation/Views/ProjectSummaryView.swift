@@ -88,7 +88,9 @@ struct ProjectSummarySection: View {
                         projectCreated: nil,
                         gulaVersion: "Error",
                         installedModules: [],
-                        hasProject: false
+                        hasProject: false,
+                        statistics: nil,
+                        generatedTemplates: []
                     )
                     self.isLoadingStatus = false
                     self.statusLoadingProgress = 0.0
@@ -295,6 +297,9 @@ struct ProjectSummaryContentView: View {
             if !status.installedModules.isEmpty {
                 ModulesGrid(modules: status.installedModules)
             }
+            if !status.generatedTemplates.isEmpty {
+                TemplatesSection(templates: status.generatedTemplates)
+            }
         }
     }
 }
@@ -325,6 +330,22 @@ struct ProjectInfoRow: View {
                 icon: "cube.box.fill", 
                 color: .green
             )
+            
+            if let statistics = status.statistics {
+                ProjectInfoCard(
+                    title: "Templates", 
+                    value: "\(statistics.generatedTemplates)", 
+                    icon: "doc.text.fill", 
+                    color: .orange
+                )
+                
+                ProjectInfoCard(
+                    title: "Errores", 
+                    value: "\(statistics.operationsWithError)", 
+                    icon: "exclamationmark.triangle.fill", 
+                    color: .red
+                )
+            }
             
             if let projectCreated = status.projectCreated {
                 ProjectInfoCard(
@@ -394,43 +415,455 @@ struct ModulesGrid: View {
     }
 }
 
-struct ModuleCard: View {
-    let module: GulaModule
+// MARK: - Templates Components
+
+struct TemplatesSection: View {
+    let templates: [GulaTemplate]
     
     var body: some View {
-        HStack(spacing: 8) {
-            Circle()
-                .fill(platformColor(for: module.platform))
-                .frame(width: 8, height: 8)
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Templates Generados")
+                .font(.headline)
+                .foregroundColor(.primary)
             
-            VStack(alignment: .leading, spacing: 2) {
-                Text(module.name)
-                    .font(.caption)
-                    .fontWeight(.medium)
-                    .foregroundColor(.primary)
+            VStack(spacing: 8) {
+                ForEach(templates.prefix(6)) { template in
+                    GeneratedTemplateCard(template: template)
+                }
                 
-                Text("\(module.platform) • \(module.branch)")
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
+                if templates.count > 6 {
+                    Text("Y \(templates.count - 6) templates más...")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .padding(.top, 4)
+                }
+            }
+        }
+    }
+}
+
+struct GeneratedTemplateCard: View {
+    let template: GulaTemplate
+    @State private var isHovered = false
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            // Platform Icon with gradient background
+            ZStack {
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: platformGradientColors(for: template.platform),
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 32, height: 32)
+                    .shadow(color: platformColor(for: template.platform).opacity(0.3), radius: isHovered ? 4 : 2, x: 0, y: 2)
+                
+                Image(systemName: "doc.text.fill")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(.white)
+            }
+            
+            // Template Info
+            VStack(alignment: .leading, spacing: 4) {
+                Text(template.name)
+                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                    .foregroundColor(.primary)
+                    .lineLimit(1)
+                
+                HStack(spacing: 4) {
+                    Text(template.platform)
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundColor(platformColor(for: template.platform))
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(platformColor(for: template.platform).opacity(0.1))
+                        .clipShape(Capsule())
+                    
+                    if let date = template.generatedDate {
+                        Text("•")
+                            .font(.system(size: 8, weight: .medium))
+                            .foregroundColor(.secondary.opacity(0.6))
+                        
+                        Text(formatDate(date))
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundColor(.secondary)
+                    }
+                }
             }
             
             Spacer()
+            
+            // Status indicator
+            VStack(spacing: 2) {
+                Image(systemName: "doc.badge.plus")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(.orange)
+                
+                Text("Generado")
+                    .font(.system(size: 8, weight: .bold))
+                    .foregroundColor(.orange)
+            }
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 6)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
         .background(
-            RoundedRectangle(cornerRadius: 6)
-                .fill(.quaternary)
+            RoundedRectangle(cornerRadius: 10)
+                .fill(backgroundGradient)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .strokeBorder(borderGradient, lineWidth: borderWidth)
+                )
         )
+        .shadow(color: shadowColor, radius: shadowRadius, x: 0, y: shadowY)
+        .scaleEffect(isHovered ? 1.02 : 1.0)
+        .animation(.easeInOut(duration: 0.2), value: isHovered)
+        .onHover { hovering in
+            withAnimation(.easeInOut(duration: 0.2)) {
+                isHovered = hovering
+            }
+        }
     }
+    
+    // MARK: - Helper Methods
+    
+    private func formatDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "dd/MM"
+        return formatter.string(from: date)
+    }
+    
+    // MARK: - Computed Properties
     
     private func platformColor(for platform: String) -> Color {
         switch platform.lowercased() {
         case "ios": return .blue
         case "android": return .green
         case "web": return .orange
+        case "flutter": return .cyan
+        case "react": return .purple
         default: return .gray
         }
+    }
+    
+    private func platformGradientColors(for platform: String) -> [Color] {
+        switch platform.lowercased() {
+        case "ios": return [.blue, .blue.opacity(0.7)]
+        case "android": return [.green, .green.opacity(0.7)]
+        case "web": return [.orange, .orange.opacity(0.7)]
+        case "flutter": return [.cyan, .cyan.opacity(0.7)]
+        case "react": return [.purple, .purple.opacity(0.7)]
+        default: return [.gray, .gray.opacity(0.7)]
+        }
+    }
+    
+    private var backgroundGradient: LinearGradient {
+        if isHovered {
+            return LinearGradient(
+                colors: [platformColor(for: template.platform).opacity(0.03), platformColor(for: template.platform).opacity(0.01)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        } else {
+            return LinearGradient(
+                colors: [Color.primary.opacity(0.02), Color.clear],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        }
+    }
+    
+    private var borderGradient: LinearGradient {
+        if isHovered {
+            return LinearGradient(
+                colors: [platformColor(for: template.platform).opacity(0.3), platformColor(for: template.platform).opacity(0.1)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        } else {
+            return LinearGradient(
+                colors: [Color.secondary.opacity(0.15), Color.secondary.opacity(0.08)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        }
+    }
+    
+    private var borderWidth: CGFloat {
+        isHovered ? 1.2 : 0.8
+    }
+    
+    private var shadowColor: Color {
+        if isHovered {
+            return platformColor(for: template.platform).opacity(0.15)
+        } else {
+            return .black.opacity(0.05)
+        }
+    }
+    
+    private var shadowRadius: CGFloat {
+        isHovered ? 6 : 3
+    }
+    
+    private var shadowY: CGFloat {
+        isHovered ? 3 : 1
+    }
+}
+
+struct ModuleCard: View {
+    let module: GulaModule
+    @State private var isHovered = false
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            // Platform Icon with gradient background
+            ZStack {
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: platformGradientColors(for: module.platform),
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 32, height: 32)
+                    .shadow(color: platformColor(for: module.platform).opacity(0.3), radius: isHovered ? 4 : 2, x: 0, y: 2)
+                
+                Image(systemName: platformIcon(for: module.platform))
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(.white)
+            }
+            
+            // Module Info
+            VStack(alignment: .leading, spacing: 4) {
+                Text(module.name)
+                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                    .foregroundColor(.primary)
+                    .lineLimit(1)
+                
+                HStack(spacing: 6) {
+                    // Platform chip
+                    Text(module.platform)
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundColor(platformColor(for: module.platform))
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(platformColor(for: module.platform).opacity(0.1))
+                        .clipShape(Capsule())
+                    
+                    // Branch chip with icon
+                    HStack(spacing: 3) {
+                        Image(systemName: branchIcon(for: module.branch))
+                            .font(.system(size: 8, weight: .semibold))
+                            .foregroundColor(branchColor(for: module.branch))
+                        
+                        Text(module.branch)
+                            .font(.system(size: 10, weight: .semibold))
+                            .foregroundColor(branchColor(for: module.branch))
+                    }
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(
+                        Capsule()
+                            .fill(branchColor(for: module.branch).opacity(0.1))
+                            .overlay(
+                                Capsule()
+                                    .strokeBorder(branchColor(for: module.branch).opacity(0.2), lineWidth: 0.5)
+                            )
+                    )
+                }
+            }
+            
+            Spacer()
+            
+            // Status indicator
+            VStack(spacing: 2) {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(.green)
+                
+                Text("Instalado")
+                    .font(.system(size: 8, weight: .bold))
+                    .foregroundColor(.green)
+            }
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .background(
+            RoundedRectangle(cornerRadius: 10)
+                .fill(backgroundGradient)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .strokeBorder(borderGradient, lineWidth: borderWidth)
+                )
+        )
+        .shadow(color: shadowColor, radius: shadowRadius, x: 0, y: shadowY)
+        .scaleEffect(isHovered ? 1.02 : 1.0)
+        .animation(.easeInOut(duration: 0.2), value: isHovered)
+        .onHover { hovering in
+            withAnimation(.easeInOut(duration: 0.2)) {
+                isHovered = hovering
+            }
+        }
+    }
+    
+    // MARK: - Computed Properties
+    
+    private func platformColor(for platform: String) -> Color {
+        switch platform.lowercased() {
+        case "ios": return .blue
+        case "android": return .green
+        case "web": return .orange
+        case "flutter": return .cyan
+        case "react": return .blue
+        case "node", "nodejs": return .green
+        case "python": return .yellow
+        case "java": return .red
+        case "javascript", "js": return .yellow
+        case "typescript", "ts": return .blue
+        case "swift": return .orange
+        case "kotlin": return .purple
+        case "dart": return .cyan
+        default: return .gray
+        }
+    }
+    
+    private func platformGradientColors(for platform: String) -> [Color] {
+        switch platform.lowercased() {
+        case "ios": return [.blue, .blue.opacity(0.7)]
+        case "android": return [.green, .green.opacity(0.7)]
+        case "web": return [.orange, .orange.opacity(0.7)]
+        case "flutter": return [.cyan, .cyan.opacity(0.7)]
+        case "react": return [.blue, .blue.opacity(0.7)]
+        case "node", "nodejs": return [.green, .green.opacity(0.7)]
+        case "python": return [.yellow, .yellow.opacity(0.7)]
+        case "java": return [.red, .red.opacity(0.7)]
+        case "javascript", "js": return [.yellow, .yellow.opacity(0.7)]
+        case "typescript", "ts": return [.blue, .blue.opacity(0.7)]
+        case "swift": return [.orange, .orange.opacity(0.7)]
+        case "kotlin": return [.purple, .purple.opacity(0.7)]
+        case "dart": return [.cyan, .cyan.opacity(0.7)]
+        default: return [.gray, .gray.opacity(0.7)]
+        }
+    }
+    
+    private func platformIcon(for platform: String) -> String {
+        switch platform.lowercased() {
+        case "ios": return "applelogo"
+        case "android": return "androidlogo"
+        case "web": return "globe.americas.fill"
+        case "flutter": return "bird.fill"
+        case "react": return "atom"
+        case "node", "nodejs": return "server.rack"
+        case "python": return "snake.circle.fill"
+        case "java": return "cup.and.saucer.fill"
+        case "javascript", "js": return "js.circle.fill"
+        case "typescript", "ts": return "t.circle.fill"
+        case "swift": return "swift"
+        case "kotlin": return "k.circle.fill"
+        case "dart": return "d.circle.fill"
+        default: return "cube.fill"
+        }
+    }
+    
+    private func branchIcon(for branch: String) -> String {
+        switch branch.lowercased() {
+        case "main", "master": return "star.fill"
+        case "develop", "dev", "development": return "hammer.fill"
+        case "staging", "stage": return "theatermasks.fill"
+        case "release": return "paperplane.fill"
+        case "hotfix": return "wrench.and.screwdriver.fill"
+        case "feature": return "lightbulb.fill"
+        case "beta": return "testtube.2"
+        case "production", "prod": return "checkmark.seal.fill"
+        default: 
+            if branch.hasPrefix("feature/") || branch.hasPrefix("feat/") {
+                return "lightbulb.fill"
+            } else if branch.hasPrefix("hotfix/") {
+                return "wrench.and.screwdriver.fill"
+            } else if branch.hasPrefix("release/") {
+                return "paperplane.fill"
+            } else {
+                return "arrow.branch"
+            }
+        }
+    }
+    
+    private func branchColor(for branch: String) -> Color {
+        switch branch.lowercased() {
+        case "main", "master": return .indigo
+        case "develop", "dev", "development": return .orange
+        case "staging", "stage": return .purple
+        case "release": return .blue
+        case "hotfix": return .red
+        case "feature": return .green
+        case "beta": return .cyan
+        case "production", "prod": return .mint
+        default:
+            if branch.hasPrefix("feature/") || branch.hasPrefix("feat/") {
+                return .green
+            } else if branch.hasPrefix("hotfix/") {
+                return .red
+            } else if branch.hasPrefix("release/") {
+                return .blue
+            } else {
+                return .secondary
+            }
+        }
+    }
+    
+    private var backgroundGradient: LinearGradient {
+        if isHovered {
+            return LinearGradient(
+                colors: [platformColor(for: module.platform).opacity(0.04), platformColor(for: module.platform).opacity(0.02)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        } else {
+            return LinearGradient(
+                colors: [Color.primary.opacity(0.02), Color.clear],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        }
+    }
+    
+    private var borderGradient: LinearGradient {
+        if isHovered {
+            return LinearGradient(
+                colors: [platformColor(for: module.platform).opacity(0.3), platformColor(for: module.platform).opacity(0.1)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        } else {
+            return LinearGradient(
+                colors: [Color.secondary.opacity(0.15), Color.secondary.opacity(0.08)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        }
+    }
+    
+    private var borderWidth: CGFloat {
+        isHovered ? 1.2 : 0.8
+    }
+    
+    private var shadowColor: Color {
+        if isHovered {
+            return platformColor(for: module.platform).opacity(0.15)
+        } else {
+            return .black.opacity(0.05)
+        }
+    }
+    
+    private var shadowRadius: CGFloat {
+        isHovered ? 6 : 3
+    }
+    
+    private var shadowY: CGFloat {
+        isHovered ? 3 : 1
     }
 }
 
