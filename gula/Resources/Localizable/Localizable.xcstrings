@@ -25,13 +25,25 @@
     "%lld" : {
 
     },
+    "%lld hook(s) seleccionados para configurar" : {
+
+    },
+    "%lld hooks disponibles" : {
+
+    },
     "%lld módulos encontrados" : {
+
+    },
+    "%lld ramas disponibles" : {
 
     },
     "%lld templates encontrados" : {
 
     },
     "•" : {
+
+    },
+    "+%lld" : {
 
     },
     "🍎" : {
@@ -61,16 +73,25 @@
     "Actividad Reciente" : {
 
     },
-    "Actividad Semanal" : {
-
-    },
     "Actualización requerida" : {
 
     },
     "Actualizando Gula CLI..." : {
 
     },
+    "Analizando" : {
+
+    },
+    "Aplicar Configuración" : {
+
+    },
     "Auto-detecta" : {
+
+    },
+    "Branch del Repositorio" : {
+
+    },
+    "Buscar actualizaciones" : {
 
     },
     "Buscar documentos..." : {
@@ -85,7 +106,19 @@
     "Carga módulos" : {
 
     },
+    "Cargando Estado del Proyecto..." : {
+
+    },
     "Cargando Módulos..." : {
+
+    },
+    "Cargando..." : {
+
+    },
+    "Cargar" : {
+
+    },
+    "Check for Updates..." : {
 
     },
     "Compartir" : {
@@ -94,10 +127,19 @@
     "Conectando con gula CLI" : {
 
     },
-    "Configuración" : {
+    "Configuración Inicial" : {
 
     },
-    "Configuración Inicial" : {
+    "Configuración Lista" : {
+
+    },
+    "Configurado" : {
+
+    },
+    "Configurando..." : {
+
+    },
+    "Consultando gula status" : {
 
     },
     "Continúa trabajando en un proyecto ya iniciado" : {
@@ -121,7 +163,10 @@
     "Dependencias requeridas" : {
 
     },
-    "Documentos por día" : {
+    "Disponibles: %lld" : {
+
+    },
+    "Ejecuta validaciones automáticas antes de cada commit en %@" : {
 
     },
     "Ejecutando comando gula" : {
@@ -136,13 +181,25 @@
     "Error de verificación" : {
 
     },
-    "Esta semana" : {
+    "Escaneando" : {
+
+    },
+    "Estado del Proyecto" : {
+
+    },
+    "Estado Detallado del Proyecto" : {
 
     },
     "Esto puede tardar unos minutos" : {
 
     },
+    "Finalizando" : {
+
+    },
     "Finalizando..." : {
+
+    },
+    "Generado" : {
 
     },
     "Generando código..." : {
@@ -160,13 +217,28 @@
     "Gula CLI ha sido actualizado exitosamente" : {
 
     },
+    "Gula v%@" : {
+
+    },
+    "Haz clic en 'Cargar' para obtener las ramas disponibles" : {
+
+    },
     "Homebrew es requerido para instalar Gula CLI" : {
+
+    },
+    "Hooks Configurados (%lld)" : {
 
     },
     "Información de Módulos" : {
 
     },
+    "Ingresa tu clave API y haz clic en 'Cargar' para obtener las ramas disponibles" : {
+
+    },
     "Inicia un proyecto desde cero con arquetipos optimizados" : {
+
+    },
+    "Instalación en progreso..." : {
 
     },
     "Instalado" : {
@@ -177,6 +249,19 @@
     },
     "Instalando..." : {
 
+    },
+    "Instalar %@" : {
+
+    },
+    "Instalar %@ usando %@" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Instalar %1$@ usando %2$@"
+          }
+        }
+      }
     },
     "Instalar automáticamente" : {
 
@@ -202,16 +287,31 @@
     "Módulos Disponibles" : {
 
     },
+    "Módulos Instalados" : {
+
+    },
     "Necesitamos verificar que las dependencias estén instaladas" : {
 
     },
     "No hay favoritos" : {
 
     },
+    "No hay hooks configurados para %@. Verifica el tipo de proyecto." : {
+
+    },
     "No hay proyectos recientes" : {
 
     },
+    "No se pudo obtener la información del proyecto" : {
+
+    },
     "O instalar manualmente:" : {
+
+    },
+    "Obteniendo información de módulos instalados y estado del proyecto..." : {
+
+    },
+    "Obteniendo información del proyecto..." : {
 
     },
     "Obteniendo la lista de módulos disponibles desde gula CLI. Por favor espera..." : {
@@ -226,7 +326,16 @@
     "Por favor, espera mientras se genera el template" : {
 
     },
+    "Pre-commit Hooks" : {
+
+    },
     "Preparando archivos..." : {
+
+    },
+    "Procesando" : {
+
+    },
+    "Proyecto: %@" : {
 
     },
     "Proyectos Recientes" : {
@@ -247,7 +356,22 @@
     "Saltar verificación (Debug)" : {
 
     },
+    "Selecciona la rama específica del proyecto" : {
+
+    },
+    "Selecciona los hooks que deseas configurar para tu proyecto. Puedes elegir específicamente cuáles instalar." : {
+
+    },
+    "Seleccionados: %lld" : {
+
+    },
     "Seleccionar" : {
+
+    },
+    "Seleccionar Hooks de Pre-commit" : {
+
+    },
+    "Sin información de proyecto" : {
 
     },
     "Stack de Python" : {
@@ -257,6 +381,9 @@
 
     },
     "Templates Disponibles" : {
+
+    },
+    "Templates Generados" : {
 
     },
     "Tipo de Arquitectura" : {
@@ -293,6 +420,12 @@
 
     },
     "Volver a Proyectos" : {
+
+    },
+    "Y %lld módulos más..." : {
+
+    },
+    "Y %lld templates más..." : {
 
     },
     "y más..." : {
