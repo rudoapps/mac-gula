@@ -198,6 +198,7 @@ struct SidebarSection: View {
                         item: item,
                         isSelected: selection == item,
                         action: {
+                            print("🎯 Sidebar: Seleccionando item: \(item)")
                             withAnimation(.easeInOut(duration: 0.2)) {
                                 selection = item
                             }
@@ -235,8 +236,6 @@ struct SidebarItem: View {
         Button(action: {
             if item == .openInFinder {
                 openInFinder()
-            } else if item == .changeProject {
-                onBack?()
             } else {
                 action()
             }
@@ -466,8 +465,8 @@ enum GulaDashboardAction: String, CaseIterable, Identifiable, Hashable {
     case overview = "overview"
     case modules = "modules"
     case generateTemplate = "generateTemplate"
+    case preCommitHooks = "preCommitHooks"
     case openInFinder = "openInFinder"
-    case changeProject = "changeProject"
     case settings = "settings"
     
     var id: String { rawValue }
@@ -477,8 +476,8 @@ enum GulaDashboardAction: String, CaseIterable, Identifiable, Hashable {
         case .overview: return "Resumen"
         case .modules: return "Módulos"
         case .generateTemplate: return "Generar Template"
+        case .preCommitHooks: return "Pre-commit Hooks"
         case .openInFinder: return "Abrir en Finder"
-        case .changeProject: return "Cambiar Proyecto"
         case .settings: return "Configuración"
         }
     }
@@ -488,15 +487,15 @@ enum GulaDashboardAction: String, CaseIterable, Identifiable, Hashable {
         case .overview: return "doc.text.magnifyingglass"
         case .modules: return "square.stack.3d.up"
         case .generateTemplate: return "doc.badge.plus"
+        case .preCommitHooks: return "checkmark.shield"
         case .openInFinder: return "folder"
-        case .changeProject: return "arrow.left.square"
         case .settings: return "gear"
         }
     }
     
     static let projectItems: [GulaDashboardAction] = [.overview, .openInFinder]
-    static let developmentItems: [GulaDashboardAction] = [.modules, .generateTemplate]
-    static let toolsItems: [GulaDashboardAction] = [.changeProject, .settings]
+    static let developmentItems: [GulaDashboardAction] = [.modules, .generateTemplate, .preCommitHooks]
+    static let toolsItems: [GulaDashboardAction] = [.settings]
 }
 
 // MARK: - Project Type Extension

@@ -1,4 +1,5 @@
 import SwiftUI
+import Sparkle
 
 // MARK: - Project Detail Main View
 
@@ -87,6 +88,11 @@ private struct ProjectDetailSidebar: View {
             .scrollBounceBehavior(.basedOnSize)
             
             Spacer()
+            
+            // Version info
+            AppVersionView()
+                .padding(.horizontal, 20)
+                .padding(.bottom, 16)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(.ultraThinMaterial)
@@ -127,6 +133,14 @@ private struct ProjectDetailContent: View {
                 project: project,
                 projectManager: projectManager
             )
+        case .preCommitHooks:
+            PreCommitManagerView(
+                project: project,
+                projectManager: projectManager
+            )
+            .onAppear {
+                print("🎯 Case .preCommitHooks ejecutándose para proyecto: \(project.name)")
+            }
         case .openInFinder:
             ProjectOverviewView(
                 project: project,
@@ -136,12 +150,6 @@ private struct ProjectDetailContent: View {
             .onAppear {
                 NSWorkspace.shared.open(URL(fileURLWithPath: project.path))
             }
-        case .changeProject:
-            ProjectOverviewView(
-                project: project,
-                selectedAction: $selectedAction,
-                projectManager: projectManager
-            )
         case .settings:
             ProjectOverviewView(
                 project: project,
@@ -165,4 +173,60 @@ private struct ProjectDetailContent: View {
         project: sampleProject,
         onBack: { print("Back pressed") }
     )
+}
+
+// MARK: - App Version View
+
+private struct AppVersionView: View {
+    private let updater = SPUStandardUpdaterController(
+        startingUpdater: false,
+        updaterDelegate: nil,
+        userDriverDelegate: nil
+    ).updater
+    
+    var body: some View {
+        VStack(spacing: 6) {
+            HStack(spacing: 8) {
+                Image(systemName: "info.circle")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(.secondary.opacity(0.7))
+                
+                Text("Gula v\(appVersion)")
+                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                    .foregroundColor(.secondary.opacity(0.8))
+                
+                Spacer()
+                
+                Button(action: {
+                    updater.checkForUpdates()
+                }) {
+                    Image(systemName: "arrow.clockwise")
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundColor(.secondary.opacity(0.6))
+                }
+                .buttonStyle(.plain)
+                .disabled(!updater.canCheckForUpdates)
+                .help("Buscar actualizaciones")
+            }
+            
+            Rectangle()
+                .fill(.secondary.opacity(0.2))
+                .frame(height: 0.5)
+        }
+        .padding(.vertical, 8)
+        .padding(.horizontal, 12)
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+                .fill(.primary.opacity(0.03))
+        )
+    }
+    
+    private var appVersion: String {
+        if let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String,
+           let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String {
+            return "\(version) (\(build))"
+        } else {
+            return "1.0"
+        }
+    }
 }

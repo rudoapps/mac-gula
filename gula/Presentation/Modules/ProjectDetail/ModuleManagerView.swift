@@ -10,6 +10,8 @@ struct ModuleManagerView: View {
     @Binding var errorMessage: String
     
     @State private var branch: String = ""
+    @State private var availableBranches: [String] = []
+    @State private var isLoadingBranches = false
     @State private var moduleListOutput: String = ""
     @State private var availableModules: [Module] = []
     @State private var selectedModules: Set<Module> = []
@@ -61,17 +63,102 @@ struct ModuleManagerView: View {
                             }
                         )
                         
-                        // Enhanced Branch Input
-                        ProfessionalTextField(
-                            title: "Branch del Repositorio",
-                            placeholder: "main, develop, feature/new-module",
-                            icon: "arrow.triangle.branch",
-                            text: $branch,
-                            isOptional: true,
-                            validation: { branch in
-                                return ProfessionalTextField.ValidationResult(isValid: true, message: nil)
+                        // Enhanced Branch Selection
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack(spacing: 12) {
+                                ZStack {
+                                    Circle()
+                                        .fill(LinearGradient(colors: [.blue.opacity(0.1), .blue.opacity(0.05)], startPoint: .topLeading, endPoint: .bottomTrailing))
+                                        .frame(width: 32, height: 32)
+                                    Image(systemName: "arrow.triangle.branch")
+                                        .font(.system(size: 14, weight: .semibold))
+                                        .foregroundColor(.blue)
+                                }
+                                
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Branch del Repositorio")
+                                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                                        .foregroundColor(.primary)
+                                    Text("Selecciona la rama específica del proyecto")
+                                        .font(.system(size: 12, weight: .medium))
+                                        .foregroundColor(.secondary)
+                                }
+                                
+                                Spacer()
+                                
+                                Button(action: {
+                                    Task {
+                                        await loadAvailableBranches()
+                                    }
+                                }) {
+                                    HStack(spacing: 6) {
+                                        if isLoadingBranches {
+                                            ProgressView()
+                                                .scaleEffect(0.8)
+                                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                        } else {
+                                            Image(systemName: "arrow.clockwise")
+                                                .font(.system(size: 11, weight: .bold))
+                                        }
+                                        Text(isLoadingBranches ? "Cargando..." : "Cargar")
+                                            .font(.system(size: 11, weight: .semibold))
+                                    }
+                                    .foregroundColor(isLoadingBranches || apiKey.isEmpty ? .secondary : .white)
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 6)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 6)
+                                            .fill(LinearGradient(colors: isLoadingBranches || apiKey.isEmpty ? [.gray.opacity(0.3), .gray.opacity(0.2)] : [.blue, .blue.opacity(0.8)], startPoint: .topLeading, endPoint: .bottomTrailing))
+                                    )
+                                }
+                                .buttonStyle(.plain)
+                                .disabled(isLoadingBranches || apiKey.isEmpty)
                             }
-                        )
+                            
+                            if availableBranches.isEmpty {
+                                ProfessionalTextField(
+                                    title: "",
+                                    placeholder: "main, develop, feature/...",
+                                    icon: "arrow.branch",
+                                    text: $branch,
+                                    validation: { _ in
+                                        return ProfessionalTextField.ValidationResult(isValid: true, message: nil)
+                                    }
+                                )
+                            } else {
+                                Picker("", selection: $branch) {
+                                    ForEach(availableBranches, id: \.self) { branchName in
+                                        Text(branchName).tag(branchName)
+                                    }
+                                }
+                                .pickerStyle(.menu)
+                                .frame(maxWidth: .infinity)
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 12)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(.ultraThinMaterial)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 12)
+                                                .strokeBorder(.secondary.opacity(0.2), lineWidth: 1)
+                                        )
+                                )
+                            }
+                            
+                            if !availableBranches.isEmpty {
+                                Text("\(availableBranches.count) ramas disponibles")
+                                    .font(.system(size: 12))
+                                    .foregroundColor(.secondary)
+                            } else if apiKey.isEmpty {
+                                Text("Ingresa tu clave API y haz clic en 'Cargar' para obtener las ramas disponibles")
+                                    .font(.system(size: 12))
+                                    .foregroundColor(.secondary)
+                            } else {
+                                Text("Haz clic en 'Cargar' para obtener las ramas disponibles")
+                                    .font(.system(size: 12))
+                                    .foregroundColor(.secondary)
+                            }
+                        }
                         
                         // Auto Replace Option
                         Toggle("Reemplazar módulos existentes automáticamente", isOn: $autoReplaceModules)
@@ -711,6 +798,56 @@ struct ModuleManagerView: View {
         await MainActor.run {
             withAnimation(.easeInOut(duration: 0.3)) {
                 statusLoadingProgress = progress
+            }
+        }
+    }
+    
+    private func loadAvailableBranches() async {
+        guard !apiKey.isEmpty else {
+            print("⚠️ API key is empty, cannot load branches")
+            return
+        }
+        
+        isLoadingBranches = true
+        availableBranches = []
+        
+        do {
+            print("🌿 Loading available branches with API key for project: \(project.name)")
+            let branches = try await projectManager.getAvailableBranches(apiKey: apiKey, for: project)
+            
+            await MainActor.run {
+                self.availableBranches = branches
+                
+                // Set default branch if none selected
+                if self.branch.isEmpty && !branches.isEmpty {
+                    // Prefer 'main' or 'develop' if available, otherwise first branch
+                    if branches.contains("main") {
+                        self.branch = "main"
+                    } else if branches.contains("develop") {
+                        self.branch = "develop"  
+                    } else {
+                        self.branch = branches.first ?? ""
+                    }
+                }
+                
+                self.isLoadingBranches = false
+            }
+            
+            print("✅ Branches loaded successfully: \(branches)")
+        } catch {
+            await MainActor.run {
+                self.isLoadingBranches = false
+                print("❌ Error loading branches: \(error)")
+                // Optionally show error to user
+                if let projectError = error as? ProjectError {
+                    switch projectError {
+                    case .invalidAPIKey(let message):
+                        self.errorMessage = "Clave API inválida: \(message)"
+                        self.showingError = true
+                    default:
+                        break
+                    }
+                }
             }
         }
     }
