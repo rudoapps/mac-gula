@@ -12,9 +12,10 @@ struct PreCommitHook: Identifiable, Codable, Hashable {
     let args: [String]
     let supportedProjectTypes: [ProjectType]
     let category: PreCommitCategory
-    let isEnabled: Bool
+    var isEnabled: Bool
     let configurationRequired: Bool
     let icon: String
+    var isSelectedForProject: Bool
     
     init(
         id: String,
@@ -28,7 +29,8 @@ struct PreCommitHook: Identifiable, Codable, Hashable {
         category: PreCommitCategory,
         isEnabled: Bool = false,
         configurationRequired: Bool = false,
-        icon: String
+        icon: String,
+        isSelectedForProject: Bool = false
     ) {
         self.id = id
         self.name = name
@@ -42,6 +44,7 @@ struct PreCommitHook: Identifiable, Codable, Hashable {
         self.isEnabled = isEnabled
         self.configurationRequired = configurationRequired
         self.icon = icon
+        self.isSelectedForProject = isSelectedForProject
     }
 }
 
@@ -283,6 +286,19 @@ extension PreCommitHook {
             supportedProjectTypes: [.android],
             category: .linting,
             icon: "checkmark.shield"
+        ),
+        PreCommitHook(
+            id: "android-build-check",
+            name: "Android Build Check",
+            description: "Verify that Android project builds successfully",
+            repo: "local",
+            rev: "",
+            hookId: "android-build-check",
+            args: ["--", "./gradlew", "assembleDebug"],
+            supportedProjectTypes: [.android],
+            category: .build,
+            configurationRequired: true,
+            icon: "hammer"
         )
     ]
     
@@ -368,6 +384,14 @@ extension PreCommitHook {
             return flutterHooks
         case .python:
             return pythonHooks
+        }
+    }
+    
+    static func availableHooksWithSelection(for projectType: ProjectType, selectedHookIds: Set<String> = []) -> [PreCommitHook] {
+        return availableHooks(for: projectType).map { hook in
+            var updatedHook = hook
+            updatedHook.isSelectedForProject = selectedHookIds.contains(hook.id)
+            return updatedHook
         }
     }
     
