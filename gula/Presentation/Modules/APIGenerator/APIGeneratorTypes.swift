@@ -2,12 +2,34 @@ import Foundation
 
 // MARK: - Supporting Types
 
-struct GeneratedFile: Identifiable {
+struct GeneratedFile: Identifiable, Equatable {
     let id = UUID()
     let fileName: String
     let path: String
     let content: String
     let type: GeneratedFileType
+    let endpointPath: String? // Para agrupar por endpoint
+    let httpMethod: String? // GET, POST, etc.
+    
+    static func == (lhs: GeneratedFile, rhs: GeneratedFile) -> Bool {
+        return lhs.id == rhs.id
+    }
+}
+
+// Modelo para el preview con selección
+class SelectableGeneratedFile: ObservableObject, Identifiable, Equatable {
+    let id = UUID()
+    let file: GeneratedFile
+    @Published var isSelected: Bool = false
+    
+    init(file: GeneratedFile, isSelected: Bool = false) {
+        self.file = file
+        self.isSelected = isSelected
+    }
+    
+    static func == (lhs: SelectableGeneratedFile, rhs: SelectableGeneratedFile) -> Bool {
+        return lhs.id == rhs.id
+    }
 }
 
 enum GeneratedFileType: String, CaseIterable {
