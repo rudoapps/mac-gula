@@ -141,6 +141,8 @@ private struct ProjectDetailContent: View {
             .onAppear {
                 print("🎯 Case .preCommitHooks ejecutándose para proyecto: \(project.name)")
             }
+        case .apiGenerator:
+            APIGeneratorView(project: project)
         case .openInFinder:
             ProjectOverviewView(
                 project: project,
