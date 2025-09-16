@@ -13,10 +13,16 @@
     "¡Bienvenido a tu proyecto!" : {
 
     },
+    "¡Importados!" : {
+
+    },
     "¡Todo listo!" : {
 
     },
     "¿Qué quieres hacer?" : {
+
+    },
+    "(%lld DTOs)" : {
 
     },
     "(opcional)" : {
@@ -24,6 +30,16 @@
     },
     "%lld" : {
 
+    },
+    "%lld de %lld seleccionados" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld de %2$lld seleccionados"
+          }
+        }
+      }
     },
     "%lld hook(s) seleccionados para configurar" : {
 
@@ -36,6 +52,16 @@
     },
     "%lld ramas disponibles" : {
 
+    },
+    "%lld seleccionado%@" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld seleccionado%2$@"
+          }
+        }
+      }
     },
     "%lld templates encontrados" : {
 
@@ -82,6 +108,9 @@
     "Analizando" : {
 
     },
+    "API Code Generator" : {
+
+    },
     "Aplicar Configuración" : {
 
     },
@@ -112,6 +141,9 @@
     "Cargando Módulos..." : {
 
     },
+    "Cargando templates..." : {
+
+    },
     "Cargando..." : {
 
     },
@@ -119,6 +151,9 @@
 
     },
     "Check for Updates..." : {
+
+    },
+    "Colapsar grupo" : {
 
     },
     "Compartir" : {
@@ -160,7 +195,25 @@
     "Crear Proyecto" : {
 
     },
+    "DEBUG" : {
+
+    },
+    "Debug - Salida del Comando" : {
+
+    },
     "Dependencias requeridas" : {
+
+    },
+    "Deseleccionar DTO" : {
+
+    },
+    "Deseleccionar Todo" : {
+
+    },
+    "Deseleccionar todo el grupo" : {
+
+    },
+    "Deseleccionar todos los DTOs" : {
 
     },
     "Disponibles: %lld" : {
@@ -193,10 +246,19 @@
     "Esto puede tardar unos minutos" : {
 
     },
+    "Expandir grupo" : {
+
+    },
     "Finalizando" : {
 
     },
     "Finalizando..." : {
+
+    },
+    "Genera DTOs desde OpenAPI" : {
+
+    },
+    "Genera tu primer template usando el formulario de arriba" : {
 
     },
     "Generado" : {
@@ -208,7 +270,13 @@
     "Generando Template..." : {
 
     },
+    "Generando..." : {
+
+    },
     "Generar" : {
+
+    },
+    "Generar DTOs" : {
 
     },
     "GULA" : {
@@ -228,6 +296,19 @@
     },
     "Hooks Configurados (%lld)" : {
 
+    },
+    "Importar" : {
+
+    },
+    "Importar %lld DTO%@ al proyecto" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Importar %1$lld DTO%2$@ al proyecto"
+          }
+        }
+      }
     },
     "Información de Módulos" : {
 
@@ -290,6 +371,9 @@
     "Módulos Instalados" : {
 
     },
+    "Mostrar código" : {
+
+    },
     "Necesitamos verificar que las dependencias estén instaladas" : {
 
     },
@@ -300,6 +384,9 @@
 
     },
     "No hay proyectos recientes" : {
+
+    },
+    "No hay templates generados" : {
 
     },
     "No se pudo obtener la información del proyecto" : {
@@ -315,6 +402,12 @@
 
     },
     "Obteniendo la lista de módulos disponibles desde gula CLI. Por favor espera..." : {
+
+    },
+    "Ocultar código" : {
+
+    },
+    "Ocultar información debug" : {
 
     },
     "OK" : {
@@ -353,7 +446,13 @@
     "Resultado de Instalación" : {
 
     },
+    "Salida técnica del comando de generación" : {
+
+    },
     "Saltar verificación (Debug)" : {
+
+    },
+    "Selecciona al menos un DTO para importar" : {
 
     },
     "Selecciona la rama específica del proyecto" : {
@@ -368,7 +467,19 @@
     "Seleccionar" : {
 
     },
+    "Seleccionar DTO" : {
+
+    },
     "Seleccionar Hooks de Pre-commit" : {
+
+    },
+    "Seleccionar Todo" : {
+
+    },
+    "Seleccionar todo el grupo" : {
+
+    },
+    "Seleccionar todos los DTOs" : {
 
     },
     "Sin información de proyecto" : {
@@ -408,6 +519,9 @@
 
     },
     "Usar" : {
+
+    },
+    "Ver información debug" : {
 
     },
     "Verificando dependencias..." : {
