@@ -373,7 +373,7 @@ class ProjectManager: ObservableObject {
         }
     }
     
-    func generateTemplate(_ templateName: String, type: String? = nil) async throws -> String {
+    func generateTemplate(_ templateName: String) async throws -> String {
         guard let project = currentProject else {
             throw ProjectError.noCurrentProject
         }
@@ -385,10 +385,7 @@ class ProjectManager: ObservableObject {
         }
         
         // Usar un script más robusto que asegure el cambio de directorio
-        var gulaCommand = "PATH=\"/opt/homebrew/bin:$PATH\" /opt/homebrew/bin/gula template \(templateName)"
-        if let type = type {
-            gulaCommand += " --type=\(type)"
-        }
+        let gulaCommand = "PATH=\"/opt/homebrew/bin:$PATH\" /opt/homebrew/bin/gula template \(templateName)"
         
         let command = """
         cd "\(project.path)" && pwd && echo "Ejecutando desde: $(pwd)" && \(gulaCommand)
