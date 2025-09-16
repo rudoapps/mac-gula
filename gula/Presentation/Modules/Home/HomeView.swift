@@ -7,13 +7,14 @@ struct HomeView: View {
         ScrollView {
             VStack(spacing: 24) {
                 HeaderSection()
-                StatsGrid(stats: viewModel.stats)
+                StatsGrid(stats: viewModel.stats, isLoading: false)
                 RecentActivity(activities: viewModel.recentActivities)
                 Spacer(minLength: 20)
             }
             .padding(.vertical)
         }
         .onAppear {
+            print("🏠 HomeView: onAppear ejecutado")
             viewModel.loadData()
         }
     }
@@ -42,11 +43,12 @@ struct HeaderSection: View {
 
 struct StatsGrid: View {
     let stats: [StatItem]
+    let isLoading: Bool
     
     var body: some View {
         LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 16), count: 2), spacing: 16) {
             ForEach(stats) { stat in
-                StatCard(stat: stat)
+                StatCard(stat: stat, isLoading: isLoading)
             }
         }
     }
@@ -54,12 +56,19 @@ struct StatsGrid: View {
 
 struct StatCard: View {
     let stat: StatItem
+    let isLoading: Bool
     
     var body: some View {
         VStack(spacing: 12) {
-            Image(systemName: stat.icon)
-                .font(.system(size: 32, weight: .medium))
-                .foregroundColor(stat.color)
+            if isLoading && (stat.title.contains("Módulos") || stat.title.contains("Versión") || stat.title.contains("Estado")) {
+                ProgressView()
+                    .scaleEffect(1.2)
+                    .frame(height: 32)
+            } else {
+                Image(systemName: stat.icon)
+                    .font(.system(size: 32, weight: .medium))
+                    .foregroundColor(stat.color)
+            }
             
             Text(stat.value)
                 .font(.title)
@@ -132,6 +141,10 @@ struct ActivityRow: View {
         .padding(.vertical, 4)
     }
 }
+
+
+
+
 
 #Preview {
     HomeView()
