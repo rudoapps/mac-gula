@@ -3,7 +3,7 @@ import Foundation
 
 struct TemplateGeneratorView: View {
     let project: Project
-    @ObservedObject var projectManager: ProjectManager
+    @Bindable var projectManager: ProjectManager
     @State private var commandOutput: String = ""
     @State private var isLoading: Bool = false
     @State private var showingError: Bool = false

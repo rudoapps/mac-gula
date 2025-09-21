@@ -3,7 +3,7 @@ import Foundation
 
 struct ModuleManagerView: View {
     let project: Project
-    @ObservedObject var projectManager: ProjectManager
+    @Bindable var projectManager: ProjectManager
     @Binding var apiKey: String
     @Binding var isLoading: Bool
     @Binding var showingError: Bool
@@ -26,7 +26,7 @@ struct ModuleManagerView: View {
     @State private var shimmerOffset: CGFloat = -1.0
     @State private var barAnimationTimer: Timer?
     @State private var barScales: [CGFloat] = [0.3, 0.7, 1.0, 0.5, 0.8]
-    @StateObject private var moduleDataSource = ModuleDataSource()
+    @State private var moduleDataSource = ModuleDataSource()
     
     // Gula Status Integration
     @State private var gulaStatus: GulaStatus?

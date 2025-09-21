@@ -1,12 +1,13 @@
 import Foundation
 import SwiftUI
 
-class ProjectSelectionViewModel: ObservableObject {
-    @Published var showingNewProjectSheet = false
-    @Published var showingError = false
-    @Published var errorMessage = ""
-    @Published var isLoading = false
-    @Published var recentProjects: [Project] = []
+@Observable
+class ProjectSelectionViewModel {
+    var showingNewProjectSheet = false
+    var showingError = false
+    var errorMessage = ""
+    var isLoading = false
+    var recentProjects: [Project] = []
     
     private var projectManager: ProjectManager
     private let filePickerService: FilePickerService

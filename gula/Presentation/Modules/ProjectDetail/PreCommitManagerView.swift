@@ -3,7 +3,7 @@ import Foundation
 
 struct PreCommitManagerView: View {
     let project: Project
-    @ObservedObject var projectManager: ProjectManager
+    @Bindable var projectManager: ProjectManager
     
     @State private var projectStatus: PreCommitProjectStatus?
     @State private var installedTools: [String] = []

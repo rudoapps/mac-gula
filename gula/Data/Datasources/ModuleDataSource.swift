@@ -5,7 +5,8 @@ protocol ModuleDataSourceProtocol {
     func getAvailableModules() -> [Module]
 }
 
-class ModuleDataSource: ObservableObject, ModuleDataSourceProtocol {
+@Observable
+class ModuleDataSource: ModuleDataSourceProtocol {
     func getAvailableModules() -> [Module] {
         return [
             Module(

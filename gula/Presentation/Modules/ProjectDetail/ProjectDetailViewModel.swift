@@ -3,11 +3,12 @@ import SwiftUI
 
 // MARK: - Project Detail ViewModel
 
-class ProjectDetailViewModel: ObservableObject {
-    @Published var isLoading = false
-    @Published var showingError = false
-    @Published var errorMessage = ""
-    @Published var apiKey = ""
+@Observable
+class ProjectDetailViewModel {
+    var isLoading = false
+    var showingError = false
+    var errorMessage = ""
+    var apiKey = ""
     
     init() {
         // Initialize any default values or setup

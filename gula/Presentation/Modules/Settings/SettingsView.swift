@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @StateObject private var viewModel = SettingsViewModel()
+    @State private var viewModel = SettingsViewModel()
     
     var body: some View {
         ScrollView {
@@ -17,7 +17,7 @@ struct SettingsView: View {
 }
 
 struct GeneralSettings: View {
-    @ObservedObject var viewModel: SettingsViewModel
+    @Bindable var viewModel: SettingsViewModel
     
     var body: some View {
         SettingsSection(title: "General") {
@@ -36,7 +36,7 @@ struct GeneralSettings: View {
 }
 
 struct AppearanceSettings: View {
-    @ObservedObject var viewModel: SettingsViewModel
+    @Bindable var viewModel: SettingsViewModel
     
     var body: some View {
         SettingsSection(title: "Apariencia") {
@@ -56,7 +56,7 @@ struct AppearanceSettings: View {
 }
 
 struct NotificationSettings: View {
-    @ObservedObject var viewModel: SettingsViewModel
+    @Bindable var viewModel: SettingsViewModel
     
     var body: some View {
         SettingsSection(title: "Notificaciones") {
@@ -69,7 +69,7 @@ struct NotificationSettings: View {
 }
 
 struct AdvancedSettings: View {
-    @ObservedObject var viewModel: SettingsViewModel
+    @Bindable var viewModel: SettingsViewModel
     
     var body: some View {
         SettingsSection(title: "Avanzado") {

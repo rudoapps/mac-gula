@@ -1,8 +1,9 @@
 import Foundation
 import SwiftUI
 
-class FavoritesViewModel: ObservableObject {
-    @Published var favorites: [FavoriteItem] = []
+@Observable
+class FavoritesViewModel {
+    var favorites: [FavoriteItem] = []
     
     func loadFavorites() {
         favorites = FavoriteItem.sampleFavorites

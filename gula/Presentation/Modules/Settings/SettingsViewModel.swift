@@ -1,13 +1,14 @@
 import Foundation
 import SwiftUI
 
-class SettingsViewModel: ObservableObject {
-    @Published var autoSave = true
-    @Published var showFileExtensions = false
-    @Published var selectedTheme = "Sistema"
-    @Published var useVibrancy = true
-    @Published var enableNotifications = true
-    @Published var soundEnabled = true
+@Observable
+class SettingsViewModel {
+    var autoSave = true
+    var showFileExtensions = false
+    var selectedTheme = "Sistema"
+    var useVibrancy = true
+    var enableNotifications = true
+    var soundEnabled = true
     
     let themes = ["Claro", "Oscuro", "Sistema"]
     

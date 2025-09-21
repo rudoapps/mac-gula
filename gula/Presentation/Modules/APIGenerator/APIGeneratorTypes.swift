@@ -17,10 +17,11 @@ struct GeneratedFile: Identifiable, Equatable {
 }
 
 // Modelo para el preview con selección
-class SelectableGeneratedFile: ObservableObject, Identifiable, Equatable {
+@Observable
+class SelectableGeneratedFile: Identifiable, Equatable {
     let id = UUID()
     let file: GeneratedFile
-    @Published var isSelected: Bool = false
+    var isSelected: Bool = false
     
     init(file: GeneratedFile, isSelected: Bool = false) {
         self.file = file
@@ -63,17 +64,15 @@ enum GeneratedFileType: String, CaseIterable {
 enum NetworkingFramework: String, CaseIterable {
     case urlSession = "URLSession"
     case alamofire = "Alamofire"
-    case combine = "Combine"
-    
+
     var displayName: String {
         return rawValue
     }
-    
+
     var icon: String {
         switch self {
         case .urlSession: return "network"
         case .alamofire: return "globe"
-        case .combine: return "arrow.triangle.merge"
         }
     }
 }

@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct DocumentsView: View {
-    @StateObject private var viewModel = DocumentsViewModel()
+    @State private var viewModel = DocumentsViewModel()
     
     var body: some View {
         VStack(spacing: 0) {

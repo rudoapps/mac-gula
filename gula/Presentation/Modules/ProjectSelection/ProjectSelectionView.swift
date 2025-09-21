@@ -1,10 +1,10 @@
 import SwiftUI
 
 struct ProjectSelectionView: View {
-    @StateObject private var viewModel: ProjectSelectionViewModel
+    @State private var viewModel: ProjectSelectionViewModel
     
     init(viewModel: ProjectSelectionViewModel) {
-        self._viewModel = StateObject(wrappedValue: viewModel)
+        self._viewModel = State(wrappedValue: viewModel)
     }
     
     var body: some View {

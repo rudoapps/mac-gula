@@ -3,7 +3,7 @@ import Foundation
 
 struct APIGeneratorView: View {
     let project: Project
-    @StateObject private var viewModel = APIGeneratorViewModel()
+    @State private var viewModel = APIGeneratorViewModel()
     @State private var openAPIUrl = "https://services.rudo.es/api/gula/openapi.json"
     @State private var selectableFiles: [SelectableGeneratedFile] = []
     
@@ -405,7 +405,7 @@ struct SimpleDTOGroupView: View {
 // MARK: - Simple DTO File View (Fixed)
 
 struct SimpleDTOFileView: View {
-    @ObservedObject var selectableFile: SelectableGeneratedFile
+    @Bindable var selectableFile: SelectableGeneratedFile
     let project: Project
     let onSelectionChanged: () -> Void
     @State private var isExpanded = false

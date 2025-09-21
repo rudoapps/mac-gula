@@ -6,7 +6,7 @@ import Foundation
 struct ProjectOverviewView: View {
     let project: Project
     @Binding var selectedAction: GulaDashboardAction?
-    @ObservedObject var projectManager: ProjectManager
+    @Bindable var projectManager: ProjectManager
     
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {

@@ -1,11 +1,11 @@
 import Foundation
-import Combine
 
-class ProjectManager: ObservableObject {
+@Observable
+class ProjectManager {
     static let shared = ProjectManager()
     
-    @Published var recentProjects: [Project] = []
-    @Published var currentProject: Project?
+    var recentProjects: [Project] = []
+    var currentProject: Project?
     
     private let userDefaults = UserDefaults.standard
     private let recentProjectsKey = "RecentProjects"
@@ -34,13 +34,11 @@ class ProjectManager: ObservableObject {
         }
         
         saveRecentProjects()
-        objectWillChange.send()
     }
-    
+
     func removeRecentProject(_ project: Project) {
         recentProjects.removeAll { $0.id == project.id }
         saveRecentProjects()
-        objectWillChange.send()
     }
     
     private func loadRecentProjects() {

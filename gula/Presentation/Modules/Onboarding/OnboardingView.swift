@@ -1,10 +1,10 @@
 import SwiftUI
 
 struct OnboardingView: View {
-    @StateObject var viewModel: OnboardingViewModel
-    
+    @State var viewModel: OnboardingViewModel
+
     init(viewModel: OnboardingViewModel) {
-        self._viewModel = StateObject(wrappedValue: viewModel)
+        self._viewModel = State(wrappedValue: viewModel)
     }
     
     var body: some View {
@@ -14,6 +14,12 @@ struct OnboardingView: View {
             switch viewModel.dependencyStatus {
             case .checking:
                 LoadingView()
+            case .checkingConnectivity:
+                LoadingView()
+            case .noInternetConnection:
+                ErrorView(message: "No hay conexión a Internet. Verifica tu conexión y vuelve a intentar.") {
+                    viewModel.recheckDependencies()
+                }
             case .allInstalled:
                 SuccessView {
                     viewModel.proceedToMainApp()
@@ -119,7 +125,7 @@ struct DependenciesView: View {
     let dependencies: [SystemDependency]
     let onInstall: (SystemDependency) -> Void
     let onRecheck: () -> Void
-    @ObservedObject var viewModel: OnboardingViewModel
+    @Bindable var viewModel: OnboardingViewModel
     
     private var isAnyInstalling: Bool {
         return !viewModel.installingDependencies.isEmpty
@@ -277,7 +283,7 @@ struct InstallationIndicator: View {
 struct DependencyCard: View {
     let dependency: SystemDependency
     let onInstall: () -> Void
-    @ObservedObject var viewModel: OnboardingViewModel
+    @Bindable var viewModel: OnboardingViewModel
     
     private var isHomebrewInstalled: Bool {
         switch viewModel.dependencyStatus {
@@ -285,7 +291,7 @@ struct DependencyCard: View {
             return true
         case .missingDependencies(let missing):
             return !missing.contains { $0.name == "Homebrew" }
-        case .checking, .error:
+        case .checking, .checkingConnectivity, .noInternetConnection, .error:
             return false
         case .gulaUpdateRequired, .updatingGula, .gulaUpdated:
             return true // If we're dealing with gula updates, homebrew is installed

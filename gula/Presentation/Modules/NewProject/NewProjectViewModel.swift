@@ -44,17 +44,18 @@ enum PythonStack: String, CaseIterable, Identifiable {
     }
 }
 
-class NewProjectViewModel: ObservableObject {
-    @Published var projectName: String = ""
-    @Published var selectedType: ProjectType = .flutter
-    @Published var selectedPythonStack: PythonStack = .fastapi
-    @Published var packageName: String = ""
-    @Published var apiKey: String = ""
-    @Published var selectedLocation: String = ""
-    @Published var isCreating = false
-    @Published var showingError = false
-    @Published var errorMessage = ""
-    @Published var creationProgress = ""
+@Observable
+class NewProjectViewModel {
+    var projectName: String = ""
+    var selectedType: ProjectType = .flutter
+    var selectedPythonStack: PythonStack = .fastapi
+    var packageName: String = ""
+    var apiKey: String = ""
+    var selectedLocation: String = ""
+    var isCreating = false
+    var showingError = false
+    var errorMessage = ""
+    var creationProgress = ""
     
     private let projectManager: ProjectManager
     private let filePickerService: FilePickerService

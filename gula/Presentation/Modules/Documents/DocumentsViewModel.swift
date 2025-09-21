@@ -7,10 +7,11 @@ enum DocumentAction {
     case delete
 }
 
-class DocumentsViewModel: ObservableObject {
-    @Published var searchText = ""
-    @Published var selectedDocument: Document?
-    @Published var documents: [Document] = Document.sampleDocuments
+@Observable
+class DocumentsViewModel {
+    var searchText = ""
+    var selectedDocument: Document?
+    var documents: [Document] = Document.sampleDocuments
     
     var filteredDocuments: [Document] {
         if searchText.isEmpty {

@@ -1,11 +1,12 @@
 import Foundation
 import SwiftUI
 
-class HomeViewModel: ObservableObject {
-    @Published var stats: [StatItem] = []
-    @Published var recentActivities: [ActivityItem] = []
-    @Published var gulaStatus: GulaStatus?
-    @Published var isLoadingStatus = false
+@Observable
+class HomeViewModel {
+    var stats: [StatItem] = []
+    var recentActivities: [ActivityItem] = []
+    var gulaStatus: GulaStatus?
+    var isLoadingStatus = false
     
     private let projectManager = ProjectManager.shared
     

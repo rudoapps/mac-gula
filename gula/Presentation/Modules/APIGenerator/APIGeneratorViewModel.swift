@@ -1,13 +1,13 @@
 import Foundation
-import Combine
 
 // Import the OpenAPI models - assuming they are in the same module
 
 @MainActor
-class APIGeneratorViewModel: ObservableObject {
-    @Published var isLoading = false
-    @Published var generatedFiles: [GeneratedFile] = []
-    @Published var errorMessage: String?
+@Observable
+class APIGeneratorViewModel {
+    var isLoading = false
+    var generatedFiles: [GeneratedFile] = []
+    var errorMessage: String?
     
     private let apiService = APIGeneratorService()
     private let fileManager = FileManager.default

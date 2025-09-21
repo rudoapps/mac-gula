@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ToolsView: View {
-    @StateObject private var viewModel = ToolsViewModel()
+    @State private var viewModel = ToolsViewModel()
     
     var body: some View {
         ScrollView {

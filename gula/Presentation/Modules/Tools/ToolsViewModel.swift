@@ -1,8 +1,9 @@
 import Foundation
 import SwiftUI
 
-class ToolsViewModel: ObservableObject {
-    @Published var tools: [Tool] = []
+@Observable
+class ToolsViewModel {
+    var tools: [Tool] = []
     
     func loadTools() {
         tools = Tool.availableTools

@@ -2,7 +2,7 @@ import SwiftUI
 import AppKit
 
 struct NewProjectView: View {
-    @StateObject private var viewModel = NewProjectViewModel()
+    @State private var viewModel = NewProjectViewModel()
     @Environment(\.dismiss) private var dismiss
     
     let onProjectCreated: (Project) -> Void

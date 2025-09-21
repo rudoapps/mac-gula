@@ -6,15 +6,15 @@ import Sparkle
 struct ProjectDetailView: View {
     let project: Project
     let onBack: () -> Void
-    @StateObject private var projectManager = ProjectManager.shared
-    @StateObject private var viewModel: ProjectDetailViewModel
+    @State private var projectManager = ProjectManager.shared
+    @State private var viewModel: ProjectDetailViewModel
     @State private var selectedAction: GulaDashboardAction? = .overview
     @State private var showingModuleList = false
     
     init(project: Project, onBack: @escaping () -> Void, viewModel: ProjectDetailViewModel = ProjectDetailViewModel()) {
         self.project = project
         self.onBack = onBack
-        self._viewModel = StateObject(wrappedValue: viewModel)
+        self._viewModel = State(wrappedValue: viewModel)
     }
     
     var body: some View {
@@ -104,7 +104,7 @@ private struct ProjectDetailSidebar: View {
 private struct ProjectDetailContent: View {
     @Binding var selectedAction: GulaDashboardAction?
     let project: Project
-    @ObservedObject var projectManager: ProjectManager
+    @Bindable var projectManager: ProjectManager
     @Binding var apiKey: String
     @Binding var isLoading: Bool
     @Binding var showingError: Bool
