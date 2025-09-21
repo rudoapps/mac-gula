@@ -1,10 +1,11 @@
 import Foundation
 import SwiftUI
 
-class OnboardingViewModel: ObservableObject {
-    @Published var dependencyStatus: DependencyStatus = .checking
-    @Published var installingDependencies: Set<String> = []
-    @Published var dependencyProgress: [String: String] = [:]
+@Observable
+class OnboardingViewModel {
+    var dependencyStatus: DependencyStatus = .checking
+    var installingDependencies: Set<String> = []
+    var dependencyProgress: [String: String] = [:]
     
     private let checkDependenciesUseCase: CheckSystemDependenciesUseCaseProtocol
     private let systemRepository: SystemRepositoryProtocol
@@ -121,7 +122,7 @@ class OnboardingViewModel: ObservableObject {
         case .missingDependencies(let missing):
             // Homebrew está instalado si no está en la lista de dependencias faltantes
             return !missing.contains { $0.name == "Homebrew" }
-        case .checking, .error:
+        case .checking, .checkingConnectivity, .noInternetConnection, .error:
             return false
         case .gulaUpdateRequired, .updatingGula, .gulaUpdated:
             return true // If we're dealing with gula updates, homebrew is installed

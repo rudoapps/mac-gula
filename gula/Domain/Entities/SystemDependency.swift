@@ -28,6 +28,8 @@ struct SystemDependency: Identifiable {
 
 enum DependencyStatus {
     case checking
+    case checkingConnectivity
+    case noInternetConnection
     case allInstalled
     case missingDependencies([SystemDependency])
     case gulaUpdateRequired(String) // current version

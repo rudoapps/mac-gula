@@ -18,12 +18,29 @@ class CheckSystemDependenciesUseCase: CheckSystemDependenciesUseCaseProtocol {
     
     func execute(progressCallback: @escaping (DependencyStatus) -> Void) async -> DependencyStatus {
         progressCallback(.checking)
-        
+
+        // First, check internet connectivity
+        progressCallback(.checkingConnectivity)
+        print("🌐 Checking internet connectivity before dependency validation...")
+
+        do {
+            let hasInternet = try await systemRepository.checkInternetConnectivity()
+            if !hasInternet {
+                print("❌ No internet connection detected")
+                progressCallback(.noInternetConnection)
+                return .noInternetConnection
+            }
+            print("✅ Internet connectivity confirmed")
+        } catch {
+            print("⚠️ Could not verify internet connectivity, continuing anyway: \(error.localizedDescription)")
+            // Continue with dependency check even if connectivity check fails
+        }
+
         let dependencies = [SystemDependency.homebrew, SystemDependency.gula]
         var checkedDependencies: [SystemDependency] = []
-        
+
         print("🔍 Starting dependency check...")
-        
+
         for var dependency in dependencies {
             do {
                 print("🔍 Checking \(dependency.name) with command: \(dependency.checkCommand)")
@@ -60,10 +77,18 @@ class CheckSystemDependenciesUseCase: CheckSystemDependenciesUseCaseProtocol {
                     print("⚠️ Gula update required. Current version: \(currentVersion)")
                     progressCallback(.gulaUpdateRequired(currentVersion))
                     
+                    // Verify internet connectivity before attempting update
+                    print("🌐 Verifying internet connectivity before update...")
+                    let hasInternetForUpdate = try await systemRepository.checkInternetConnectivity()
+                    if !hasInternetForUpdate {
+                        print("❌ No internet connection for update")
+                        return .error("Internet connection required for updating Gula")
+                    }
+
                     // Perform automatic update
                     print("🔄 Starting gula update...")
                     progressCallback(.updatingGula)
-                    
+
                     let updateOutput = try await systemRepository.executeCommand("brew upgrade gula")
                     print("✅ Gula update completed: \(updateOutput)")
                     

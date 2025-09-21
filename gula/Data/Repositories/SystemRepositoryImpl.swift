@@ -257,4 +257,26 @@ class SystemRepositoryImpl: SystemRepositoryProtocol {
         throw NSError(domain: "SystemRepository", code: -1, userInfo: [NSLocalizedDescriptionKey: "Terminal execution not supported on this platform"])
         #endif
     }
+
+    func checkInternetConnectivity() async throws -> Bool {
+        #if os(macOS)
+        do {
+            print("🌐 Checking internet connectivity...")
+
+            // Try to ping a reliable public DNS server (Google's 8.8.8.8)
+            let result = try await executeCommand("ping -c 1 -W 3000 8.8.8.8")
+            let hasConnectivity = result.contains("1 packets transmitted, 1 received") || result.contains("1 packets transmitted, 1 packets received")
+
+            print("🌐 Internet connectivity: \(hasConnectivity ? "✅ Available" : "❌ Not available")")
+            return hasConnectivity
+        } catch {
+            print("❌ Error checking internet connectivity: \(error)")
+            return false
+        }
+        #else
+        // En iOS/simulador, simulamos que hay conectividad
+        print("DEBUG iOS: Simulating internet connectivity check")
+        return true
+        #endif
+    }
 }

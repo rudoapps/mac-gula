@@ -9,7 +9,7 @@ struct gulaApp: App {
     @State private var dependencyStatus: DependencyStatus = .checking
     
     private let dependenciesUseCase = CheckSystemDependenciesUseCase(systemRepository: SystemRepositoryImpl())
-    @ObservedObject private var projectManager = ProjectManager.shared
+    @State private var projectManager = ProjectManager.shared
     private let updaterController: SPUStandardUpdaterController
     
     init() {
@@ -90,6 +90,10 @@ struct gulaApp: App {
         switch dependencyStatus {
         case .checking:
             return "Verificando dependencias..."
+        case .checkingConnectivity:
+            return "Verificando conexión a Internet..."
+        case .noInternetConnection:
+            return "Sin conexión a Internet"
         case .allInstalled:
             return "Dependencias verificadas ✅"
         case .missingDependencies(_):
@@ -124,8 +128,8 @@ struct gulaApp: App {
             // All dependencies are installed and up to date
             isCheckingDependencies = false
             showOnboarding = false
-            
-        case .missingDependencies(_), .error(_), .checking, .gulaUpdateRequired(_), .updatingGula, .gulaUpdated:
+
+        case .missingDependencies(_), .error(_), .checking, .checkingConnectivity, .noInternetConnection, .gulaUpdateRequired(_), .updatingGula, .gulaUpdated:
             print("🚀 gulaApp: Mostrando onboarding debido a: \(finalStatus)")
             // Missing dependencies or error, show onboarding
             isCheckingDependencies = false
