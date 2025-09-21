@@ -1,0 +1,162 @@
+{
+  "project": {
+    "name": "Gula",
+    "type": "macOS SwiftUI Application",
+    "purpose": "Development tool for project management and task automation",
+    "version": "1.0.0",
+    "lastUpdated": "2025-09-20"
+  },
+  "architecture": {
+    "pattern": "Clean Architecture",
+    "layers": {
+      "domain": {
+        "path": "gula/Domain/",
+        "contains": ["Entities", "Repositories (interfaces)", "Use Cases"],
+        "responsibility": "Business logic and domain models"
+      },
+      "data": {
+        "path": "gula/Data/",
+        "contains": ["Repository implementations", "Data sources"],
+        "responsibility": "Data access and external services"
+      },
+      "presentation": {
+        "path": "gula/Presentation/",
+        "contains": ["Views", "ViewModels", "Services", "Modules"],
+        "responsibility": "UI and user interaction"
+      }
+    }
+  },
+  "technologies": {
+    "primary": ["SwiftUI", "@Observable", "Swift"],
+    "external": ["Sparkle (auto-updates)"],
+    "build": ["Xcode", "GitHub Actions"],
+    "deployment": ["DMG", "GitHub Releases"],
+    "removed": ["Combine (migrated to @Observable)"]
+  },
+  "codebase": {
+    "fileCount": 66,
+    "language": "Swift",
+    "swiftUIPattern": "@Observable ViewModels with @State/@Bindable in Views",
+    "observationPattern": "@Observable classes, @State for local, @Bindable for parameters",
+    "namingConventions": {
+      "classes": "PascalCase",
+      "properties": "camelCase",
+      "files": "[ModuleName]View.swift, [ModuleName]ViewModel.swift"
+    }
+  },
+  "modules": {
+    "core": [
+      {
+        "name": "Home",
+        "purpose": "Main project management interface",
+        "files": ["HomeView.swift"]
+      },
+      {
+        "name": "ProjectDetail",
+        "purpose": "Individual project management",
+        "files": ["ProjectDetailView.swift", "ProjectDetailSidebar.swift"]
+      },
+      {
+        "name": "APIGenerator",
+        "purpose": "Generate code from OpenAPI specs",
+        "files": ["APIGeneratorViewModel.swift", "APIPreviewSheet.swift"]
+      }
+    ]
+  },
+  "services": {
+    "critical": [
+      {
+        "name": "ProjectManager",
+        "path": "gula/Presentation/Services/ProjectManager.swift",
+        "purpose": "Central project management"
+      },
+      {
+        "name": "GitAnalyticsService",
+        "path": "gula/Presentation/Services/GitAnalyticsService.swift",
+        "purpose": "Git repository analysis"
+      },
+      {
+        "name": "MCPService",
+        "path": "gula/Presentation/Services/MCPService.swift",
+        "purpose": "External service integration"
+      }
+    ]
+  },
+  "developmentPatterns": {
+    "architecture": "Clean Architecture with clear layer separation",
+    "uiPattern": "SwiftUI declarative with @Observable ViewModels",
+    "dataFlow": "@Observable for reactive programming (no Combine)",
+    "stateManagement": "@State for local state, @Bindable for passed objects",
+    "modularity": "Feature-based modules, one file per component",
+    "dependencies": "Constructor injection, protocol-based abstractions"
+  },
+  "buildCommands": {
+    "standard": "xcodebuild -project gula.xcodeproj -scheme gula build",
+    "withTimeout": "timeout 180 xcodebuild -project gula.xcodeproj -scheme gula build",
+    "syntaxCheck": "/usr/bin/xcrun --sdk macosx swiftc -c [file.swift] -I gula/"
+  },
+  "currentState": {
+    "recentChanges": [
+      "MAJOR: Complete migration from Combine to @Observable (2025-09-20)",
+      "Internet connectivity check added to dependency validation",
+      "Automatic release system configured",
+      "Sparkle integration for auto-updates",
+      "OpenAPI code generator improvements",
+      "ProjectManager and UI enhancements"
+    ],
+    "modifiedFiles": [
+      "All ViewModels (13 files) - migrated to @Observable",
+      "All Views (11 files) - updated to use @State/@Bindable",
+      "ProjectManager.swift - converted to @Observable",
+      "APIGeneratorTypes.swift - removed Combine option",
+      ".claude/settings.local.json",
+      ".gitignore",
+      "gula/Resources/Localizable/Localizable.xcstrings"
+    ],
+    "pendingCommit": [
+      "README_PUBLIC.md",
+      "RELEASE.md",
+      "releases-repo/"
+    ]
+  },
+  "businessContext": {
+    "type": "Commercial application",
+    "distribution": "macOS App Store + Direct distribution",
+    "users": "Active user base with automatic updates",
+    "compatibility": "macOS 15.0+",
+    "updateMechanism": "Sparkle framework"
+  },
+  "priorities": {
+    "stability": "High - commercial app with active users",
+    "compatibility": "Maintain macOS 15.0+ support",
+    "features": "Secondary to stability",
+    "performance": "Important for large project lists"
+  },
+  "technicalDebt": {
+    "testing": "Limited unit test coverage",
+    "performance": "List performance with many items",
+    "documentation": "Internal API documentation needed",
+    "ux": "Novice user experience improvements"
+  },
+  "keyDecisions": {
+    "cleanArchitecture": "Chosen for scalability and testability",
+    "swiftUIOnly": "No UIKit for modern codebase",
+    "observablePattern": "Migrated from Combine to @Observable for better performance and modern Swift",
+    "modularDesign": "Each feature as independent module",
+    "reactiveProgamming": "@Observable provides automatic UI updates without manual publishers"
+  },
+  "migrationHistory": {
+    "combineToObservable": {
+      "date": "2025-09-20",
+      "reason": "Better performance, cleaner code, modern Swift patterns",
+      "scope": "Complete project migration",
+      "changedFiles": 24,
+      "benefits": [
+        "Reduced memory overhead",
+        "Simpler syntax",
+        "Better compile-time optimizations",
+        "No external Combine dependency"
+      ]
+    }
+  }
+}

@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# Script para recordar actualizar el contexto del proyecto
+# Uso: ./update-context.sh "descripción del cambio"
+
+echo "🔄 RECORDATORIO DE ACTUALIZACIÓN DE CONTEXTO"
+echo "============================================="
+echo ""
+echo "📝 Cambio realizado: ${1:-'Cambio no especificado'}"
+echo "📅 Fecha: $(date '+%Y-%m-%d')"
+echo ""
+echo "💡 Para mantener el contexto actualizado, considera actualizar:"
+echo "   - .claude/project-context.json"
+echo "   - CLAUDE.md (si es necesario)"
+echo ""
+echo "🏷️  Secciones que podrían necesitar actualización:"
+echo "   - currentState.recentChanges[]"
+echo "   - currentState.modifiedFiles[]"
+echo "   - technologies (si hay cambios técnicos)"
+echo "   - developmentPatterns (si cambian patrones)"
+echo "   - migrationHistory (para cambios mayores)"
+echo ""
+echo "📂 Archivos de contexto:"
+echo "   - .claude/project-context.json"
+echo "   - CLAUDE.md"
+echo ""
