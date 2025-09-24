@@ -1,0 +1,16 @@
+{
+    "shared": [
+            "Gula/Shared/Error",
+            "Gula/Shared/Configuration",
+            "Gula/Shared/Resources/Color",
+            "Gula/Shared/Navigator"
+    ],
+
+    "libraries": [
+            {
+            "name": "TripleA",
+            "url": "https://github.com/fsalom/TripleA",
+            "version": "2.3.0"
+        }
+    ]
+}

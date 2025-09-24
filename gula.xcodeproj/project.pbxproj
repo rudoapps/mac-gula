@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C14EA3C82E81C3E8004810A8 /* TripleA in Frameworks */ = {isa = PBXBuildFile; productRef = E3A1C06D35550317B63B7F87 /* TripleA */; };
 		C18AAAE62E735DF700D26D17 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 8F2AC9132DA1000000E66B45 /* Sparkle */; };
 		C18AACED2E77208800D26D17 /* appcast.xml in Resources */ = {isa = PBXBuildFile; fileRef = C18AACEC2E77208800D26D17 /* appcast.xml */; };
 /* End PBXBuildFile section */
@@ -45,6 +46,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C14EA3C82E81C3E8004810A8 /* TripleA in Frameworks */,
 				C18AAAE62E735DF700D26D17 /* Sparkle in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -99,6 +101,7 @@
 			name = gula;
 			packageProductDependencies = (
 				8F2AC9132DA1000000E66B45 /* Sparkle */,
+				E3A1C06D35550317B63B7F87 /* TripleA */,
 			);
 			productName = gula;
 			productReference = 8F2AC8E82DA0029300E66B45 /* gula.app */;
@@ -121,8 +124,6 @@
 				8F2AC8FB2DA0029400E66B45 /* gulaTests */,
 			);
 			name = gulaTests;
-			packageProductDependencies = (
-			);
 			productName = gulaTests;
 			productReference = 8F2AC8F82DA0029400E66B45 /* gulaTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -159,6 +160,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				8F2AC9122DA1000000E66B45 /* XCRemoteSwiftPackageReference "Sparkle" */,
+				26C700542DB49CD129E844A8 /* XCRemoteSwiftPackageReference "TripleA" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 8F2AC8E92DA0029300E66B45 /* Products */;
@@ -496,6 +498,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		26C700542DB49CD129E844A8 /* XCRemoteSwiftPackageReference "TripleA" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/fsalom/TripleA";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.3.0;
+			};
+		};
 		8F2AC9122DA1000000E66B45 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/sparkle-project/Sparkle";
@@ -511,6 +521,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 8F2AC9122DA1000000E66B45 /* XCRemoteSwiftPackageReference "Sparkle" */;
 			productName = Sparkle;
+		};
+		E3A1C06D35550317B63B7F87 /* TripleA */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 26C700542DB49CD129E844A8 /* XCRemoteSwiftPackageReference "TripleA" */;
+			productName = TripleA;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

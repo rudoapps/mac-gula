@@ -1,5 +1,5 @@
 {
-  "originHash" : "e721da7f9826abdffcb6185e886155efa2514bd6234475f1afa893e29eb258d6",
+  "originHash" : "055745cdae2f2d3f24c6607c0cf722a4495edd57cf5606b521cc17b17c65f146",
   "pins" : [
     {
       "identity" : "sparkle",
@@ -8,6 +8,15 @@
       "state" : {
         "revision" : "06beff60e3b609a485290e4d5d2d1e2eedb1e55d",
         "version" : "2.7.3"
+      }
+    },
+    {
+      "identity" : "triplea",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/fsalom/TripleA",
+      "state" : {
+        "revision" : "351401b8af0decfac7a791c8ca914f6eeb09f6ef",
+        "version" : "2.5.1"
       }
     }
   ],
