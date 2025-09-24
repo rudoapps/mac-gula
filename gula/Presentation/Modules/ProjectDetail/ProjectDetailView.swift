@@ -143,6 +143,14 @@ private struct ProjectDetailContent: View {
             }
         case .apiGenerator:
             APIGeneratorView(project: project)
+        case .chatAssistant:
+            if #available(macOS 15.0, *) {
+                ChatBuilder.build(customerID: 1)
+            } else {
+                Text("ChatIA requiere macOS 15.0 o superior")
+                    .foregroundColor(.secondary)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
         case .openInFinder:
             ProjectOverviewView(
                 project: project,

@@ -467,6 +467,7 @@ enum GulaDashboardAction: String, CaseIterable, Identifiable, Hashable {
     case generateTemplate = "generateTemplate"
     case preCommitHooks = "preCommitHooks"
     case apiGenerator = "apiGenerator"
+    case chatAssistant = "chatAssistant"
     case openInFinder = "openInFinder"
     case settings = "settings"
     
@@ -479,6 +480,7 @@ enum GulaDashboardAction: String, CaseIterable, Identifiable, Hashable {
         case .generateTemplate: return "Generar Template"
         case .preCommitHooks: return "Pre-commit Hooks"
         case .apiGenerator: return "API Generator"
+        case .chatAssistant: return "Chat Asistente"
         case .openInFinder: return "Abrir en Finder"
         case .settings: return "Configuración"
         }
@@ -491,13 +493,14 @@ enum GulaDashboardAction: String, CaseIterable, Identifiable, Hashable {
         case .generateTemplate: return "doc.badge.plus"
         case .preCommitHooks: return "checkmark.shield"
         case .apiGenerator: return "network"
+        case .chatAssistant: return "message.badge.fill"
         case .openInFinder: return "folder"
         case .settings: return "gear"
         }
     }
     
     static let projectItems: [GulaDashboardAction] = [.overview, .openInFinder]
-    static let developmentItems: [GulaDashboardAction] = [.modules, .generateTemplate, .preCommitHooks, .apiGenerator]
+    static let developmentItems: [GulaDashboardAction] = [.modules, .generateTemplate, .preCommitHooks, .apiGenerator, .chatAssistant]
     static let toolsItems: [GulaDashboardAction] = [.settings]
 }
 
