@@ -81,7 +81,7 @@ struct ProfessionalTextView: View {
                 ZStack(alignment: .topLeading) {
                     // Placeholder text
                     if text.isEmpty {
-                        Text(placeholder)
+                        Text(LocalizedStringKey(placeholder))
                             .font(.system(size: 14))
                             .foregroundColor(.secondary.opacity(0.7))
                             .padding(.horizontal, 4)
