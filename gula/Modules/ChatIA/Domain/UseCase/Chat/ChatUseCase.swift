@@ -9,9 +9,11 @@ import Foundation
 
 final class ChatUseCase: ChatUseCaseProtocol {
     private let repository: ChatRepositoryProtocol
+    private let projectAgentRepository: ProjectAgentRepositoryProtocol
 
-    init(repository: ChatRepositoryProtocol) {
+    init(repository: ChatRepositoryProtocol, projectAgentRepository: ProjectAgentRepositoryProtocol) {
         self.repository = repository
+        self.projectAgentRepository = projectAgentRepository
     }
 
     func createChat(of customerID: Int) async throws -> Int {
@@ -33,6 +35,32 @@ final class ChatUseCase: ChatUseCaseProtocol {
     func getConfiguration(of customerID: Int) async throws -> ChatConfiguration {
         do {
             return try await repository.getConfiguration(of: customerID)
+        } catch {
+            throw handle(this: error)
+        }
+    }
+
+    // MARK: - Project Agent Capabilities
+
+    func executeProjectAction(_ action: ProjectAction, in project: Project) async throws -> AgentResponse {
+        do {
+            return try await projectAgentRepository.executeAction(action, in: project)
+        } catch {
+            throw handle(this: error)
+        }
+    }
+
+    func analyzeProject(_ project: Project) async throws -> ProjectAnalysis {
+        do {
+            return try await projectAgentRepository.analyzeProject(project)
+        } catch {
+            throw handle(this: error)
+        }
+    }
+
+    func sendAgentMessage(_ message: String, in project: Project?) async throws -> AgentResponse {
+        do {
+            return try await projectAgentRepository.processAgentMessage(message, in: project)
         } catch {
             throw handle(this: error)
         }
