@@ -19,9 +19,11 @@ struct Message: Hashable, Identifiable {
     let id = UUID()
     let message: String
     let type: MessageType
+    let logs: [ActionLog]?
 
-    init(_ message: String, type: MessageType) {
+    init(_ message: String, type: MessageType, logs: [ActionLog]? = nil) {
         self.message = message
         self.type = type
+        self.logs = logs
     }
 }
