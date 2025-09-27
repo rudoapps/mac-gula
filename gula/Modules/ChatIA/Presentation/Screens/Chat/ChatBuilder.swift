@@ -17,4 +17,14 @@ final class ChatBuilder {
                                       router: router)
         return ChatView(viewModel: viewModel)
     }
+
+    static func buildProjectAgent(customerID: Int, project: Project) -> ChatView {
+        let useCase = ChatIAContainer.makeProjectAgentUseCase()
+        let router = ChatRouter()
+        let viewModel = ChatViewModel(useCase: useCase,
+                                      customerID: customerID,
+                                      project: project,
+                                      router: router)
+        return ChatView(viewModel: viewModel)
+    }
 }

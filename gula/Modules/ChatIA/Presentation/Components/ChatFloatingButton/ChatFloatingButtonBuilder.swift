@@ -16,11 +16,18 @@ final class ChatFloatingButtonBuilder {
         let repository = ChatRepository(datasource: datasource,
                                         localDatasource: localDatasource,
                                         errorHandlerManager: errorHandler)
-        let useCase = ChatUseCase(repository: repository)
+        let projectAgentRepository = makeProjectAgentRepository()
+        let useCase = ChatUseCase(repository: repository, projectAgentRepository: projectAgentRepository)
         let router = ChatFloatingButtonRouter()
         let viewModel = ChatFloatingButtonViewModel(useCase: useCase,
                                                     appearance: appearance,
                                                     router: router)
         return ChatFloatingButton(viewModel: viewModel)
+    }
+
+    private static func makeProjectAgentRepository() -> ProjectAgentRepository {
+        let mcpDatasource = ProjectAgentMCPDatasource()
+        let analyticsDatasource = ProjectAnalyticsDatasource()
+        return ProjectAgentRepository(mcpDatasource: mcpDatasource, analyticsDatasource: analyticsDatasource)
     }
 }
