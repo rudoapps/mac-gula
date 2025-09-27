@@ -145,7 +145,7 @@ private struct ProjectDetailContent: View {
             APIGeneratorView(project: project)
         case .chatAssistant:
             if #available(macOS 15.0, *) {
-                ChatBuilder.build(customerID: 1)
+                ChatBuilder.buildProjectAgent(customerID: 1, project: project)
             } else {
                 Text("ChatIA requiere macOS 15.0 o superior")
                     .foregroundColor(.secondary)
