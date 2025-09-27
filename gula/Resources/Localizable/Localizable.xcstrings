@@ -25,6 +25,9 @@
     "(%lld DTOs)" : {
 
     },
+    "(%lld%%)" : {
+
+    },
     "(opcional)" : {
 
     },
@@ -40,6 +43,9 @@
           }
         }
       }
+    },
+    "%lld entradas" : {
+
     },
     "%lld hook(s) seleccionados para configurar" : {
 
@@ -66,6 +72,9 @@
     "%lld templates encontrados" : {
 
     },
+    "%lld%%" : {
+
+    },
     "•" : {
 
     },
@@ -90,6 +99,9 @@
     "Abrir Proyecto Existente" : {
 
     },
+    "Acciones Disponibles" : {
+
+    },
     "Acciones Rápidas" : {
 
     },
@@ -109,7 +121,15 @@
 
     },
     "API Code Generator" : {
-
+      "extractionState" : "manual",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Generador de Código API"
+          }
+        }
+      }
     },
     "Aplicar Configuración" : {
 
@@ -150,11 +170,102 @@
     "Cargar" : {
 
     },
-    "Check for Updates..." : {
+    "Cerrar logs" : {
 
+    },
+    "chat_writeHere" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escribe tu mensaje aquí..."
+          }
+        }
+      }
+    },
+    "ChatIA requiere macOS 15.0 o superior" : {
+
+    },
+    "Check for Updates..." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buscar actualizaciones..."
+          }
+        }
+      }
     },
     "Colapsar grupo" : {
 
+    },
+    "common_accept" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aceptar"
+          }
+        }
+      }
+    },
+    "common_cancel" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancelar"
+          }
+        }
+      }
+    },
+    "common_goToSettings" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ir a Configuración"
+          }
+        }
+      }
+    },
+    "common_help" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ayuda"
+          }
+        }
+      }
+    },
+    "common_tryAgain" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Intentar de nuevo"
+          }
+        }
+      }
+    },
+    "common_undo" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deshacer"
+          }
+        }
+      }
     },
     "Compartir" : {
 
@@ -184,6 +295,9 @@
 
     },
     "Copiar" : {
+
+    },
+    "Copiar Todo" : {
 
     },
     "Creando proyecto..." : {
@@ -247,6 +361,9 @@
 
     },
     "Expandir grupo" : {
+
+    },
+    "Exportar" : {
 
     },
     "Finalizando" : {
@@ -356,6 +473,15 @@
     "Limpiar" : {
 
     },
+    "Logs de ejecución" : {
+
+    },
+    "Logs de Ejecución" : {
+
+    },
+    "Logs del Mensaje" : {
+
+    },
     "Los elementos que marques como favoritos aparecerán aquí" : {
 
     },
@@ -381,6 +507,9 @@
 
     },
     "No hay hooks configurados para %@. Verifica el tipo de proyecto." : {
+
+    },
+    "No hay logs disponibles" : {
 
     },
     "No hay proyectos recientes" : {
@@ -411,7 +540,15 @@
 
     },
     "OK" : {
-
+      "extractionState" : "manual",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aceptar"
+          }
+        }
+      }
     },
     "Para ver la lista de módulos disponibles, ingresa tu clave API y ejecuta el botón 'Cargar Módulos'. Los módulos se obtendrán directamente del script gula." : {
 
