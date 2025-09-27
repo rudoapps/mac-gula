@@ -19,30 +19,47 @@ struct ChatView: View {
         .onAppear {
             viewModel.getConfiguration()
         }
-        .navigationTitle("common_help")
+        .navigationTitle(LocalizedStringKey("common_help"))
         .navigationBarBackButtonHidden(true)
     }
 
     @ViewBuilder
     private func mainView(config: ChatConfiguration) -> some View {
         VStack {
-            Color.hex(.blueCloud)
-                .frame(height: 1)
             ScrollViewReader { scrollView in
                 ScrollView {
-                    LazyVStack {
-                        ForEach(viewModel.messages, id: \.self) { message in
-                            ChatMessageView(message: message,
-                                            config: config) { [weak viewModel] in
-                                viewModel?.resendMessage()
-                            }
-                                .id(message)
+                    LazyVStack(spacing: 8) {
+                        ForEach(viewModel.messages) { message in
+                            ChatMessageView(
+                                message: message,
+                                config: config,
+                                action: { [weak viewModel] in
+                                    viewModel?.resendMessage()
+                                },
+                                currentAction: viewModel.currentAction,
+                                actionProgress: viewModel.actionProgress
+                            )
+                            .id(message.id)
                         }
+
+
+
+                        // Phantom element at the very end for scroll targeting
+                        Color.clear
+                            .frame(height: 1)
+                            .id("bottom")
+
                     }
-                    .onChange(of: viewModel.messages) { _, _ in
-                        DispatchQueue.main.async {
-                            scrollTo(viewModel.messages.last,
-                                     scrollView: scrollView)
+                    .padding(.bottom, 8)
+                    .onChange(of: viewModel.messages) { _, newValue in
+                        // Simple: scroll to bottom when new messages arrive
+                        if !newValue.isEmpty {
+                            DispatchQueue.main.async {
+                                withAnimation(.easeOut(duration: 0.3)) {
+                                    // Scroll to the phantom element at the very bottom
+                                    scrollView.scrollTo("bottom", anchor: .bottom)
+                                }
+                            }
                         }
                     }
                 }
@@ -54,38 +71,28 @@ struct ChatView: View {
                     UIApplication.shared.sendAction(resign, to: nil, from: nil, for: nil)
                     #endif
                 }
-                Color.hex(.blueCloud)
-                    .frame(height: 1)
-                HStack(alignment: .bottom, spacing: 8) {
+
+                VStack(spacing: 8) {
                     ProfessionalTextView(
                         placeholder: "chat_writeHere",
                         text: $viewModel.newMessage,
-                        minHeight: 54,
-                        maxHeight: 120
+                        minHeight: 40,
+                        maxHeight: 260,
+                        onSubmit: {
+                            viewModel.checkIfCanSendMessage()
+                        },
+                        suggestedActions: viewModel.isProjectAgent ? viewModel.suggestedActionButtons : nil,
+                        onActionTap: { action in
+                            viewModel.executeAction(action)
+                        },
+                        isExecutingAction: viewModel.currentAction != nil
                     )
-
-                    Button(action: {
-                        viewModel.checkIfCanSendMessage()
-                    }, label: {
-                        Image(systemName: "paperplane")
-                            .foregroundStyle(Color(hex: config.secondaryColor))
-                            .frame(width: 54, height: 54)
-                            .background(RoundedRectangle(cornerRadius: 12)
-                                .fill(Color(hex: config.primaryColor)))
-                    })
-                    .buttonStyle(.plain)
                 }
-                .padding(.leading, 12)
+                .padding(.horizontal, 12)
                 .padding(.top, 4)
                 .padding(.bottom, 16)
             }
         }
     }
 
-    private func scrollTo(_ item: Message?, scrollView: ScrollViewProxy) {
-        withAnimation {
-            scrollView.scrollTo(item,
-                                anchor: .bottom)
-        }
-    }
 }
