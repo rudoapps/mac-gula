@@ -18,6 +18,10 @@ class Navigator: NavigatorProtocol {
     var fullOverNestedSheet: Page?
     var toastConfig: ToastConfig?
     var alertConfig: AlertConfig?
+    var tabIndex: Int = 0
+    #if canImport(UIKit)
+    var tabBadges: [TabItem: Int] = [:]
+    #endif
     var fullOverScreenConfig: FullOverScreenConfig?
     var confirmationDialogConfig: ConfirmationDialogConfig?
     var isEnabledBackGesture = true
@@ -47,7 +51,12 @@ class Navigator: NavigatorProtocol {
 
     // MARK: - Init
     static var shared = Navigator()
-    private init() {}
+
+    private init() {
+        #if canImport(UIKit)
+        TabItem.allCases.forEach { tabBadges[$0] = 0 }
+        #endif
+    }
 
     // MARK: - Methods
     func initialize(root view: any View) {
@@ -123,6 +132,12 @@ extension Navigator {
         confirmationDialogConfig = config
         isPresentingConfirmationDialog = true
     }
+
+    func changeTab(index: Int) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            self.tabIndex = index
+        }
+    }
 }
 
 // MARK: - Functions ModalPresentProtocol
@@ -133,6 +148,9 @@ extension Navigator {
     }
 
     func showToast(from toast: ToastConfig) {
+        if toastConfig != nil {
+            dismissToast()
+        }
         toastConfig = toast
     }
 
@@ -172,8 +190,15 @@ extension Navigator {
                 VStack {
                     Button("common_cancel", role: .cancel) {}
                     Button("common_goToSettings") {
-                        #if os(macOS)
-                        NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:")!)
+                        #if canImport(UIKit)
+                        if let appSettings = URL(string: UIApplication.openSettingsURLString) {
+                            UIApplication.shared.open(appSettings)
+                        }
+                        #else
+                        // macOS: Open System Settings
+                        if let url = URL(string: "x-apple.systempreferences:") {
+                            NSWorkspace.shared.open(url)
+                        }
                         #endif
                         action()
                     }

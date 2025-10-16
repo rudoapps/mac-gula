@@ -18,7 +18,7 @@ class ConfigTripleA: TripleAForSwiftUIProtocol {
             case .login:
                 let parameters: [String: String] = [:]
                 let headers: [String: String] = ["Accept-Language": Locale.current.identifier]
-                return Endpoint(path: "\(Config.baseURL)api/users/login",
+                return Endpoint(path: "\(Config.baseURL)api/gula/auth/login",
                                 httpMethod: .post,
                                 parameters: parameters,
                                 headers: headers)
@@ -26,7 +26,7 @@ class ConfigTripleA: TripleAForSwiftUIProtocol {
                 let parameters = ["grant_type": "refresh_token",
                                   "client_id": Config.clientID,
                                   "client_secret": Config.clientSecret]
-                return Endpoint(path: "\(Config.baseURL)api/users/refresh",
+                return Endpoint(path: "\(Config.baseURL)api/gula/auth/refresh",
                                 httpMethod: .post,
                                 parameters: parameters)
             }

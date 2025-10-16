@@ -20,6 +20,10 @@ protocol NavigatorManagerProtocol {
     var sheet: Page? { get set }
     var fullOverSheet: Page? { get set }
     var nestedSheet: Page? { get set }
+    var tabIndex: Int { get set }
+    #if canImport(UIKit)
+    var tabBadges: [TabItem: Int] { get set }
+    #endif
     var fullOverNestedSheet: Page? { get set }
     var isEnabledBackGesture: Bool { get set }
 
@@ -33,6 +37,7 @@ protocol NavigatorManagerProtocol {
     func replaceRoot(to view: any View)
     func present(view: any View)
     func presentCustomConfirmationDialog(from config: ConfirmationDialogConfig)
+    func changeTab(index: Int)
 }
 
 

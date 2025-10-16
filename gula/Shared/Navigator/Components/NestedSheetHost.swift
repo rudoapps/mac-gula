@@ -18,19 +18,19 @@ struct NestedSheetHost<Content: View>: View {
 
     var body: some View {
         ZStack {
-            #if os(macOS)
-            Color(NSColor.controlBackgroundColor).ignoresSafeArea()
-            #else
+            #if canImport(UIKit)
             Color(.systemBackground).ignoresSafeArea()
+            #else
+            Color(NSColor.windowBackgroundColor).ignoresSafeArea()
             #endif
             content
         }
         .sheet(item: $navigator.nestedSheet) { nested in
             ZStack {
-                #if os(macOS)
-                Color(NSColor.controlBackgroundColor).ignoresSafeArea()
-                #else
+                #if canImport(UIKit)
                 Color(.systemBackground).ignoresSafeArea()
+                #else
+                Color(NSColor.windowBackgroundColor).ignoresSafeArea()
                 #endif
                 nested
             }

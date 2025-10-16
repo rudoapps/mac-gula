@@ -11,7 +11,7 @@ import Foundation
 class Config: ConfigTripleA {
     static var shared = Config()
 
-    static let baseURL = "https://gula.rudo.es/"
+    static let baseURL = "https://services.rudo.es/"
     static let clientID = ""
     static let clientSecret = ""
     static let scheme = "gula"

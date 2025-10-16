@@ -40,8 +40,7 @@ struct ContentView: View {
         NavigationStack(path: $navigator.path) {
             ZStack {
                 if let root = navigator.root {
-                    root
-                        .transition(rootTransition)
+                    root.transition(rootTransition)
                 }
             }
             .navigationDestination(for: Page.self) { page in
@@ -71,15 +70,13 @@ struct ContentView: View {
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                         .onAppear {
                             DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
-                                withAnimation {
-                                    navigator.toastConfig = nil
-                                }
+                                withAnimation { navigator.toastConfig = nil }
                             }
                         }
                         .padding(.bottom, 8)
                 }
             }
-                .ignoresSafeArea(.keyboard)
+            .ignoresSafeArea(.keyboard)
         )
         .onChange(of: authenticator.screen) {
             switch authenticator.screen {
@@ -89,7 +86,9 @@ struct ContentView: View {
                 navigator.replaceRoot(to: ProgressView())
             }
         }
-        .confirmationDialog("",isPresented: $navigator.isPresentingConfirmationDialog, titleVisibility: .hidden) {
+        .confirmationDialog("",
+                            isPresented: $navigator.isPresentingConfirmationDialog,
+                            titleVisibility: .hidden) {
             if let confirmationDialogConfig = navigator.confirmationDialogConfig {
                 AnyView(confirmationDialogConfig.actions)
             }
@@ -112,6 +111,7 @@ import SwiftUI
 struct ContentView: View {
     @State var navigator: NavigatorProtocol
     let rootTransition: AnyTransition = .opacity
+    private var deeplinkManager: DeepLinkManagerProtocol
 
     init(navigator: NavigatorProtocol = Navigator.shared,
          root: any View,
@@ -125,8 +125,7 @@ struct ContentView: View {
         NavigationStack(path: $navigator.path) {
             ZStack {
                 if let root = navigator.root {
-                    root
-                        .transition(rootTransition)
+                    root.transition(rootTransition)
                 }
             }
             .navigationDestination(for: Page.self) { page in
@@ -153,17 +152,17 @@ struct ContentView: View {
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                         .onAppear {
                             DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
-                                withAnimation {
-                                    navigator.toastConfig = nil
-                                }
+                                withAnimation { navigator.toastConfig = nil }
                             }
                         }
                         .padding(.bottom, 8)
                 }
             }
-                .ignoresSafeArea(.keyboard)
+            .ignoresSafeArea(.keyboard)
         )
-        .confirmationDialog("",isPresented: $navigator.isPresentingConfirmationDialog, titleVisibility: .hidden) {
+        .confirmationDialog("",
+                            isPresented: $navigator.isPresentingConfirmationDialog,
+                            titleVisibility: .hidden) {
             if let confirmationDialogConfig = navigator.confirmationDialogConfig {
                 AnyView(confirmationDialogConfig.actions)
             }
@@ -178,3 +177,37 @@ struct ContentView: View {
     }
 }
 ```
+
+- Example of Tabbar usage
+
+- Step 1: 
+   To show customTabBar you just need to pass de initialTab that you want to us to navigate
+    ```    
+     Example:
+        navigator.replaceRoot(to: CustomTabbar(initialTab: .login))
+    ```
+
+- Step 2:
+    In case you have a navigation flow that end up dismissing the tabbar and you need to navigate to another tab. You need to declare this on the router:
+    ``` 
+       navigator.changeTab(index: TabItem.images.rawValue)
+    ```
+    
+- Example for changing Tab badges from any View
+    ``` 
+        navigator.tabBadges[.documents] = 3
+        
+    ```
+- Example for changing the TabBar configuration 
+        Just add your own colors and design
+    ``` 
+       let newConfig = TabBarConfig(
+        backgroundColor: .black,
+        badgeColor: .red,
+        badgeTextColor: .white,
+        selectedTabColor: .orange,
+        textTabColor: .white
+    )
+
+        CustomTabBar.config = newConfig
+    ```

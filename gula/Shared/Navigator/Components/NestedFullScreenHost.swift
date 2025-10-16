@@ -18,17 +18,29 @@ struct NestedFullScreenHost<Content: View>: View {
 
     var body: some View {
         ZStack {
-            Color(.lightGray).ignoresSafeArea()
+            #if canImport(UIKit)
+            Color(.systemBackground).ignoresSafeArea()
+            #else
+            Color(NSColor.windowBackgroundColor).ignoresSafeArea()
+            #endif
             content
         }
         .sheet(item: $navigator.fullOverSheet) { page in
             ZStack {
-                Color(.lightGray).ignoresSafeArea()
+                #if canImport(UIKit)
+                Color(.systemBackground).ignoresSafeArea()
+                #else
+                Color(NSColor.windowBackgroundColor).ignoresSafeArea()
+                #endif
                 page
             }
             .sheet(item: $navigator.fullOverNestedSheet) { nested in
                 ZStack {
-                    Color(.lightGray).ignoresSafeArea()
+                    #if canImport(UIKit)
+                    Color(.systemBackground).ignoresSafeArea()
+                    #else
+                    Color(NSColor.windowBackgroundColor).ignoresSafeArea()
+                    #endif
                     nested
                 }
             }
