@@ -1,0 +1,31 @@
+{
+    "shared": [
+        "Gula/Shared/Components/CustomTextFields",
+        "Gula/Shared/Components/RoundedCorner",
+        "Gula/Shared/Components/CustomButton",
+        "Gula/Shared/Components/SocialLoginButton",
+        "Gula/Shared/Data/DataSource/Prefixes",
+        "Gula/Shared/Data/Repository/Prefixes",
+        "Gula/Shared/Domain/UseCase/Prefixes",
+        "Gula/Shared/Domain/Repository/Prefixes",
+        "Gula/Shared/Domain/Entities/Prefixes",
+        "Gula/Shared/Presentation/Screens/Prefixes",
+        "Gula/Shared/Error",
+        "Gula/Shared/Resources/DeeplinkManager",
+        "Gula/Shared/Configuration",
+        "Gula/Shared/Navigator"
+    ],
+
+    "libraries": [
+        {
+            "name": "TripleA",
+            "url": "https://github.com/fsalom/TripleA",
+            "version": "2.3.0"
+        },
+        {
+            "name": "GoogleSignIn",
+            "url": "https://github.com/google/GoogleSignIn-iOS",
+            "version": "8.0.0"
+        }
+    ]
+}
