@@ -31,6 +31,19 @@
     "(opcional)" : {
 
     },
+    "%@" : {
+
+    },
+    "%@ %@" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ %2$@"
+          }
+        }
+      }
+    },
     "%lld" : {
 
     },
@@ -134,6 +147,135 @@
     "Aplicar Configuración" : {
 
     },
+    "auth_changeEmailSent" : {
+
+    },
+    "auth_confirmEmailTitle" : {
+
+    },
+    "auth_createAccount" : {
+
+    },
+    "auth_email" : {
+
+    },
+    "auth_emailNotReceived" : {
+
+    },
+    "auth_emailRequired" : {
+
+    },
+    "auth_emailSent" : {
+
+    },
+    "auth_emailSentInfo, %@" : {
+
+    },
+    "auth_emailSentInfoRegister, %@" : {
+
+    },
+    "auth_forgotPassword" : {
+
+    },
+    "auth_fullName" : {
+
+    },
+    "auth_goBackToHome" : {
+
+    },
+    "auth_haveAccount" : {
+
+    },
+    "auth_invalidEmail" : {
+
+    },
+    "auth_linkSent" : {
+
+    },
+    "auth_logIn" : {
+
+    },
+    "auth_loginLowercased" : {
+
+    },
+    "auth_nameRequired" : {
+
+    },
+    "auth_newPassword" : {
+
+    },
+    "auth_newPasswordInformation" : {
+
+    },
+    "auth_noAccountYet" : {
+
+    },
+    "auth_password" : {
+
+    },
+    "auth_passwordRequired" : {
+
+    },
+    "auth_passwordsDoNotMatch" : {
+
+    },
+    "auth_passwordTooLong" : {
+
+    },
+    "auth_passwordTooShort" : {
+
+    },
+    "auth_passwordUpdated" : {
+
+    },
+    "auth_passwordUpdatedInfo" : {
+
+    },
+    "auth_recoverPassword" : {
+
+    },
+    "auth_recoverPasswordInfo" : {
+
+    },
+    "auth_register" : {
+
+    },
+    "auth_registerCompleted" : {
+
+    },
+    "auth_RegisterCompletedTitle" : {
+
+    },
+    "auth_registerTitle" : {
+
+    },
+    "auth_repeatNewPassword" : {
+
+    },
+    "auth_repeatPassword" : {
+
+    },
+    "auth_resend" : {
+
+    },
+    "auth_send" : {
+
+    },
+    "auth_sendAgain" : {
+
+    },
+    "auth_socialLoginTitle" : {
+
+    },
+    "auth_update" : {
+
+    },
+    "auth_writeEmail" : {
+
+    },
+    "auth_writeNewPassword" : {
+
+    },
     "Auto-detecta" : {
 
     },
@@ -171,6 +313,9 @@
 
     },
     "Cerrar logs" : {
+
+    },
+    "changeEmailCompletedTitle" : {
 
     },
     "chat_writeHere" : {
@@ -222,6 +367,12 @@
           }
         }
       }
+    },
+    "common_continueWithApple" : {
+
+    },
+    "common_continueWithGoogle" : {
+
     },
     "common_goToSettings" : {
       "extractionState" : "manual",
@@ -574,6 +725,15 @@
     "Reemplazar módulos existentes automáticamente" : {
 
     },
+    "register_notAllFieldsValid" : {
+
+    },
+    "register_passwordConditions" : {
+
+    },
+    "registerCompletedTitle" : {
+
+    },
     "Restablecer" : {
 
     },
@@ -608,6 +768,9 @@
 
     },
     "Seleccionar Hooks de Pre-commit" : {
+
+    },
+    "Seleccionar Prefijo" : {
 
     },
     "Seleccionar Todo" : {

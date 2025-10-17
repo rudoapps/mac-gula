@@ -48,8 +48,23 @@ Thumbs.db
 *.mov
 *.wmv
 
+# Xcode
 Template.xcodeproj/xcuserdata
 Template.xcodeproj/project.xcworkspace/xcuserdata
 /gula.xcodeproj/project.xcworkspace/xcuserdata
 *.xcuserstate
 /gula.xcodeproj/xcuserdata
+build/
+*.xcarchive
+
+# Sparkle
+sparkle_private_key
+sparkle_private_key.pem
+keys_output.txt
+sparkle.tar.xz
+bin/
+ExportOptions.plist
+
+# GitHub Actions artifacts
+*.dmg
+new_entry.xml
