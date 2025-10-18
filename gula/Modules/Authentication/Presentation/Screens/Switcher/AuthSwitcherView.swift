@@ -1,8 +1,9 @@
 import SwiftUI
+import TripleA
 
 @available(macOS 15.0, *)
 struct AuthSwitcherView: View {
-    @StateObject var authenticator = Config.shared.authenticator
+    @ObservedObject var authenticator: AuthenticatorSUI
     @State var navigator: NavigatorProtocol
     let rootTransition: AnyTransition = .opacity
     private var deeplinkManager: DeepLinkManagerProtocol
@@ -10,6 +11,7 @@ struct AuthSwitcherView: View {
     init(navigator: NavigatorProtocol = Navigator.shared,
          root: any View,
          deeplinkManager: DeepLinkManagerProtocol = DeepLinkManager.shared) {
+        self.authenticator = Config.shared.authenticator
         self.navigator = navigator
         self.deeplinkManager = deeplinkManager
         navigator.initialize(root: root)
@@ -60,7 +62,7 @@ struct AuthSwitcherView: View {
         .onChange(of: authenticator.screen) {
             switch authenticator.screen {
             case .login:
-                navigator.replaceRoot(to: LoginBuilder().build(isSocialLoginActived: false))
+                navigator.replaceRoot(to: LoginBuilder().build(isSocialLoginActived: true))
             case .home:
                 navigator.replaceRoot(to: AppFlowView())
             case .loading:

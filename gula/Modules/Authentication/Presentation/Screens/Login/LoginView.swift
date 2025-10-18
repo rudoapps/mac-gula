@@ -20,13 +20,10 @@ struct LoginView: View {
         VStack {
             ScrollView {
                 VStack(spacing: 16) {
-                    Image(systemName: "photo.fill")
-                        .resizable()
-                        .frame(width: 83, height: 83)
-                        .foregroundColor(Color.gray)
-                        .clipShape(Circle())
-                        .padding(.top, 24)
-                        .padding(.bottom, 16)
+                    Text("GULA")
+                        .fontWeight(.light)
+                        .font(.system(size:60))
+                        .padding(.bottom, 24)
 
                     emailTextField
                     passwordTextField
@@ -56,20 +53,6 @@ struct LoginView: View {
             }
             .scrollDisabled(true)
             Spacer()
-            HStack(alignment: .center) {
-                Text("auth_noAccountYet")
-                    .font(.system(size: 14))
-
-                Text("auth_register")
-                    .font(.system(size: 14))
-                    .bold()
-                    .foregroundStyle(.black)
-                    .underline()
-                    .onTapGesture {
-                        viewModel.goToRegister()
-                    }
-            }
-            .padding(.bottom, 20)
         }
         .navigationBarBackButtonHidden()
         .toolbar {
@@ -93,7 +76,7 @@ struct LoginView: View {
         #endif
         ToolbarItem(placement: .principal) {
             Text("auth_logIn")
-                .font(.system(size: 18))
+                .font(.system(size: 10))
         }
     }
 
@@ -140,26 +123,23 @@ struct LoginView: View {
     }
 
     private var socialLoginView: some View {
-        VStack {
+        VStack(spacing: 16) {
             HStack {
                 Rectangle()
                     .frame(height: 1)
                     .frame(maxWidth: .infinity)
-                    .foregroundStyle(Color.gray)
+                    .foregroundStyle(Color.gray.opacity(0.3))
                 Text("auth_socialLoginTitle")
                     .lineLimit(1)
-                    .font(.system(size: 12))
+                    .font(.system(size: 13))
                     .fixedSize()
                     .foregroundStyle(Color.gray)
                 Rectangle()
                     .frame(height: 1)
                     .frame(maxWidth: .infinity)
-                    .foregroundStyle(Color.gray)
+                    .foregroundStyle(Color.gray.opacity(0.3))
             }
-            SocialLoginButton(buttonType: .apple) {
-                viewModel.loginWithApple()
-            }
-            .padding(.top, 20)
+
             SocialLoginButton(buttonType: .google) {
                 viewModel.loginWithGoogle()
             }

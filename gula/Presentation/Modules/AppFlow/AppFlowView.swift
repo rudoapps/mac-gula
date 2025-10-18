@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+@available(macOS 15.0, *)
 struct AppFlowView: View {
     @State private var isCheckingDependencies = true
     @State private var showOnboarding = false
@@ -16,7 +17,7 @@ struct AppFlowView: View {
     private let dependenciesUseCase = CheckSystemDependenciesUseCase(systemRepository: SystemRepositoryImpl())
 
     var body: some View {
-        VStack {
+        VStack(spacing: 0) {
             if isCheckingDependencies {
                 // Loading screen while checking dependencies
                 VStack(spacing: 20) {
@@ -44,16 +45,37 @@ struct AppFlowView: View {
                     showOnboarding = false
                 }
                 .frame(minWidth: 900, minHeight: 600)
+                .toolbar {
+                    ToolbarItem(placement: .primaryAction) {
+                        UserMenuButton {
+                            handleLogout()
+                        }
+                    }
+                }
             } else if projectManager.currentProject == nil {
                 ProjectSelectionBuilder.build { project in
                     ProjectManager.shared.updateProjectAccessDate(project)
                 }
                 .frame(minWidth: 650, minHeight: 550)
+                .toolbar {
+                    ToolbarItem(placement: .primaryAction) {
+                        UserMenuButton {
+                            handleLogout()
+                        }
+                    }
+                }
             } else {
                 MainContentView(project: projectManager.currentProject!) {
                     projectManager.currentProject = nil
                 }
                 .frame(minWidth: 900, minHeight: 600)
+                .toolbar {
+                    ToolbarItem(placement: .primaryAction) {
+                        UserMenuButton {
+                            handleLogout()
+                        }
+                    }
+                }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -97,6 +119,16 @@ struct AppFlowView: View {
         case .missingDependencies(_), .error(_), .checking, .checkingConnectivity, .noInternetConnection, .gulaUpdateRequired(_), .updatingGula, .gulaUpdated:
             isCheckingDependencies = false
             showOnboarding = true
+        }
+    }
+
+    private func handleLogout() {
+        Task {
+            do {
+                try await Config.shared.authenticator.logout()
+            } catch {
+                print("Error al cerrar sesión: \(error)")
+            }
         }
     }
 }
