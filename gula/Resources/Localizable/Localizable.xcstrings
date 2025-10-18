@@ -148,133 +148,436 @@
 
     },
     "auth_changeEmailSent" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Correo de cambio enviado"
+          }
+        }
+      }
     },
     "auth_confirmEmailTitle" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirma tu Email"
+          }
+        }
+      }
     },
     "auth_createAccount" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Crear Cuenta"
+          }
+        }
+      }
     },
     "auth_email" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Correo Electrónico"
+          }
+        }
+      }
     },
     "auth_emailNotReceived" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿No has recibido el correo?"
+          }
+        }
+      }
     },
     "auth_emailRequired" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El correo electrónico es requerido"
+          }
+        }
+      }
     },
     "auth_emailSent" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Correo Enviado"
+          }
+        }
+      }
     },
     "auth_emailSentInfo, %@" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Te hemos enviado un correo a %@"
+          }
+        }
+      }
     },
     "auth_emailSentInfoRegister, %@" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Te hemos enviado un correo de verificación a %@"
+          }
+        }
+      }
     },
     "auth_forgotPassword" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Olvidaste tu contraseña?"
+          }
+        }
+      }
     },
     "auth_fullName" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nombre Completo"
+          }
+        }
+      }
     },
     "auth_goBackToHome" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Volver al Inicio"
+          }
+        }
+      }
     },
     "auth_haveAccount" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Ya tienes una cuenta?"
+          }
+        }
+      }
     },
     "auth_invalidEmail" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El correo electrónico no es válido"
+          }
+        }
+      }
     },
     "auth_linkSent" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enlace Enviado"
+          }
+        }
+      }
     },
     "auth_logIn" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Iniciar Sesión"
+          }
+        }
+      }
     },
     "auth_loginLowercased" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iniciar sesión"
+          }
+        }
+      }
     },
     "auth_nameRequired" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El nombre es requerido"
+          }
+        }
+      }
     },
     "auth_newPassword" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nueva Contraseña"
+          }
+        }
+      }
     },
     "auth_newPasswordInformation" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ingresa tu nueva contraseña para recuperar el acceso a tu cuenta"
+          }
+        }
+      }
     },
     "auth_noAccountYet" : {
-
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Aún no tienes cuenta?"
+          }
+        }
+      }
     },
     "auth_password" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contraseña"
+          }
+        }
+      }
     },
     "auth_passwordRequired" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La contraseña es requerida"
+          }
+        }
+      }
     },
     "auth_passwordsDoNotMatch" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las contraseñas no coinciden"
+          }
+        }
+      }
     },
     "auth_passwordTooLong" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La contraseña es demasiado larga"
+          }
+        }
+      }
     },
     "auth_passwordTooShort" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La contraseña debe tener al menos 6 caracteres"
+          }
+        }
+      }
     },
     "auth_passwordUpdated" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contraseña Actualizada"
+          }
+        }
+      }
     },
     "auth_passwordUpdatedInfo" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu contraseña ha sido actualizada exitosamente"
+          }
+        }
+      }
     },
     "auth_recoverPassword" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recuperar Contraseña"
+          }
+        }
+      }
     },
     "auth_recoverPasswordInfo" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña"
+          }
+        }
+      }
     },
     "auth_register" : {
-
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registrarse"
+          }
+        }
+      }
     },
     "auth_registerCompleted" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registro Completado"
+          }
+        }
+      }
     },
     "auth_RegisterCompletedTitle" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¡Bienvenido!"
+          }
+        }
+      }
     },
     "auth_registerTitle" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Crear una cuenta"
+          }
+        }
+      }
     },
     "auth_repeatNewPassword" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Repetir Nueva Contraseña"
+          }
+        }
+      }
     },
     "auth_repeatPassword" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Repetir Contraseña"
+          }
+        }
+      }
     },
     "auth_resend" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reenviar"
+          }
+        }
+      }
     },
     "auth_send" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enviar"
+          }
+        }
+      }
     },
     "auth_sendAgain" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enviar de nuevo"
+          }
+        }
+      }
     },
     "auth_socialLoginTitle" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O continuar con"
+          }
+        }
+      }
     },
     "auth_update" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Actualizar"
+          }
+        }
+      }
     },
     "auth_writeEmail" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escribe tu correo electrónico"
+          }
+        }
+      }
     },
     "auth_writeNewPassword" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escribe tu nueva contraseña"
+          }
+        }
+      }
     },
     "Auto-detecta" : {
 
@@ -315,8 +618,18 @@
     "Cerrar logs" : {
 
     },
-    "changeEmailCompletedTitle" : {
+    "Cerrar Sesión" : {
 
+    },
+    "changeEmailCompletedTitle" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Correo Cambiado"
+          }
+        }
+      }
     },
     "chat_writeHere" : {
       "extractionState" : "manual",
@@ -369,10 +682,24 @@
       }
     },
     "common_continueWithApple" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continuar con Apple"
+          }
+        }
+      }
     },
     "common_continueWithGoogle" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continuar con Google"
+          }
+        }
+      }
     },
     "common_goToSettings" : {
       "extractionState" : "manual",
@@ -547,6 +874,9 @@
     "Generar DTOs" : {
 
     },
+    "Gula" : {
+
+    },
     "GULA" : {
 
     },
@@ -642,6 +972,9 @@
     "Más info" : {
 
     },
+    "Menú de usuario" : {
+
+    },
     "Módulos Disponibles" : {
 
     },
@@ -704,6 +1037,9 @@
     "Para ver la lista de módulos disponibles, ingresa tu clave API y ejecuta el botón 'Cargar Módulos'. Los módulos se obtendrán directamente del script gula." : {
 
     },
+    "Perfil" : {
+
+    },
     "Por favor, espera mientras se genera el template" : {
 
     },
@@ -726,13 +1062,34 @@
 
     },
     "register_notAllFieldsValid" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Por favor completa todos los campos correctamente"
+          }
+        }
+      }
     },
     "register_passwordConditions" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mínimo 6 caracteres"
+          }
+        }
+      }
     },
     "registerCompletedTitle" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registro Completado"
+          }
+        }
+      }
     },
     "Restablecer" : {
 
