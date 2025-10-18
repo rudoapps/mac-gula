@@ -1,5 +1,6 @@
 import SwiftUI
 
+@available(macOS 15.0, *)
 struct MainContentView: View {
     let project: Project
     let onBack: () -> Void
@@ -21,6 +22,7 @@ struct MainContentView: View {
 
 // MARK: - Preview
 
+@available(macOS 15.0, *)
 struct MainContentView_Previews: PreviewProvider {
     static var previews: some View {
         let sampleProject = Project(

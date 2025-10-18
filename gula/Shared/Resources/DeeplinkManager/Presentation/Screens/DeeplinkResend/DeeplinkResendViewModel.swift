@@ -8,6 +8,7 @@
 
 import Foundation
 
+@available(macOS 15.0, *)
 final class DeeplinkResendViewModel: ObservableObject {
     private let useCase: DeeplinkManagerUseCaseProtocol
     private let router: DeeplinkResendRouter
@@ -35,6 +36,7 @@ final class DeeplinkResendViewModel: ObservableObject {
 }
 
 // MARK: - Navigation
+@available(macOS 15.0, *)
 extension DeeplinkResendViewModel {
     func dismiss() {
         router.dismiss()

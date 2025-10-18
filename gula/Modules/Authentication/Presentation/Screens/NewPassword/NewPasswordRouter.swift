@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+@available(macOS 15.0, *)
 class NewPasswordRouter: AuthenticationRouter {
     // TODO: -  Remove in destination app
     func goToMainMenu() {

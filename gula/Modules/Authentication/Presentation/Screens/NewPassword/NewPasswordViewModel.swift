@@ -7,6 +7,7 @@
 
 import Foundation
 
+@available(macOS 15.0, *)
 class NewPasswordViewModel: ObservableObject {
     // MARK: Properties
     @Published var passwordValidationResult: ValidationResult = .success
@@ -58,6 +59,7 @@ class NewPasswordViewModel: ObservableObject {
 }
 
 // MARK: - Private functions
+@available(macOS 15.0, *)
 private extension NewPasswordViewModel {
     func handle(this error: AuthError) {
         switch error {
@@ -76,6 +78,7 @@ private extension NewPasswordViewModel {
 }
 
 // MARK: - Navigation
+@available(macOS 15.0, *)
 extension NewPasswordViewModel {
     // TODO: -  Remove in destination app
     func goToMainMenu() {

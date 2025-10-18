@@ -7,6 +7,7 @@
 
 import Foundation
 
+@available(macOS 15.0, *)
 class RegisterCompletedRouter: Router {
     // TODO: -  Remove in destination app
     func goToMainMenu() {

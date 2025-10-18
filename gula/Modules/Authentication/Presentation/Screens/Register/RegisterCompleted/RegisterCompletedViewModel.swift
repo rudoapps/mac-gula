@@ -7,6 +7,7 @@
 
 import Foundation
 
+@available(macOS 15.0, *)
 class RegisterCompletedViewModel: ObservableObject {
     private let router: RegisterCompletedRouter
 
@@ -16,6 +17,7 @@ class RegisterCompletedViewModel: ObservableObject {
 }
 
 // MARK: - Navigation
+@available(macOS 15.0, *)
 extension RegisterCompletedViewModel {
     // TODO: -  Remove in destination app
     func goToMainMenu() {

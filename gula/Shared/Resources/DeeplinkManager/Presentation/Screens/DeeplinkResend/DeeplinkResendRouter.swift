@@ -7,6 +7,7 @@
 
 import Foundation
 
+@available(macOS 15.0, *)
 class DeeplinkResendRouter: Router {
     // TODO: -  Remove in destination app
     func goToMainMenu() {
