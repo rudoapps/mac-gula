@@ -9,6 +9,10 @@ import SwiftUI
 import AuthenticationServices
 import GoogleSignIn
 
+#if canImport(AppKit)
+import AppKit
+#endif
+
 @available(macOS 15.0, *)
 class LoginViewModel: NSObject, ObservableObject {
     @Published var email: String = ""
@@ -131,9 +135,9 @@ extension LoginViewModel: ASAuthorizationControllerDelegate {
 extension LoginViewModel {
     @MainActor
     func loginWithGoogle() {
-        #if canImport(UIKit)
         Task {
             do {
+                #if canImport(UIKit)
                 if let rootViewController = getRootViewController(),
                    let result = try? await GIDSignIn.sharedInstance.signIn(withPresenting: rootViewController),
                    let token = result.user.idToken?.tokenString {
@@ -141,6 +145,17 @@ extension LoginViewModel {
                 } else {
                     throw AppError.generalError
                 }
+                #elseif canImport(AppKit)
+                if let window = getCurrentWindow(),
+                   let result = try? await GIDSignIn.sharedInstance.signIn(withPresenting: window),
+                   let token = result.user.idToken?.tokenString {
+                    try await authUseCase.loginWithGoogle(token: token)
+                } else {
+                    throw AppError.generalError
+                }
+                #else
+                throw AppError.generalError
+                #endif
             } catch {
                 if let error = error as? AuthError {
                     handle(error)
@@ -149,16 +164,19 @@ extension LoginViewModel {
                 }
             }
         }
-        #else
-        // Google Sign-In not supported on macOS in this implementation
-        router.showError(AppError.generalError)
-        #endif
     }
 
     #if canImport(UIKit)
     private func getRootViewController() -> UIViewController? {
         let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene
         return windowScene?.windows.first?.rootViewController
+    }
+    #endif
+
+    #if canImport(AppKit)
+    private func getCurrentWindow() -> NSWindow? {
+        return NSApplication.shared.windows.first { $0.isKeyWindow }
+            ?? NSApplication.shared.windows.first
     }
     #endif
 }

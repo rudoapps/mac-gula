@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Google Sign-In OAuth Client ID -->
+	<!-- Este valor se lee automáticamente desde GoogleService-Info.plist -->
+	<!-- Para obtenerlo: -->
+	<!-- 1. Ve a https://console.firebase.google.com -->
+	<!-- 2. Selecciona tu proyecto "gula-mac" -->
+	<!-- 3. Añade una app macOS con bundle ID: es.rudo.gula -->
+	<!-- 4. Descarga el nuevo GoogleService-Info.plist -->
+	<!-- 5. El CLIENT_ID estará en ese archivo -->
+	<key>GIDClientID</key>
+	<string>946402254847-unc3g796c05qau1u349f2k5iokiaufk9.apps.googleusercontent.com</string>
+
+	<!-- URL Types para callbacks de autenticación -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<!-- Google Sign-In Callback -->
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.google.GIDSignIn</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<!-- Reversed Client ID desde GoogleService-Info.plist -->
+				<string>com.googleusercontent.apps.946402254847-unc3g796c05qau1u349f2k5iokiaufk9</string>
+			</array>
+		</dict>
+		<!-- Deeplink de la app -->
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>gula</string>
+			</array>
+		</dict>
+	</array>
+</dict>
+</plist>

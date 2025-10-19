@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>946402254847-unc3g796c05qau1u349f2k5iokiaufk9.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.946402254847-unc3g796c05qau1u349f2k5iokiaufk9</string>
+	<key>API_KEY</key>
+	<string>AIzaSyA-kjhPYJBH-b0pXBxiBPDkWAG_FLCrflc</string>
+	<key>GCM_SENDER_ID</key>
+	<string>946402254847</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>es.rudo.gula</string>
+	<key>PROJECT_ID</key>
+	<string>gula-mac</string>
+	<key>STORAGE_BUCKET</key>
+	<string>gula-mac.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:946402254847:ios:d7df83d4c668559898d1ca</string>
+</dict>
+</plist>

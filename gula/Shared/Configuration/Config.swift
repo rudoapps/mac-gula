@@ -18,4 +18,8 @@ class Config: ConfigTripleA {
     static let appName = "Gula"
     static let chatApiAccessToken = "VY2XjB6euy4wRW2hdvlok7PFWg1BlLVb"
     static let chatApiSignatureMatch = "12155909626"
+
+    // Google Sign-In OAuth Client ID
+    // Se lee automáticamente desde GoogleService-Info.plist
+    static let googleClientID = "946402254847-unc3g796c05qau1u349f2k5iokiaufk9.apps.googleusercontent.com"
 }
