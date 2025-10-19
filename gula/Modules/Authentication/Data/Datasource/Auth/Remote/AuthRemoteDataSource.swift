@@ -30,7 +30,7 @@ class AuthRemoteDataSource: AuthRemoteDataSourceProtocol {
 
     func loginWithGoogle(token: String) async throws {
         let parameters = ["access_token": token,
-                          "provider": "google-oauth2"]
+                          "provider": "google-oauth2-idtoken"]
         let endpoint = Endpoint(path: "\(Config.baseURL)api/gula/auth/social-login", httpMethod: .post)
         try await self.network.authenticator?.getNewToken(with: parameters, endpoint: endpoint)
     }

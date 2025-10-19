@@ -29,9 +29,22 @@
 		C18AACEC2E77208800D26D17 /* appcast.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = appcast.xml; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		C165ED4E2EA42F330054A55D /* Exceptions for "gula" folder in "gula" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 8F2AC8E72DA0029300E66B45 /* gula */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		8F2AC8EA2DA0029300E66B45 /* gula */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				C165ED4E2EA42F330054A55D /* Exceptions for "gula" folder in "gula" target */,
+			);
 			path = gula;
 			sourceTree = "<group>";
 		};
@@ -354,6 +367,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = gula/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.business";
 				INFOPLIST_KEY_SUFeedURL = "https://github.com/rudoapps/mac-gula/raw/main/appcast.xml";
 				INFOPLIST_KEY_SUPublicEDKey = "MCowBQYDK2VwAyEAGyDXAH2Q/OXvsO0JxwXdPwpvv4hUec5bYdWfDydt0j0=";
@@ -398,6 +412,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = gula/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.business";
 				INFOPLIST_KEY_SUFeedURL = "https://github.com/rudoapps/mac-gula/raw/main/appcast.xml";
 				INFOPLIST_KEY_SUPublicEDKey = "MCowBQYDK2VwAyEAGyDXAH2Q/OXvsO0JxwXdPwpvv4hUec5bYdWfDydt0j0=";
