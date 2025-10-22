@@ -8,8 +8,7 @@ class ProjectDetailViewModel {
     var isLoading = false
     var showingError = false
     var errorMessage = ""
-    var apiKey = ""
-    
+
     init() {
         // Initialize any default values or setup
     }

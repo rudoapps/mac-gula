@@ -32,7 +32,6 @@ struct ProjectDetailView: View {
                 selectedAction: $selectedAction,
                 project: project,
                 projectManager: projectManager,
-                apiKey: $viewModel.apiKey,
                 isLoading: $viewModel.isLoading,
                 showingError: $viewModel.showingError,
                 errorMessage: $viewModel.errorMessage
@@ -105,7 +104,6 @@ private struct ProjectDetailContent: View {
     @Binding var selectedAction: GulaDashboardAction?
     let project: Project
     @Bindable var projectManager: ProjectManager
-    @Binding var apiKey: String
     @Binding var isLoading: Bool
     @Binding var showingError: Bool
     @Binding var errorMessage: String
@@ -120,14 +118,19 @@ private struct ProjectDetailContent: View {
                 projectManager: projectManager
             )
         case .modules:
-            ModuleManagerView(
-                project: project,
-                projectManager: projectManager,
-                apiKey: $apiKey,
-                isLoading: $isLoading,
-                showingError: $showingError,
-                errorMessage: $errorMessage
-            )
+            if #available(macOS 15.0, *) {
+                ModuleManagerView(
+                    project: project,
+                    projectManager: projectManager,
+                    isLoading: $isLoading,
+                    showingError: $showingError,
+                    errorMessage: $errorMessage
+                )
+            } else {
+                Text("El gestor de módulos requiere macOS 15.0 o superior")
+                    .foregroundColor(.secondary)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
         case .generateTemplate:
             TemplateGeneratorView(
                 project: project,

@@ -1,12 +1,13 @@
 import SwiftUI
 
+@available(macOS 15.0, *)
 struct ProjectSelectionView: View {
     @State private var viewModel: ProjectSelectionViewModel
     
     init(viewModel: ProjectSelectionViewModel) {
         self._viewModel = State(wrappedValue: viewModel)
     }
-    
+
     var body: some View {
         GeometryReader { geometry in
             VStack(spacing: 0) {
@@ -441,7 +442,3 @@ extension View {
     }
 }
 
-#Preview {
-    let viewModel = ProjectSelectionViewModel()
-    return ProjectSelectionView(viewModel: viewModel)
-}

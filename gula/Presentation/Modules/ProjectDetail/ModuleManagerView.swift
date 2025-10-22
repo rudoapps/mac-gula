@@ -1,14 +1,18 @@
 import SwiftUI
 import Foundation
 
+@available(macOS 15.0, *)
 struct ModuleManagerView: View {
     let project: Project
     @Bindable var projectManager: ProjectManager
-    @Binding var apiKey: String
     @Binding var isLoading: Bool
     @Binding var showingError: Bool
     @Binding var errorMessage: String
-    
+
+    @State private var apiKey: String = ""
+    @State private var isLoadingApiKey = false
+    private let getUserApiKeyUseCase: GetUserApiKeyUseCaseProtocol
+
     @State private var branch: String = ""
     @State private var availableBranches: [String] = []
     @State private var isLoadingBranches = false
@@ -35,7 +39,35 @@ struct ModuleManagerView: View {
     @State private var statusLoadingProgress: Double = 0.0
     @State private var statusAnimationOffset: CGFloat = -1.0
     @State private var statusPulseScale: CGFloat = 1.0
-    
+
+    init(project: Project,
+         projectManager: ProjectManager,
+         isLoading: Binding<Bool>,
+         showingError: Binding<Bool>,
+         errorMessage: Binding<String>,
+         getUserApiKeyUseCase: GetUserApiKeyUseCaseProtocol? = nil) {
+        self.project = project
+        self.projectManager = projectManager
+        self._isLoading = isLoading
+        self._showingError = showingError
+        self._errorMessage = errorMessage
+
+        // Dependency Injection for GetUserApiKeyUseCase
+        if let useCase = getUserApiKeyUseCase {
+            self.getUserApiKeyUseCase = useCase
+        } else {
+            // Default dependency injection if not provided
+            let network = Config.shared.network
+            let remoteDataSource = ApiKeyRemoteDataSource(network: network)
+            let localDataSource = ApiKeyLocalDataSource()
+            let repository = ApiKeyRepository(
+                remoteDataSource: remoteDataSource,
+                localDataSource: localDataSource
+            )
+            self.getUserApiKeyUseCase = GetUserApiKeyUseCase(repository: repository)
+        }
+    }
+
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(spacing: 40) {
@@ -47,22 +79,66 @@ struct ModuleManagerView: View {
                     gradientColors: [.blue, .cyan]
                 ) {
                     VStack(spacing: 28) {
-                        // Enhanced API Key Input with validation
-                        ProfessionalTextField(
-                            title: "Clave de API",
-                            placeholder: "Ingresa tu clave de API privada",
-                            icon: "key.fill",
-                            text: $apiKey,
-                            isSecure: true,
-                            validation: { key in
-                                if key.isEmpty {
-                                    return ProfessionalTextField.ValidationResult(isValid: false, message: nil)
-                                } else {
-                                    return ProfessionalTextField.ValidationResult(isValid: true, message: nil)
+                        // API Key Status (read-only, loaded automatically)
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack(spacing: 12) {
+                                ZStack {
+                                    Circle()
+                                        .fill(LinearGradient(colors: [.green.opacity(0.1), .green.opacity(0.05)], startPoint: .topLeading, endPoint: .bottomTrailing))
+                                        .frame(width: 32, height: 32)
+                                    Image(systemName: "key.fill")
+                                        .font(.system(size: 14, weight: .semibold))
+                                        .foregroundColor(.green)
                                 }
+
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Clave de API")
+                                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                                        .foregroundColor(.primary)
+                                    if isLoadingApiKey {
+                                        HStack(spacing: 6) {
+                                            ProgressView()
+                                                .scaleEffect(0.7)
+                                                .progressViewStyle(CircularProgressViewStyle(tint: .secondary))
+                                            Text("Cargando...")
+                                                .font(.system(size: 12, weight: .medium))
+                                                .foregroundColor(.secondary)
+                                        }
+                                    } else if !apiKey.isEmpty {
+                                        HStack(spacing: 6) {
+                                            Image(systemName: "checkmark.circle.fill")
+                                                .font(.system(size: 12))
+                                                .foregroundColor(.green)
+                                            Text("Cargada automáticamente desde tu cuenta")
+                                                .font(.system(size: 12, weight: .medium))
+                                                .foregroundColor(.secondary)
+                                        }
+                                    } else {
+                                        HStack(spacing: 6) {
+                                            Image(systemName: "exclamationmark.triangle.fill")
+                                                .font(.system(size: 12))
+                                                .foregroundColor(.orange)
+                                            Text("No disponible - Inicia sesión primero")
+                                                .font(.system(size: 12, weight: .medium))
+                                                .foregroundColor(.secondary)
+                                        }
+                                    }
+                                }
+
+                                Spacer()
                             }
-                        )
-                        
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 12)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(.ultraThinMaterial)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .strokeBorder(.secondary.opacity(0.2), lineWidth: 1)
+                                    )
+                            )
+                        }
+
                         // Enhanced Branch Selection
                         VStack(alignment: .leading, spacing: 12) {
                             HStack(spacing: 12) {
@@ -83,36 +159,19 @@ struct ModuleManagerView: View {
                                         .font(.system(size: 12, weight: .medium))
                                         .foregroundColor(.secondary)
                                 }
-                                
+
                                 Spacer()
-                                
-                                Button(action: {
-                                    Task {
-                                        await loadAvailableBranches()
-                                    }
-                                }) {
+
+                                if isLoadingBranches {
                                     HStack(spacing: 6) {
-                                        if isLoadingBranches {
-                                            ProgressView()
-                                                .scaleEffect(0.8)
-                                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                                        } else {
-                                            Image(systemName: "arrow.clockwise")
-                                                .font(.system(size: 11, weight: .bold))
-                                        }
-                                        Text(isLoadingBranches ? "Cargando..." : "Cargar")
-                                            .font(.system(size: 11, weight: .semibold))
+                                        ProgressView()
+                                            .scaleEffect(0.8)
+                                            .progressViewStyle(CircularProgressViewStyle(tint: .blue))
+                                        Text("Cargando ramas...")
+                                            .font(.system(size: 12, weight: .medium))
+                                            .foregroundColor(.secondary)
                                     }
-                                    .foregroundColor(isLoadingBranches || apiKey.isEmpty ? .secondary : .white)
-                                    .padding(.horizontal, 12)
-                                    .padding(.vertical, 6)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 6)
-                                            .fill(LinearGradient(colors: isLoadingBranches || apiKey.isEmpty ? [.gray.opacity(0.3), .gray.opacity(0.2)] : [.blue, .blue.opacity(0.8)], startPoint: .topLeading, endPoint: .bottomTrailing))
-                                    )
                                 }
-                                .buttonStyle(.plain)
-                                .disabled(isLoadingBranches || apiKey.isEmpty)
                             }
                             
                             if availableBranches.isEmpty {
@@ -149,12 +208,16 @@ struct ModuleManagerView: View {
                                 Text("\(availableBranches.count) ramas disponibles")
                                     .font(.system(size: 12))
                                     .foregroundColor(.secondary)
+                            } else if isLoadingBranches {
+                                Text("Obteniendo ramas del repositorio...")
+                                    .font(.system(size: 12))
+                                    .foregroundColor(.secondary)
                             } else if apiKey.isEmpty {
-                                Text("Ingresa tu clave API y haz clic en 'Cargar' para obtener las ramas disponibles")
+                                Text("Las ramas se cargarán automáticamente al iniciar sesión")
                                     .font(.system(size: 12))
                                     .foregroundColor(.secondary)
                             } else {
-                                Text("Haz clic en 'Cargar' para obtener las ramas disponibles")
+                                Text("No se encontraron ramas disponibles")
                                     .font(.system(size: 12))
                                     .foregroundColor(.secondary)
                             }
@@ -198,8 +261,10 @@ struct ModuleManagerView: View {
                     }
                 }
                 .onAppear {
-                    // Load gula status information first
+                    // Load API key automatically first
                     Task {
+                        await loadApiKey()
+                        // Then load gula status information
                         await loadGulaStatus()
                     }
                 }
@@ -709,8 +774,30 @@ struct ModuleManagerView: View {
         }
         .scrollBounceBehavior(.basedOnSize)
     }
-    
-    
+
+
+    private func loadApiKey() async {
+        isLoadingApiKey = true
+        do {
+            let apiKeyEntity = try await getUserApiKeyUseCase.execute()
+            await MainActor.run {
+                self.apiKey = apiKeyEntity.key
+                print("✅ API key loaded successfully for ModuleManager")
+            }
+
+            // Automatically load branches after API key is loaded
+            await loadAvailableBranches()
+        } catch {
+            print("⚠️ Could not load API key: \(error)")
+            await MainActor.run {
+                // API key will remain empty, user needs to authenticate first
+                self.errorMessage = "No se pudo cargar la clave API. Por favor, inicia sesión primero."
+                self.showingError = true
+            }
+        }
+        isLoadingApiKey = false
+    }
+
     private func loadModules() async {
         isLoadingModules = true
         selectedModules.removeAll()

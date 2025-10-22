@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import TripleA
 
 enum PythonStack: String, CaseIterable, Identifiable {
     case fastapi = "fastapi"
@@ -44,31 +45,69 @@ enum PythonStack: String, CaseIterable, Identifiable {
     }
 }
 
+@available(macOS 15.0, *)
 @Observable
 class NewProjectViewModel {
     var projectName: String = ""
     var selectedType: ProjectType = .flutter
     var selectedPythonStack: PythonStack = .fastapi
     var packageName: String = ""
-    var apiKey: String = ""
     var selectedLocation: String = ""
     var isCreating = false
     var showingError = false
     var errorMessage = ""
     var creationProgress = ""
-    
+    var isLoadingApiKey = false
+
     private let projectManager: ProjectManager
     private let filePickerService: FilePickerService
-    
+    private let getUserApiKeyUseCase: GetUserApiKeyUseCaseProtocol
+    private var apiKey: String = ""
+
     init(projectManager: ProjectManager = ProjectManager.shared,
-         filePickerService: FilePickerService = FilePickerService.shared) {
+         filePickerService: FilePickerService = FilePickerService.shared,
+         getUserApiKeyUseCase: GetUserApiKeyUseCaseProtocol? = nil) {
         self.projectManager = projectManager
         self.filePickerService = filePickerService
-        
+
+        // Initialize use case with default implementation if not injected
+        if let useCase = getUserApiKeyUseCase {
+            self.getUserApiKeyUseCase = useCase
+        } else {
+            // Create default dependencies
+            let network = Config.shared.network
+            let remoteDataSource = ApiKeyRemoteDataSource(network: network)
+            let localDataSource = ApiKeyLocalDataSource()
+            let repository = ApiKeyRepository(
+                remoteDataSource: remoteDataSource,
+                localDataSource: localDataSource
+            )
+            self.getUserApiKeyUseCase = GetUserApiKeyUseCase(repository: repository)
+        }
+
         // Set default location to Documents
         if let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
             selectedLocation = documentsPath.path
         }
+
+        // Load API key automatically
+        Task {
+            await loadApiKey()
+        }
+    }
+
+    @MainActor
+    private func loadApiKey() async {
+        isLoadingApiKey = true
+        do {
+            let apiKeyEntity = try await getUserApiKeyUseCase.execute()
+            self.apiKey = apiKeyEntity.key
+            print("✅ API key loaded successfully")
+        } catch {
+            print("⚠️ Could not load API key: \(error)")
+            // API key will remain empty, user needs to authenticate first
+        }
+        isLoadingApiKey = false
     }
     
     var isValid: Bool {

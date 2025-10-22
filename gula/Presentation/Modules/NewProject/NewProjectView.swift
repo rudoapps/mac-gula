@@ -1,6 +1,7 @@
 import SwiftUI
 import AppKit
 
+@available(macOS 15.0, *)
 struct NewProjectView: View {
     @State private var viewModel = NewProjectViewModel()
     @Environment(\.dismiss) private var dismiss
@@ -186,24 +187,37 @@ struct NewProjectView: View {
                     text: $viewModel.packageName
                 )
             }
-            
-            // API Key
-            ProfessionalTextField(
-                title: "Clave de API",
-                placeholder: "Ingresa tu clave de API",
-                icon: "key.fill",
-                text: $viewModel.apiKey,
-                isSecure: true,
-                validation: { text in
-                    if text.isEmpty {
-                        return ProfessionalTextField.ValidationResult(isValid: false, message: "La clave API es necesaria para descargar arquetipos")
-                    } else if text.count < 3 {
-                        return ProfessionalTextField.ValidationResult(isValid: false, message: "La clave API parece muy corta")
-                    } else {
-                        return ProfessionalTextField.ValidationResult(isValid: true, message: nil)
+
+            // API Key Status (read-only, loaded automatically)
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Text("Clave de API")
+                        .font(.headline)
+                        .fontWeight(.medium)
+
+                    if viewModel.isLoadingApiKey {
+                        ProgressView()
+                            .scaleEffect(0.7)
                     }
                 }
-            )
+
+                HStack {
+                    Image(systemName: "key.fill")
+                        .foregroundColor(.secondary)
+
+                    Text("Cargada automáticamente desde tu cuenta")
+                        .foregroundColor(.secondary)
+                        .font(.subheadline)
+
+                    Spacer()
+
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundColor(.green)
+                }
+                .padding()
+                .background(Color.green.opacity(0.1))
+                .cornerRadius(6)
+            }
             
             // Action Buttons
             HStack(spacing: 12) {
@@ -250,10 +264,3 @@ struct NewProjectView: View {
     }
 }
 
-struct NewProjectView_Previews: PreviewProvider {
-    static var previews: some View {
-        NewProjectView { _ in
-            
-        }
-    }
-}
