@@ -600,19 +600,22 @@
     "Carga módulos" : {
 
     },
+    "Cargada automáticamente desde tu cuenta" : {
+
+    },
     "Cargando Estado del Proyecto..." : {
 
     },
     "Cargando Módulos..." : {
 
     },
+    "Cargando ramas..." : {
+
+    },
     "Cargando templates..." : {
 
     },
     "Cargando..." : {
-
-    },
-    "Cargar" : {
 
     },
     "Cerrar logs" : {
@@ -655,6 +658,9 @@
           }
         }
       }
+    },
+    "Clave de API" : {
+
     },
     "Colapsar grupo" : {
 
@@ -817,6 +823,9 @@
     "Ejecutando comando gula" : {
 
     },
+    "El gestor de módulos requiere macOS 15.0 o superior" : {
+
+    },
     "Eliminar" : {
 
     },
@@ -886,9 +895,6 @@
     "Gula v%@" : {
 
     },
-    "Haz clic en 'Cargar' para obtener las ramas disponibles" : {
-
-    },
     "Homebrew es requerido para instalar Gula CLI" : {
 
     },
@@ -909,9 +915,6 @@
       }
     },
     "Información de Módulos" : {
-
-    },
-    "Ingresa tu clave API y haz clic en 'Cargar' para obtener las ramas disponibles" : {
 
     },
     "Inicia un proyecto desde cero con arquetipos optimizados" : {
@@ -951,6 +954,9 @@
     "Intentar de nuevo" : {
 
     },
+    "Las ramas se cargarán automáticamente al iniciar sesión" : {
+
+    },
     "Limpiar" : {
 
     },
@@ -987,6 +993,9 @@
     "Necesitamos verificar que las dependencias estén instaladas" : {
 
     },
+    "No disponible - Inicia sesión primero" : {
+
+    },
     "No hay favoritos" : {
 
     },
@@ -1002,6 +1011,9 @@
     "No hay templates generados" : {
 
     },
+    "No se encontraron ramas disponibles" : {
+
+    },
     "No se pudo obtener la información del proyecto" : {
 
     },
@@ -1015,6 +1027,9 @@
 
     },
     "Obteniendo la lista de módulos disponibles desde gula CLI. Por favor espera..." : {
+
+    },
+    "Obteniendo ramas del repositorio..." : {
 
     },
     "Ocultar código" : {
@@ -1101,9 +1116,6 @@
 
     },
     "Salida técnica del comando de generación" : {
-
-    },
-    "Saltar verificación (Debug)" : {
 
     },
     "Selecciona al menos un DTO para importar" : {
