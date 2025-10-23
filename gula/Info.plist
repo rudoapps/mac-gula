@@ -2,6 +2,16 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<!-- Sparkle Automatic Updates Configuration -->
+	<key>SUFeedURL</key>
+	<string>https://raw.githubusercontent.com/fsalom/mac-app-vibe-coding/main/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>MCowBQYDK2VwAyEAGyDXAH2Q/OXvsO0JxwXdPwpvv4hUec5bYdWfDydt0j0=</string>
+	<key>SUEnableAutomaticChecks</key>
+	<true/>
+	<key>SUScheduledCheckInterval</key>
+	<integer>86400</integer>
+
 	<!-- Google Sign-In OAuth Client ID -->
 	<!-- Este valor se lee automáticamente desde GoogleService-Info.plist -->
 	<!-- Para obtenerlo: -->

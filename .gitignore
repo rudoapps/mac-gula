@@ -60,6 +60,7 @@ build/
 # Sparkle
 sparkle_private_key
 sparkle_private_key.pem
+sparkle_edkey.txt
 keys_output.txt
 sparkle.tar.xz
 bin/
