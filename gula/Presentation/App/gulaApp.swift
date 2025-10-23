@@ -8,11 +8,37 @@ struct gulaApp: App {
     private let updaterController: SPUStandardUpdaterController
 
     init() {
+        // Inicializar Sparkle con logging
         updaterController = SPUStandardUpdaterController(
             startingUpdater: true,
             updaterDelegate: nil,
             userDriverDelegate: nil
         )
+        print("✅ Sparkle controller created")
+
+        // Verificar que el updater está disponible
+        if updaterController.updater.canCheckForUpdates {
+            print("✅ Sparkle can check for updates")
+        } else {
+            print("⚠️ Sparkle cannot check for updates")
+            print("   This happens because:")
+            print("   1. SUPublicEDKey is configured (EdDSA signing required)")
+            print("   2. App is using adhoc signing (CODE_SIGN_IDENTITY=\"-\")")
+            print("   3. Running from DerivedData instead of /Applications")
+            print("")
+            print("   ℹ️ This is expected in development. Sparkle works in production DMGs.")
+            print("   💡 To test Sparkle in debug: Remove SUPublicEDKey from Info.plist temporarily")
+        }
+
+        // Verificar la URL del feed
+        if let feedURL = updaterController.updater.feedURL {
+            print("📍 Feed URL: \(feedURL)")
+        } else {
+            print("❌ No feed URL configured")
+        }
+
+        // Verificar si Sparkle está inicializado
+        print("📊 Automatic updates enabled: \(updaterController.updater.automaticallyChecksForUpdates)")
 
         // Configurar Google Sign-In
         configureGoogleSignIn()

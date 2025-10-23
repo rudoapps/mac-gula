@@ -27,16 +27,22 @@ jobs:
         
     - name: Build app
       run: |
+        # Build without code signing (GitHub Actions doesn't have certificates)
         xcodebuild -project gula.xcodeproj \
           -scheme gula \
           -configuration Release \
           -derivedDataPath build/ \
           -archivePath build/gula.xcarchive \
-          archive
+          archive \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO \
+          DEVELOPMENT_TEAM="" \
+          PROVISIONING_PROFILE_SPECIFIER=""
           
     - name: Export app
       run: |
-        # Create export options plist
+        # Create export options plist for unsigned build
         cat > ExportOptions.plist << EOF
         <?xml version="1.0" encoding="UTF-8"?>
         <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -44,16 +50,21 @@ jobs:
         <dict>
             <key>method</key>
             <string>mac-application</string>
-            <key>destination</key>
-            <string>export</string>
+            <key>signingStyle</key>
+            <string>manual</string>
+            <key>teamID</key>
+            <string></string>
+            <key>provisioningProfiles</key>
+            <dict/>
         </dict>
         </plist>
         EOF
-        
+
         xcodebuild -exportArchive \
           -archivePath build/gula.xcarchive \
           -exportPath build/export \
-          -exportOptionsPlist ExportOptions.plist
+          -exportOptionsPlist ExportOptions.plist \
+          -allowProvisioningUpdates
           
     - name: Create DMG
       run: |
