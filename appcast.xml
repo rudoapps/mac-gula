@@ -2,7 +2,7 @@
 <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/">
     <channel>
         <title>Gula Updates</title>
-        <link>https://github.com/fsalom/mac-app-vibe-coding/releases</link>
+        <link>https://github.com/rudoapps/mac-gula/releases</link>
         <description>Updates for Gula App</description>
         <language>es</language>
         
@@ -11,7 +11,7 @@
         
         <item>
             <title>Gula 1.1</title>
-            <link>https://github.com/fsalom/mac-app-vibe-coding/releases/tag/v1.1</link>
+            <link>https://github.com/rudoapps/mac-gula/releases/tag/v1.1</link>
             <description><![CDATA[
                 <h2>What's New in Gula 1.1:</h2>
                 <ul>
@@ -21,7 +21,7 @@
                 </ul>
 
                 <h3>Full Changelog:</h3>
-                <p>Visit the <a href="https://github.com/fsalom/mac-app-vibe-coding/releases/tag/v1.1">release page</a> for complete details.</p>
+                <p>Visit the <a href="https://github.com/rudoapps/mac-gula/releases/tag/v1.1">release page</a> for complete details.</p>
             ]]></description>
             <pubDate>Wed, 11 Sep 2025 12:00:00 +0000</pubDate>
             <guid isPermaLink="false">gula-1.1</guid>
@@ -29,7 +29,7 @@
             <sparkle:shortVersionString>1.1</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
             <enclosure
-                url="https://github.com/fsalom/mac-app-vibe-coding/releases/download/v1.1/Gula-1.1.dmg"
+                url="https://github.com/rudoapps/mac-gula/releases/download/v1.1/Gula-1.1.dmg"
                 length="FILESIZE_HERE"
                 type="application/octet-stream"
                 sparkle:edSignature="SIGNATURE_HERE" />
@@ -39,7 +39,7 @@
         <!-- Current version entry (1.0.3) - Base version with Sparkle configured -->
         <item>
             <title>Gula 1.0.3</title>
-            <link>https://github.com/fsalom/mac-app-vibe-coding/releases/tag/v1.0.3</link>
+            <link>https://github.com/rudoapps/mac-gula/releases/tag/v1.0.3</link>
             <description><![CDATA[
                 <h2>Gula 1.0.3 - Sparkle Integration</h2>
                 <p>Esta versión incluye actualizaciones automáticas mediante Sparkle.</p>
@@ -70,7 +70,7 @@
             <sparkle:shortVersionString>1.0.3</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
             <enclosure
-                url="https://github.com/fsalom/mac-app-vibe-coding/releases/download/v1.0.3/Gula-1.0.3.dmg"
+                url="https://github.com/rudoapps/mac-gula/releases/download/v1.0.3/Gula-1.0.3.dmg"
                 length="2956083"
                 type="application/octet-stream"
                 sparkle:edSignature="ZLcoswEkqawL/FJvRavtnK3p2Pe4px2sFSjjCwyJpfOhj0yC58O8t+tC5bM3UlBhFbf6CAaI6zysV8RFk6aGBA==" />
