@@ -87,8 +87,8 @@ jobs:
     - name: Generate Sparkle signature
       id: sparkle
       run: |
-        # Install Sparkle tools
-        curl -L -o sparkle.tar.xz https://github.com/sparkle-project/Sparkle/releases/latest/download/Sparkle-for-Swift-Package-Manager.tar.xz
+        # Install Sparkle tools - use specific version
+        curl -L -o sparkle.tar.xz https://github.com/sparkle-project/Sparkle/releases/download/2.7.3/Sparkle-2.7.3-for-Swift-Package-Manager.tar.xz
         tar -xf sparkle.tar.xz
         
         # Generate Ed25519 key pair if they don't exist (for first run)
