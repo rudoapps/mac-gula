@@ -194,18 +194,20 @@ struct SidebarSection: View {
             // Section Items with enhanced spacing
             VStack(spacing: 6) {
                 ForEach(items) { item in
-                    SidebarItem(
-                        item: item,
-                        isSelected: selection == item,
-                        action: {
-                            print("🎯 Sidebar: Seleccionando item: \(item)")
-                            withAnimation(.easeInOut(duration: 0.2)) {
-                                selection = item
-                            }
-                        },
-                        project: project,
-                        onBack: onBack
-                    )
+                    if item.isEnabled {
+                        SidebarItem(
+                            item: item,
+                            isSelected: selection == item,
+                            action: {
+                                print("🎯 Sidebar: Seleccionando item: \(item)")
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    selection = item
+                                }
+                            },
+                            project: project,
+                            onBack: onBack
+                        )
+                    }
                 }
             }
         }
@@ -498,7 +500,14 @@ enum GulaDashboardAction: String, CaseIterable, Identifiable, Hashable {
         case .settings: return "gear"
         }
     }
-    
+
+    var isEnabled: Bool {
+        switch self {
+        case .apiGenerator, .chatAssistant: false
+        default: true
+        }
+    }
+
     static let projectItems: [GulaDashboardAction] = [.overview, .openInFinder]
     static let developmentItems: [GulaDashboardAction] = [.modules, .generateTemplate, .preCommitHooks, .apiGenerator, .chatAssistant]
     static let toolsItems: [GulaDashboardAction] = [.settings]

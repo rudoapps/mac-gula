@@ -193,6 +193,7 @@ private struct AppVersionView: View {
  
     var body: some View {
         VStack(spacing: 6) {
+            Divider()
             HStack(spacing: 8) {
                 Image(systemName: "info.circle")
                     .font(.system(size: 12, weight: .medium))
@@ -205,17 +206,9 @@ private struct AppVersionView: View {
                 Spacer()
 
             }
-            
-            Rectangle()
-                .fill(.secondary.opacity(0.2))
-                .frame(height: 0.5)
         }
         .padding(.vertical, 8)
         .padding(.horizontal, 12)
-        .background(
-            RoundedRectangle(cornerRadius: 8)
-                .fill(.primary.opacity(0.03))
-        )
     }
     
     private var appVersion: String {
