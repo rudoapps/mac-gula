@@ -1,0 +1,44 @@
+name: Simple Release (Pre-built DMG)
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version (e.g., 1.0.4)'
+        required: true
+      dmg_url:
+        description: 'URL to pre-built and signed DMG'
+        required: true
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Download DMG
+      run: |
+        wget -O "Gula-${{ github.event.inputs.version }}.dmg" "${{ github.event.inputs.dmg_url }}"
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ github.event.inputs.version }}
+        name: Gula ${{ github.event.inputs.version }}
+        files: Gula-${{ github.event.inputs.version }}.dmg
+        body: |
+          ## Gula ${{ github.event.inputs.version }}
+
+          ### Instalación
+          1. Descarga el DMG
+          2. Arrastra Gula a tu carpeta de Aplicaciones
+          3. Disfruta de las actualizaciones automáticas
+
+          ---
+          *Release manual desde DMG pre-compilado*
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

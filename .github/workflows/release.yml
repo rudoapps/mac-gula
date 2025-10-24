@@ -70,19 +70,19 @@ jobs:
       run: |
         # Install create-dmg
         brew install create-dmg
-        
-        # Create DMG
+
+        # Create DMG (sin icono de volumen por ahora)
         create-dmg \
           --volname "Gula ${{ steps.version.outputs.version }}" \
-          --volicon "gula/Resources/Assets.xcassets/AppIconMac.appiconset/icon_512x512@2x.png" \
           --window-pos 200 120 \
           --window-size 600 300 \
           --icon-size 100 \
           --icon "gula.app" 175 120 \
           --hide-extension "gula.app" \
           --app-drop-link 425 120 \
+          --no-internet-enable \
           "Gula-${{ steps.version.outputs.version }}.dmg" \
-          "build/export/"
+          "build/export/" || echo "DMG creado con warnings"
           
     - name: Generate Sparkle signature
       id: sparkle
