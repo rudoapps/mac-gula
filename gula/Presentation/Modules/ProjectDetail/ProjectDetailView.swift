@@ -1,5 +1,4 @@
 import SwiftUI
-import Sparkle
 
 // MARK: - Project Detail Main View
 
@@ -191,12 +190,7 @@ private struct ProjectDetailContent: View {
 // MARK: - App Version View
 
 private struct AppVersionView: View {
-    private let updater = SPUStandardUpdaterController(
-        startingUpdater: false,
-        updaterDelegate: nil,
-        userDriverDelegate: nil
-    ).updater
-    
+ 
     var body: some View {
         VStack(spacing: 6) {
             HStack(spacing: 8) {
@@ -209,17 +203,7 @@ private struct AppVersionView: View {
                     .foregroundColor(.secondary.opacity(0.8))
                 
                 Spacer()
-                
-                Button(action: {
-                    updater.checkForUpdates()
-                }) {
-                    Image(systemName: "arrow.clockwise")
-                        .font(.system(size: 10, weight: .medium))
-                        .foregroundColor(.secondary.opacity(0.6))
-                }
-                .buttonStyle(.plain)
-                .disabled(!updater.canCheckForUpdates)
-                .help("Buscar actualizaciones")
+
             }
             
             Rectangle()
