@@ -79,36 +79,43 @@ struct NewProjectView: View {
                 
                 VStack(spacing: 6) {
                     ForEach(ProjectType.allCases) { type in
-                        Button(action: {
-                            viewModel.selectedType = type
-                        }) {
-                            HStack {
-                                Text(type.icon)
-                                    .font(.title2)
-                                
-                                VStack(alignment: .leading) {
-                                    Text(type.displayName)
-                                        .font(.headline)
-                                    Text(type.description)
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                }
-                                
-                                Spacer()
-                                
-                                if viewModel.selectedType == type {
-                                    Image(systemName: "checkmark.circle.fill")
-                                        .foregroundColor(.blue)
-                                }
+                        HStack {
+                            Text(type.icon)
+                                .font(.title2)
+
+                            VStack(alignment: .leading) {
+                                Text(type.displayName)
+                                    .font(.headline)
+                                Text(type.description)
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
                             }
-                            .padding()
-                            .background(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .fill(viewModel.selectedType == type ? Color.blue.opacity(0.1) : Color.clear)
-                                    .stroke(viewModel.selectedType == type ? Color.blue : Color.secondary.opacity(0.3), lineWidth: 1)
-                            )
+
+                            Spacer()
+
+                            if viewModel.selectedType == type {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundColor(.blue)
+                            }
                         }
-                        .buttonStyle(PlainButtonStyle())
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(viewModel.selectedType == type ? Color.blue.opacity(0.1) : Color.clear)
+                                .stroke(viewModel.selectedType == type ? Color.blue : Color.secondary.opacity(0.3), lineWidth: 1)
+                        )
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            viewModel.selectedType = type
+                        }
+                        .onHover { hovering in
+                            if hovering {
+                                NSCursor.pointingHand.set()
+                            } else {
+                                NSCursor.arrow.set()
+                            }
+                        }
                     }
                 }
             }
@@ -143,36 +150,43 @@ struct NewProjectView: View {
                     
                     VStack(spacing: 6) {
                         ForEach(PythonStack.allCases) { stack in
-                            Button(action: {
-                                viewModel.selectedPythonStack = stack
-                            }) {
-                                HStack {
-                                    Text(stack.icon)
-                                        .font(.title2)
-                                    
-                                    VStack(alignment: .leading) {
-                                        Text(stack.displayName)
-                                            .font(.headline)
-                                        Text(stack.description)
-                                            .font(.caption)
-                                            .foregroundColor(.secondary)
-                                    }
-                                    
-                                    Spacer()
-                                    
-                                    if viewModel.selectedPythonStack == stack {
-                                        Image(systemName: "checkmark.circle.fill")
-                                            .foregroundColor(.blue)
-                                    }
+                            HStack {
+                                Text(stack.icon)
+                                    .font(.title2)
+
+                                VStack(alignment: .leading) {
+                                    Text(stack.displayName)
+                                        .font(.headline)
+                                    Text(stack.description)
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
                                 }
-                                .padding()
-                                .background(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .fill(viewModel.selectedPythonStack == stack ? Color.blue.opacity(0.1) : Color.clear)
-                                        .stroke(viewModel.selectedPythonStack == stack ? Color.blue : Color.secondary.opacity(0.3), lineWidth: 1)
-                                )
+
+                                Spacer()
+
+                                if viewModel.selectedPythonStack == stack {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .foregroundColor(.blue)
+                                }
                             }
-                            .buttonStyle(PlainButtonStyle())
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(viewModel.selectedPythonStack == stack ? Color.blue.opacity(0.1) : Color.clear)
+                                    .stroke(viewModel.selectedPythonStack == stack ? Color.blue : Color.secondary.opacity(0.3), lineWidth: 1)
+                            )
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                viewModel.selectedPythonStack = stack
+                            }
+                            .onHover { hovering in
+                                if hovering {
+                                    NSCursor.pointingHand.set()
+                                } else {
+                                    NSCursor.arrow.set()
+                                }
+                            }
                         }
                     }
                 }
