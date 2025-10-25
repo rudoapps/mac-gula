@@ -12,39 +12,37 @@ struct QuickActionCard: View {
     @State private var isHovered = false
     
     var body: some View {
-        Button(action: action) {
-            VStack(spacing: 16) {
-                // Icon with gradient background
-                ZStack {
-                    Circle()
-                        .fill(
-                            LinearGradient(
-                                colors: gradient.map { $0.opacity(isHovered ? 0.8 : 0.6) },
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
+        VStack(spacing: 16) {
+            // Icon with gradient background
+            ZStack {
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: gradient.map { $0.opacity(isHovered ? 0.8 : 0.6) },
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
                         )
-                        .frame(width: 48, height: 48)
-                        .shadow(color: color.opacity(0.3), radius: isHovered ? 8 : 4, x: 0, y: 2)
-                    
-                    Image(systemName: icon)
-                        .font(.system(size: 20, weight: .semibold))
-                        .foregroundColor(.white)
-                }
-                
-                VStack(spacing: 8) {
-                    Text(title)
-                        .font(.system(size: 16, weight: .bold, design: .rounded))
-                        .foregroundColor(.primary)
-                        .multilineTextAlignment(.center)
-                    
-                    Text(description)
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
-                        .lineLimit(2)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
+                    )
+                    .frame(width: 48, height: 48)
+                    .shadow(color: color.opacity(0.3), radius: isHovered ? 8 : 4, x: 0, y: 2)
+
+                Image(systemName: icon)
+                    .font(.system(size: 20, weight: .semibold))
+                    .foregroundColor(.white)
+            }
+
+            VStack(spacing: 8) {
+                Text(title)
+                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                    .foregroundColor(.primary)
+                    .multilineTextAlignment(.center)
+
+                Text(description)
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
         .frame(height: 140)
@@ -67,7 +65,9 @@ struct QuickActionCard: View {
         .shadow(color: color.opacity(0.1), radius: isHovered ? 8 : 0, x: 0, y: 2)
         .scaleEffect(isHovered ? 1.05 : 1.0)
         .contentShape(Rectangle())
-        .buttonStyle(PlainButtonStyle())
+        .onTapGesture {
+            action()
+        }
         .onHover { hovering in
             withAnimation(.easeInOut(duration: 0.2)) {
                 isHovered = hovering
