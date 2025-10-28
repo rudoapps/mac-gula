@@ -204,16 +204,9 @@ struct NewProjectView: View {
 
             // API Key Status (read-only, loaded automatically)
             VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Text("Clave de API")
-                        .font(.headline)
-                        .fontWeight(.medium)
-
-                    if viewModel.isLoadingApiKey {
-                        ProgressView()
-                            .scaleEffect(0.7)
-                    }
-                }
+                Text("Clave de API")
+                    .font(.headline)
+                    .fontWeight(.medium)
 
                 HStack {
                     Image(systemName: "key.fill")

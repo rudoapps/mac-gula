@@ -4,7 +4,7 @@ import GoogleSignIn
 @available(macOS 15.0, *)
 @main
 struct gulaApp: App {
-    
+
     init() {
         // Configurar Google Sign-In
         configureGoogleSignIn()
