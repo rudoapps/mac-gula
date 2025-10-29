@@ -4,11 +4,13 @@ import SwiftUI
 struct MainContentView: View {
     let project: Project
     let onBack: () -> Void
-    
+    let onLogout: () -> Void
+
     var body: some View {
         ProjectDetailView(
             project: project,
-            onBack: onBack
+            onBack: onBack,
+            onLogout: onLogout
         )
         .background(
             Button("") {
@@ -30,8 +32,10 @@ struct MainContentView_Previews: PreviewProvider {
             path: "/Users/sample/project",
             type: .flutter
         )
-        return MainContentView(project: sampleProject) {
-            print("Back button pressed")
-        }
+        return MainContentView(
+            project: sampleProject,
+            onBack: { print("Back button pressed") },
+            onLogout: { print("Logout pressed") }
+        )
     }
 }

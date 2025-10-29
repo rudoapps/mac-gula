@@ -7,18 +7,26 @@ class SystemRepositoryImpl: SystemRepositoryProtocol {
     func checkCommandExists(_ command: String) async throws -> Bool {
         #if os(macOS)
         do {
+            #if DEBUG
             print("🔧 Executing command: \(command)")
+            #endif
             let result = try await executeCommand(command)
             let output = result.trimmingCharacters(in: .whitespacesAndNewlines)
+            #if DEBUG
             print("📤 Command '\(command)' output: '\(output)'")
-            
+            #endif
+
             // For test commands, success (exit code 0) means the file exists
             // The output will be empty but that's expected for test commands
             let exists = true // If we reach here, the command succeeded (exit code 0)
+            #if DEBUG
             print("🔍 Command exists result: \(exists)")
+            #endif
             return exists
         } catch {
+            #if DEBUG
             print("❌ Command '\(command)' failed with error: \(error)")
+            #endif
             // For test commands, failure means the file doesn't exist
             return false
         }
@@ -33,14 +41,13 @@ class SystemRepositoryImpl: SystemRepositoryProtocol {
         #endif
         #endif
     }
-    
+
     func executeCommand(_ command: String) async throws -> String {
         #if os(macOS)
         return try await withCheckedThrowingContinuation { continuation in
             let process = Process()
-            process.executableURL = URL(fileURLWithPath: "/bin/bash")
-            
-            // Set up the environment with proper PATH including shell initialization
+
+            // Set up the environment with proper PATH
             var environment = ProcessInfo.processInfo.environment
             let commonPaths = [
                 "/usr/local/bin",
@@ -53,11 +60,11 @@ class SystemRepositoryImpl: SystemRepositoryProtocol {
             let currentPath = environment["PATH"] ?? ""
             let fullPath = (commonPaths + [currentPath]).joined(separator: ":")
             environment["PATH"] = fullPath
-            
+
             // Extract working directory from command if it starts with cd
             var workingDirectory: String? = nil
             var actualCommand = command
-            
+
             // Check if command starts with cd and extract the directory
             if command.hasPrefix("cd \"") {
                 // Find the first occurrence of '" && ' to split correctly
@@ -65,43 +72,115 @@ class SystemRepositoryImpl: SystemRepositoryProtocol {
                     let cdPart = String(command[..<range.lowerBound])
                     workingDirectory = String(cdPart.dropFirst(4)) // Remove 'cd "' prefix (4 characters)
                     actualCommand = String(command[range.upperBound...])
+                    #if DEBUG
                     print("🔍 Extracted working directory: '\(workingDirectory ?? "none")'")
                     print("🔍 Extracted command: '\(actualCommand)'")
+                    #endif
                 }
             }
-            
+
             // Set the working directory if extracted
             if let workingDir = workingDirectory {
                 let url = URL(fileURLWithPath: workingDir)
                 process.currentDirectoryURL = url
+                #if DEBUG
                 print("📁 Set process working directory to: \(workingDir)")
+                #endif
             }
-            
-            // Enhanced command with proper environment setup for gula
-            let enhancedCommand = """
-            export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH";
-            source ~/.bash_profile 2>/dev/null || source ~/.zshrc 2>/dev/null || true;
-            eval "$(/opt/homebrew/bin/brew shellenv 2>/dev/null || /usr/local/bin/brew shellenv 2>/dev/null || true)";
-            export HOMEBREW_PREFIX="$(/opt/homebrew/bin/brew --prefix 2>/dev/null || /usr/local/bin/brew --prefix 2>/dev/null || echo '/opt/homebrew')";
-            \(actualCommand)
-            """
-            process.arguments = ["-c", enhancedCommand]
-            process.environment = environment
-            
+
+            // Check if we can execute directly without bash wrapper
+            // Note: PATH="$PATH" is handled separately, so we ignore $ in that context
+            let commandWithoutPathPrefix = actualCommand.replacingOccurrences(of: #"PATH="[^"]*"\s*"#, with: "", options: .regularExpression)
+            let needsBash = actualCommand.contains("|") || actualCommand.contains(">") ||
+                           actualCommand.contains("<") || actualCommand.contains("&&") ||
+                           actualCommand.contains("||") || actualCommand.contains(";") ||
+                           actualCommand.contains("echo") || commandWithoutPathPrefix.contains("$")
+
+            if !needsBash && (actualCommand.hasPrefix("gula ") || actualCommand.hasPrefix("/opt/homebrew/bin/gula ") || actualCommand.hasPrefix("PATH=") || actualCommand.contains("/gula ")) {
+                // Execute gula directly for maximum performance
+                // Parse command properly handling PATH= prefix
+                var commandParts: [String] = []
+                var gulaPath: String? = nil
+
+                // Simple regex-free parsing
+                let trimmed = actualCommand.trimmingCharacters(in: .whitespaces)
+
+                // Remove PATH="..." prefix if present
+                var commandToProcess = trimmed
+                if trimmed.hasPrefix("PATH=") {
+                    // Find the end of PATH assignment (space after closing quote or first space)
+                    if let endIndex = trimmed.firstIndex(of: " ") {
+                        commandToProcess = String(trimmed[trimmed.index(after: endIndex)...]).trimmingCharacters(in: .whitespaces)
+                    }
+                }
+
+                // Now parse the actual command
+                let parts = commandToProcess.split(separator: " ", omittingEmptySubsequences: true).map(String.init)
+
+                if let firstPart = parts.first {
+                    if firstPart.hasSuffix("/gula") || firstPart == "gula" {
+                        // Found gula executable
+                        if firstPart == "gula" {
+                            gulaPath = "/opt/homebrew/bin/gula"
+                        } else {
+                            gulaPath = firstPart
+                        }
+                        commandParts = Array(parts.dropFirst())
+                    }
+                }
+
+                if let gula = gulaPath, !gula.isEmpty, FileManager.default.fileExists(atPath: gula) {
+                    #if DEBUG
+                    print("🚀 Direct execution: \(gula) \(commandParts.joined(separator: " "))")
+                    #endif
+                    process.executableURL = URL(fileURLWithPath: gula)
+                    process.arguments = commandParts
+                    process.environment = environment
+                } else {
+                    // Fallback to bash
+                    #if DEBUG
+                    print("🐚 Fallback to bash - could not parse: \(actualCommand)")
+                    #endif
+                    process.executableURL = URL(fileURLWithPath: "/bin/bash")
+                    let enhancedCommand = """
+                    export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH";
+                    \(actualCommand)
+                    """
+                    process.arguments = ["-c", enhancedCommand]
+                    process.environment = environment
+                }
+            } else {
+                // Use bash for complex commands
+                #if DEBUG
+                print("🐚 Using bash wrapper for: \(actualCommand)")
+                #endif
+                process.executableURL = URL(fileURLWithPath: "/bin/bash")
+                let enhancedCommand = """
+                export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH";
+                \(actualCommand)
+                """
+                process.arguments = ["-c", enhancedCommand]
+                process.environment = environment
+            }
+
             let pipe = Pipe()
             process.standardOutput = pipe
             process.standardError = pipe
-            
+
             // StandardInput will be handled by the shell command (echo piped to gula)
             // No need to set it to null since we're providing automated inputs via echo
-            
+
+            #if DEBUG
             print("🚀 Executing: \(command) with PATH: \(fullPath)")
-            
+            #endif
+
             // Add a timer to force termination after 5 minutes
             let timer = Timer.scheduledTimer(withTimeInterval: 300.0, repeats: false) { _ in
+                #if DEBUG
                 print("⏰ Command timed out, terminating process")
+                #endif
                 process.terminate()
-                
+
                 let error = NSError(
                     domain: "SystemRepository",
                     code: -1,
@@ -109,16 +188,36 @@ class SystemRepositoryImpl: SystemRepositoryProtocol {
                 )
                 continuation.resume(throwing: error)
             }
-            
+
             process.terminationHandler = { process in
                 timer.invalidate() // Cancel the timeout timer
-                
-                let data = pipe.fileHandleForReading.readDataToEndOfFile()
+
+                // Use async reading to avoid blocking
+                let fileHandle = pipe.fileHandleForReading
+                var data = Data()
+
+                // Read available data without blocking
+                do {
+                    if #available(macOS 10.15.4, *) {
+                        // Use non-blocking read if available
+                        data = try fileHandle.readToEnd() ?? Data()
+                    } else {
+                        data = fileHandle.readDataToEndOfFile()
+                    }
+                } catch {
+                    #if DEBUG
+                    print("⚠️ Error reading pipe data: \(error)")
+                    #endif
+                    data = Data()
+                }
+
                 let output = String(data: data, encoding: .utf8) ?? ""
-                
+
+                #if DEBUG
                 print("📋 Process finished with status: \(process.terminationStatus)")
                 print("📋 Output: '\(output)'")
-                
+                #endif
+
                 if process.terminationStatus == 0 {
                     continuation.resume(returning: output)
                 } else if process.terminationStatus == 15 { // SIGTERM (timeout)
@@ -139,7 +238,9 @@ class SystemRepositoryImpl: SystemRepositoryProtocol {
                         lowercaseOutput.contains("arquetipo") ||
                         lowercaseOutput.contains("archetype")
                     ) {
+                        #if DEBUG
                         print("⚠️ Gula command had exit code \(process.terminationStatus) but produced expected output, treating as success")
+                        #endif
                         continuation.resume(returning: output)
                     } else {
                         let error = NSError(
@@ -151,12 +252,14 @@ class SystemRepositoryImpl: SystemRepositoryProtocol {
                     }
                 }
             }
-            
+
             do {
                 try process.run()
             } catch {
                 timer.invalidate()
+                #if DEBUG
                 print("❌ Failed to start process: \(error)")
+                #endif
                 continuation.resume(throwing: error)
             }
         }
@@ -228,12 +331,31 @@ class SystemRepositoryImpl: SystemRepositoryProtocol {
             task.standardError = pipe
             
             task.terminationHandler = { process in
-                let data = pipe.fileHandleForReading.readDataToEndOfFile()
+                // Use async reading to avoid blocking
+                let fileHandle = pipe.fileHandleForReading
+                var data = Data()
+
+                // Read available data without blocking
+                do {
+                    if #available(macOS 10.15.4, *) {
+                        data = try fileHandle.readToEnd() ?? Data()
+                    } else {
+                        data = fileHandle.readDataToEndOfFile()
+                    }
+                } catch {
+                    #if DEBUG
+                    print("⚠️ Error reading pipe data: \(error)")
+                    #endif
+                    data = Data()
+                }
+
                 let output = String(data: data, encoding: .utf8) ?? ""
-                
+
+                #if DEBUG
                 print("📋 AppleScript finished with status: \(process.terminationStatus)")
                 print("📋 Terminal output: '\(output)'")
-                
+                #endif
+
                 if process.terminationStatus == 0 {
                     continuation.resume(returning: output)
                 } else {
@@ -245,11 +367,13 @@ class SystemRepositoryImpl: SystemRepositoryProtocol {
                     continuation.resume(throwing: error)
                 }
             }
-            
+
             do {
                 try task.run()
             } catch {
+                #if DEBUG
                 print("❌ Failed to execute AppleScript: \(error)")
+                #endif
                 continuation.resume(throwing: error)
             }
         }
@@ -261,21 +385,29 @@ class SystemRepositoryImpl: SystemRepositoryProtocol {
     func checkInternetConnectivity() async throws -> Bool {
         #if os(macOS)
         do {
+            #if DEBUG
             print("🌐 Checking internet connectivity...")
+            #endif
 
             // Try to ping a reliable public DNS server (Google's 8.8.8.8)
             let result = try await executeCommand("ping -c 1 -W 3000 8.8.8.8")
             let hasConnectivity = result.contains("1 packets transmitted, 1 received") || result.contains("1 packets transmitted, 1 packets received")
 
+            #if DEBUG
             print("🌐 Internet connectivity: \(hasConnectivity ? "✅ Available" : "❌ Not available")")
+            #endif
             return hasConnectivity
         } catch {
+            #if DEBUG
             print("❌ Error checking internet connectivity: \(error)")
+            #endif
             return false
         }
         #else
         // En iOS/simulador, simulamos que hay conectividad
+        #if DEBUG
         print("DEBUG iOS: Simulating internet connectivity check")
+        #endif
         return true
         #endif
     }

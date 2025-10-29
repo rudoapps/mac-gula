@@ -15,14 +15,6 @@ struct UserMenuButton: View {
 
     var body: some View {
         Menu {
-            Button {
-                // TODO: Navigate to profile
-            } label: {
-                Label("Perfil", systemImage: "person.circle")
-            }
-
-            Divider()
-
             Button(role: .destructive) {
                 onLogout()
             } label: {

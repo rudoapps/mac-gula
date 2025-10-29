@@ -138,13 +138,26 @@ struct ModuleListRow: View {
                     .foregroundColor(.blue)
             }
         case .installed:
-            HStack(spacing: 6) {
-                Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(.green)
-                Text("Instalado")
-                    .font(.system(size: 10, weight: .semibold))
-                    .foregroundColor(.green)
+            VStack(alignment: .trailing, spacing: 2) {
+                HStack(spacing: 6) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(.green)
+                    Text("Instalado")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundColor(.green)
+                }
+
+                if let branch = module.installedBranch {
+                    HStack(spacing: 4) {
+                        Image(systemName: "arrow.branch")
+                            .font(.system(size: 9, weight: .medium))
+                            .foregroundColor(.secondary)
+                        Text(branch)
+                            .font(.system(size: 9, weight: .medium))
+                            .foregroundColor(.secondary)
+                    }
+                }
             }
         case .failed(let error):
             HStack(spacing: 6) {

@@ -12,15 +12,11 @@ class ProjectManager {
     private let systemRepository: SystemRepositoryProtocol
     
     init(systemRepository: SystemRepositoryProtocol = SystemRepositoryImpl()) {
-        #if DEBUG
         print("🚀 ProjectManager: Inicializando...")
-        #endif
         self.systemRepository = systemRepository
         loadRecentProjects()
         loadCurrentProject()
-        #if DEBUG
         print("🚀 ProjectManager: Inicialización completada")
-        #endif
     }
     
     // MARK: - Recent Projects Management
@@ -52,9 +48,7 @@ class ProjectManager {
                 // Filter out projects that no longer exist
                 self.recentProjects = projects.filter { $0.exists }
             } catch {
-                #if DEBUG
                 print("Error loading recent projects: \(error)")
-                #endif
                 self.recentProjects = []
             }
         }
@@ -65,40 +59,26 @@ class ProjectManager {
             let data = try JSONEncoder().encode(recentProjects)
             userDefaults.set(data, forKey: recentProjectsKey)
         } catch {
-            #if DEBUG
             print("Error saving recent projects: \(error)")
-            #endif
         }
     }
     
     private func loadCurrentProject() {
         // Establecer el proyecto más reciente como el actual si existe
         if let mostRecentProject = recentProjects.first {
-            #if DEBUG
             print("📁 ProjectManager: Proyecto más reciente encontrado: \(mostRecentProject.name)")
-            #endif
-            #if DEBUG
             print("📁 ProjectManager: Ruta del proyecto: \(mostRecentProject.path)")
-            #endif
-            #if DEBUG
             print("📁 ProjectManager: ¿Existe el proyecto?: \(mostRecentProject.exists)")
-            #endif
             
             if mostRecentProject.exists {
-                #if DEBUG
                 print("📁 ProjectManager: Estableciendo proyecto actual: \(mostRecentProject.name)")
-                #endif
                 currentProject = mostRecentProject
             } else {
-                #if DEBUG
                 print("📁 ProjectManager: El proyecto no existe en el sistema de archivos")
-                #endif
                 currentProject = nil
             }
         } else {
-            #if DEBUG
             print("📁 ProjectManager: No hay proyectos recientes disponibles")
-            #endif
             currentProject = nil
         }
     }
@@ -113,9 +93,7 @@ class ProjectManager {
         currentProject = project
         addRecentProject(project)
         saveRecentProjects()
-        #if DEBUG
         print("📁 ProjectManager: Proyecto abierto y establecido como actual: \(project.name)")
-        #endif
         return project
     }
     
@@ -171,16 +149,12 @@ class ProjectManager {
         
         do {
             let result = try await systemRepository.executeCommand(command)
-            #if DEBUG
             print("Project creation result: \(result)")
-            #endif
             
             // Verificar si la respuesta contiene errores de API key
             if result.contains("❌ Error") || result.contains("KEY incorrecta") || result.contains("no autorizada") {
                 let errorMessage = "Clave de API inválida o no autorizada. Por favor verifica tu clave API."
-                #if DEBUG
                 print("❌ Error de API Key detectado durante la creación del proyecto: \(errorMessage)")
-                #endif
                 throw ProjectError.invalidAPIKey(errorMessage)
             }
             
@@ -189,9 +163,7 @@ class ProjectManager {
             if lowercaseResult.contains("empezando la instalación") || 
                lowercaseResult.contains("starting installation") ||
                lowercaseResult.contains("arquetipo") {
-                #if DEBUG
                 print("✅ Project creation initiated successfully")
-                #endif
                 
                 // Wait a moment for the project to be fully created
                 try await Task.sleep(nanoseconds: 1_000_000_000) // 1 second
@@ -201,40 +173,28 @@ class ProjectManager {
                 if type == .python {
                     // Check if gula created the project in the expected location
                     let expectedPath = "\(path)/\(name)"
-                    #if DEBUG
                     print("🔍 Checking if Python project exists at: \(expectedPath)")
-                    #endif
                     
                     if FileManager.default.fileExists(atPath: expectedPath) {
                         actualProjectPath = expectedPath
-                        #if DEBUG
                         print("✅ Found Python project at: \(expectedPath)")
-                        #endif
                     } else {
                         // If not found in expected location, use the configured path
                         actualProjectPath = projectPath
-                        #if DEBUG
                         print("⚠️ Python project not found at expected location, using: \(projectPath)")
-                        #endif
                     }
                 } else {
                     actualProjectPath = projectPath
                 }
                 
                 let project = Project(name: name, path: actualProjectPath, type: type)
-                #if DEBUG
                 print("📁 Created project object: \(project.name) at \(project.path)")
-                #endif
-                #if DEBUG
                 print("📁 Project exists check: \(project.exists)")
-                #endif
                 
                 currentProject = project
                 addRecentProject(project)
                 saveRecentProjects()
-                #if DEBUG
                 print("📁 ProjectManager: Proyecto creado y establecido como actual: \(project.name)")
-                #endif
                 
                 return project
             } else {
@@ -274,55 +234,41 @@ class ProjectManager {
             throw ProjectError.projectNotFound("El directorio del proyecto no existe: \(project.path)")
         }
         
-        // Construir el comando simplificado para ejecución directa
-        var gulaCommand = "/opt/homebrew/bin/gula list --key=\(apiKey)"
+        // Construir el comando con cd explícito
+        var gulaCommand = "PATH=\"/opt/homebrew/bin:$PATH\" /opt/homebrew/bin/gula list --key=\(apiKey)"
         if let branch = branch {
             gulaCommand += " --branch=\(branch)"
         }
-
+        
         let command = """
-        cd "\(project.path)" && \(gulaCommand)
+        cd "\(project.path)" && pwd && echo "Ejecutando desde: $(pwd)" && \(gulaCommand)
         """
         
-        #if DEBUG
         print("🔍 Ejecutando comando: \(command)")
-        #endif
-        #if DEBUG
         print("📁 Directorio del proyecto: \(project.path)")
-        #endif
         
         do {
             let result = try await systemRepository.executeCommand(command)
-            #if DEBUG
             print("✅ Resultado del comando gula list:")
-            #endif
-            #if DEBUG
             print(result)
-            #endif
             
             // Verificar si la respuesta contiene errores de API key
             if result.contains("❌ Error") || result.contains("KEY incorrecta") || result.contains("no autorizada") {
                 let errorMessage = "Clave de API inválida o no autorizada. Por favor verifica tu clave API."
-                #if DEBUG
                 print("❌ Error de API Key detectado: \(errorMessage)")
-                #endif
                 throw ProjectError.invalidAPIKey(errorMessage)
             }
             
             // Verificar si la respuesta contiene errores de git
             if result.lowercased().contains("fatal:") && (result.contains("git repository") || result.contains("fetch-pack")) {
                 let errorMessage = "Error de conexión con el repositorio de módulos. Verifica tu conexión a internet y que el proyecto esté correctamente inicializado."
-                #if DEBUG
                 print("❌ Error de Git detectado: \(errorMessage)")
-                #endif
                 throw ProjectError.installationFailed(errorMessage)
             }
             
             return result
         } catch {
-            #if DEBUG
             print("❌ Error ejecutando gula list: \(error)")
-            #endif
             throw error
         }
     }
@@ -338,69 +284,61 @@ class ProjectManager {
             throw ProjectError.projectNotFound("El directorio del proyecto no existe: \(project.path)")
         }
         
-        var gulaCommand = "/opt/homebrew/bin/gula install \(moduleName) --key=\(apiKey)"
+        var gulaCommand = "PATH=\"/opt/homebrew/bin:$PATH\" /opt/homebrew/bin/gula install \(moduleName) --key=\(apiKey)"
         if let branch = branch {
             gulaCommand += " --branch=\(branch)"
         }
-
-        // Simplified command - timeout is handled by systemRepository
-        let command: String
+        
+        // Enhanced command with better timeout and interrupt handling
+        let finalCommand: String
         if autoReplace {
-            // Use yes | for auto-replace mode (requires bash)
-            command = "cd \"\(project.path)\" && yes | \(gulaCommand)"
+            // Use timeout with yes command and proper exit code handling
+            finalCommand = "timeout 300 bash -c 'yes | \(gulaCommand)'; EXIT_CODE=$?; if [ $EXIT_CODE -eq 124 ]; then echo 'GULA_TIMEOUT_OCCURRED'; else exit $EXIT_CODE; fi"
         } else {
-            // Direct execution without bash wrapper
-            command = "cd \"\(project.path)\" && \(gulaCommand)"
+            // Add timeout for manual mode with proper exit code handling
+            finalCommand = "timeout 300 \(gulaCommand); EXIT_CODE=$?; if [ $EXIT_CODE -eq 124 ]; then echo 'GULA_TIMEOUT_OCCURRED'; else exit $EXIT_CODE; fi"
         }
         
-        #if DEBUG
+        let command = """
+        cd "\(project.path)" && pwd && echo "Ejecutando desde: $(pwd)" && echo "Iniciando instalación de \(moduleName)..." && \(finalCommand)
+        """
+        
         print("🔧 Instalando módulo: \(moduleName)")
-        #endif
-        #if DEBUG
         print("📁 Directorio del proyecto: \(project.path)")
-        #endif
-        #if DEBUG
         print("🔍 Comando completo: \(command)")
-        #endif
         if autoReplace {
-            #if DEBUG
             print("🔄 Modo reemplazo automático activado (timeout: 5 minutos)")
-            #endif
         } else {
-            #if DEBUG
             print("⚠️  Modo manual (timeout: 5 minutos)")
-            #endif
         }
         
         let startTime = Date()
-
+        
         do {
-            // SystemRepository already has 5 minute timeout for long operations
             let result = try await systemRepository.executeCommand(command)
             let elapsed = Date().timeIntervalSince(startTime)
-
-            #if DEBUG
+            
             print("📊 Instalación de \(moduleName) completada en \(String(format: "%.1f", elapsed)) segundos")
-            #endif
-            #if DEBUG
             print("📄 Resultado completo: \(result)")
-            #endif
+            
+            // Check for timeout or interruption
+            if result.contains("GULA_TIMEOUT_OCCURRED") {
+                let errorMessage = "La instalación del módulo \(moduleName) excedió el tiempo límite de 5 minutos"
+                print("⏱️ Timeout detectado: \(errorMessage)")
+                throw ProjectError.installationFailed(errorMessage)
+            }
             
             // Verificar si la respuesta contiene errores de API key
             if result.contains("❌ Error") || result.contains("KEY incorrecta") || result.contains("no autorizada") {
                 let errorMessage = "Clave de API inválida o no autorizada. Por favor verifica tu clave API."
-                #if DEBUG
                 print("❌ Error de API Key detectado: \(errorMessage)")
-                #endif
                 throw ProjectError.invalidAPIKey(errorMessage)
             }
             
             // Verificar si la respuesta contiene errores fatales
             if result.lowercased().contains("fatal") {
                 let errorMessage = "Error fatal durante la instalación del módulo \(moduleName)"
-                #if DEBUG
                 print("❌ Error fatal detectado: \(errorMessage)")
-                #endif
                 throw ProjectError.installationFailed(errorMessage)
             }
             
@@ -410,27 +348,19 @@ class ProjectManager {
                 // it means the yes command worked, so this is not an error
                 if !result.contains("Fin de la ejecución") && !result.contains("Proceso finalizado") {
                     let errorMessage = "El módulo \(moduleName) requiere confirmación manual para reemplazar archivos existentes."
-                    #if DEBUG
                     print("🤖 Prompt interactivo sin resolución detectado: \(errorMessage)")
-                    #endif
                     throw ProjectError.installationFailed(errorMessage)
                 } else {
-                    #if DEBUG
                     print("🤖 Prompts interactivos detectados pero resueltos automáticamente con 'yes'")
-                    #endif
                 }
             }
             
-            #if DEBUG
             print("✅ Módulo \(moduleName) instalado exitosamente")
-            #endif
             return result
             
         } catch {
             let elapsed = Date().timeIntervalSince(startTime)
-            #if DEBUG
             print("❌ Error instalando módulo \(moduleName) después de \(String(format: "%.1f", elapsed)) segundos: \(error)")
-            #endif
             
             // Provide more specific error information
             if error.localizedDescription.contains("timeout") {
@@ -452,33 +382,23 @@ class ProjectManager {
             throw ProjectError.projectNotFound("El directorio del proyecto no existe: \(project.path)")
         }
         
-        // Construir el comando simplificado
-        let gulaCommand = "/opt/homebrew/bin/gula template \(templateName)"
-
+        // Usar un script más robusto que asegure el cambio de directorio
+        let gulaCommand = "PATH=\"/opt/homebrew/bin:$PATH\" /opt/homebrew/bin/gula template \(templateName)"
+        
         let command = """
-        cd "\(project.path)" && \(gulaCommand)
+        cd "\(project.path)" && pwd && echo "Ejecutando desde: $(pwd)" && \(gulaCommand)
         """
         
-        #if DEBUG
         print("🏗️ Generando template: \(templateName)")
-        #endif
-        #if DEBUG
         print("📁 Directorio del proyecto: \(project.path)")
-        #endif
-        #if DEBUG
         print("🔍 Comando: \(command)")
-        #endif
         
         do {
             let result = try await systemRepository.executeCommand(command)
-            #if DEBUG
             print("✅ Template \(templateName) generado exitosamente")
-            #endif
             return result
         } catch {
-            #if DEBUG
             print("❌ Error generando template \(templateName): \(error)")
-            #endif
             throw error
         }
     }
@@ -495,23 +415,17 @@ class ProjectManager {
         }
         
         let command = """
-        cd "\(project.path)" && /opt/homebrew/bin/gula template --list
+        cd "\(project.path)" && pwd && echo "Ejecutando desde: $(pwd)" && PATH="/opt/homebrew/bin:$PATH" /opt/homebrew/bin/gula template --list
         """
         
-        #if DEBUG
         print("📋 Listando templates disponibles")
-        #endif
-        #if DEBUG
         print("📁 Directorio del proyecto: \(project.path)")
-        #endif
         
         do {
             let result = try await systemRepository.executeCommand(command)
             return result
         } catch {
-            #if DEBUG
             print("❌ Error listando templates: \(error)")
-            #endif
             // Devolver lista simulada para testing
             return """
             ═══════════════════════════════════════════════
@@ -554,26 +468,18 @@ class ProjectManager {
         }
         
         let command = """
-        cd "\(project.path)" && /opt/homebrew/bin/gula status
+        cd "\(project.path)" && PATH="/opt/homebrew/bin:$PATH" /opt/homebrew/bin/gula status
         """
         
-        #if DEBUG
         print("📊 Obteniendo status del proyecto")
-        #endif
-        #if DEBUG
         print("📁 Directorio del proyecto: \(project.path)")
-        #endif
-        #if DEBUG
         print("📊 Comando a ejecutar: \(command)")
-        #endif
         
         do {
             let result = try await systemRepository.executeCommand(command)
             return parseGulaStatus(from: result)
         } catch {
-            #if DEBUG
             print("❌ Error obteniendo status: \(error)")
-            #endif
             // Retornar un status vacío en caso de error
             return GulaStatus(
                 projectCreated: nil,
@@ -830,14 +736,10 @@ extension ProjectManager {
     func isPreCommitToolInstalled() async -> Bool {
         do {
             let result = try await systemRepository.executeCommand("pre-commit --version")
-            #if DEBUG
             print("✅ Pre-commit is installed: \(result)")
-            #endif
             return true
         } catch {
-            #if DEBUG
             print("⚠️ Pre-commit tool not found")
-            #endif
             return false
         }
     }
@@ -860,9 +762,7 @@ extension ProjectManager {
                 let hookContent = try String(contentsOfFile: hookPath)
                 isPreCommitHook = hookContent.contains("pre-commit")
             } catch {
-                #if DEBUG
                 print("❌ Error reading pre-commit hook: \(error)")
-                #endif
             }
         }
         
@@ -888,9 +788,7 @@ extension ProjectManager {
             do {
                 configuredHooks = try await getConfiguredHooks(at: configPath)
             } catch {
-                #if DEBUG
                 print("❌ Error reading configured hooks: \(error)")
-                #endif
             }
         }
         
@@ -916,9 +814,7 @@ extension ProjectManager {
                 let _ = try await systemRepository.executeCommand("which swiftlint")
                 installedTools.append("swiftlint")
             } catch {
-                #if DEBUG
                 print("SwiftLint not found")
-                #endif
             }
             
             // Check SwiftFormat
@@ -926,9 +822,7 @@ extension ProjectManager {
                 let _ = try await systemRepository.executeCommand("which swiftformat")
                 installedTools.append("swiftformat")
             } catch {
-                #if DEBUG
                 print("SwiftFormat not found")
-                #endif
             }
             
             // xcodebuild is always available on macOS
@@ -940,9 +834,7 @@ extension ProjectManager {
                 let _ = try await systemRepository.executeCommand("which ktlint")
                 installedTools.append("ktlint")
             } catch {
-                #if DEBUG
                 print("ktlint not found")
-                #endif
             }
             
             // Check detekt
@@ -950,9 +842,7 @@ extension ProjectManager {
                 let _ = try await systemRepository.executeCommand("which detekt")
                 installedTools.append("detekt")
             } catch {
-                #if DEBUG
                 print("detekt not found")
-                #endif
             }
             
             // Android lint is available if Android SDK is installed
@@ -960,9 +850,7 @@ extension ProjectManager {
                 let _ = try await systemRepository.executeCommand("which adb")
                 installedTools.append("android-lint")
             } catch {
-                #if DEBUG
                 print("Android SDK not found")
-                #endif
             }
             
         case .flutter:
@@ -972,9 +860,7 @@ extension ProjectManager {
                 installedTools.append("dart-analyze")
                 installedTools.append("dart-format")
             } catch {
-                #if DEBUG
                 print("Dart not found")
-                #endif
             }
             
             // Check flutter test
@@ -982,9 +868,7 @@ extension ProjectManager {
                 let _ = try await systemRepository.executeCommand("which flutter")
                 installedTools.append("flutter-test")
             } catch {
-                #if DEBUG
                 print("Flutter not found")
-                #endif
             }
             
         case .python:
@@ -993,27 +877,21 @@ extension ProjectManager {
                 let _ = try await systemRepository.executeCommand("which black")
                 installedTools.append("black")
             } catch {
-                #if DEBUG
                 print("black not found")
-                #endif
             }
             
             do {
                 let _ = try await systemRepository.executeCommand("which flake8")
                 installedTools.append("flake8")
             } catch {
-                #if DEBUG
                 print("flake8 not found")
-                #endif
             }
             
             do {
                 let _ = try await systemRepository.executeCommand("which mypy")
                 installedTools.append("mypy")
             } catch {
-                #if DEBUG
                 print("mypy not found")
-                #endif
             }
         }
         
@@ -1023,30 +901,22 @@ extension ProjectManager {
     func installPreCommitTool() async throws {
         // Check if pre-commit is already installed
         if await isPreCommitToolInstalled() {
-            #if DEBUG
             print("✅ Pre-commit is already installed")
-            #endif
             return
         }
         
-        #if DEBUG
         print("🔧 Installing pre-commit tool...")
-        #endif
         
         // Check if Homebrew is available
         do {
             let _ = try await systemRepository.executeCommand("which brew")
             let result = try await systemRepository.executeCommand("brew install pre-commit")
-            #if DEBUG
             print("✅ Pre-commit installed via Homebrew: \(result)")
-            #endif
         } catch {
             // Try pip installation as fallback
             do {
                 let result = try await systemRepository.executeCommand("pip3 install pre-commit")
-                #if DEBUG
                 print("✅ Pre-commit installed via pip: \(result)")
-                #endif
             } catch {
                 throw ProjectError.preCommitError("Failed to install pre-commit. Please install Homebrew or Python/pip first.")
             }
@@ -1072,9 +942,7 @@ extension ProjectManager {
         // 4. Write configuration file (always overwrite to ensure correct format)
         let configPath = "\(projectPath)/.pre-commit-config.yaml"
         try await writePreCommitConfig(config, to: configPath)
-        #if DEBUG
         print("🔄 Pre-commit configuration updated at: \(configPath)")
-        #endif
         
         // 5. Clean and reinstall hooks to ensure they use new configuration
         let cleanCommand = "cd \"\(projectPath)\" && pre-commit uninstall"
@@ -1119,9 +987,7 @@ extension ProjectManager {
             
             return statuses
         } catch {
-            #if DEBUG
             print("❌ Error getting pre-commit status: \(error)")
-            #endif
             return []
         }
     }
@@ -1224,9 +1090,7 @@ extension ProjectManager {
         
         do {
             try yaml.write(toFile: path, atomically: true, encoding: .utf8)
-            #if DEBUG
             print("✅ Pre-commit config written to: \(path)")
-            #endif
         } catch {
             throw ProjectError.preCommitError("Failed to write configuration file: \(error.localizedDescription)")
         }
@@ -1293,9 +1157,7 @@ extension ProjectManager {
             
             return true
         } catch {
-            #if DEBUG
             print("❌ Pre-commit hooks not properly installed: \(error)")
-            #endif
             return false
         }
     }
@@ -1376,14 +1238,10 @@ extension ProjectManager {
         
         do {
             let _ = try await systemRepository.executeCommand(command)
-            #if DEBUG
             print("✅ Tool \(hookName) is available")
-            #endif
             return true
         } catch {
-            #if DEBUG
             print("⚠️ Tool \(hookName) not found in PATH")
-            #endif
             return false
         }
     }
@@ -1476,9 +1334,7 @@ extension ProjectManager {
         
         do {
             let result = try await systemRepository.executeCommand(command)
-            #if DEBUG
             print("🌿 Branch command result for project \(project.name): \(result)")
-            #endif
             
             // Verificar si la respuesta contiene errores de API key
             if result.contains("❌ Error") || result.contains("KEY incorrecta") || result.contains("no autorizada") {
@@ -1487,9 +1343,7 @@ extension ProjectManager {
             
             return parseBranchesFromOutput(result)
         } catch {
-            #if DEBUG
             print("❌ Error obteniendo ramas para proyecto \(project.name): \(error)")
-            #endif
             throw error
         }
     }
@@ -1539,9 +1393,7 @@ extension ProjectManager {
             }
         }
         
-        #if DEBUG
         print("🌿 Parsed branches: \(branches)")
-        #endif
         return branches
     }
     

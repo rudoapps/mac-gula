@@ -8,14 +8,16 @@ struct Module: Identifiable, Hashable {
     let category: ModuleCategory
     let icon: String
     var installationStatus: InstallationStatus
-    
-    init(name: String, displayName: String, description: String, category: ModuleCategory, icon: String = "cube.box", installationStatus: InstallationStatus = .notInstalled) {
+    var installedBranch: String? // Branch from which the module was installed
+
+    init(name: String, displayName: String, description: String, category: ModuleCategory, icon: String = "cube.box", installationStatus: InstallationStatus = .notInstalled, installedBranch: String? = nil) {
         self.name = name
         self.displayName = displayName
         self.description = description
         self.category = category
         self.icon = icon
         self.installationStatus = installationStatus
+        self.installedBranch = installedBranch
     }
 }
 

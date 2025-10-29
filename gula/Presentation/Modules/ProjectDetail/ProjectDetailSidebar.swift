@@ -82,24 +82,23 @@ struct ProjectHeaderSection: View {
             // Project info card
             VStack(spacing: 12) {
                 HStack(spacing: 12) {
-                    // Project icon
+                    // Profile icon
                     ZStack {
-                        RoundedRectangle(cornerRadius: 10)
+                        Circle()
                             .fill(
                                 LinearGradient(
-                                    colors: [
-                                        project.type.accentColor,
-                                        project.type.accentColor.opacity(0.7)
-                                    ],
+                                    colors: [Color(red: 0.0, green: 0.48, blue: 1.0),
+                                           Color(red: 0.0, green: 0.78, blue: 1.0)],
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing
                                 )
                             )
                             .frame(width: 40, height: 40)
-                            .shadow(color: project.type.accentColor.opacity(0.3), radius: 6, x: 0, y: 3)
-                        
-                        Text(project.type.icon)
-                            .font(.system(size: 20, weight: .medium))
+                            .shadow(color: Color(red: 0.0, green: 0.48, blue: 1.0).opacity(0.4), radius: 6, x: 0, y: 3)
+
+                        Image(systemName: "person.fill")
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundColor(.white)
                     }
                     
                     VStack(alignment: .leading, spacing: 4) {
@@ -155,13 +154,15 @@ struct SidebarSection: View {
     @Binding var selection: GulaDashboardAction?
     let project: Project
     let onBack: (() -> Void)?
-    
-    init(title: String, items: [GulaDashboardAction], selection: Binding<GulaDashboardAction?>, project: Project, onBack: (() -> Void)? = nil) {
+    let onLogout: (() -> Void)?
+
+    init(title: String, items: [GulaDashboardAction], selection: Binding<GulaDashboardAction?>, project: Project, onBack: (() -> Void)? = nil, onLogout: (() -> Void)? = nil) {
         self.title = title
         self.items = items
         self._selection = selection
         self.project = project
         self.onBack = onBack
+        self.onLogout = onLogout
     }
     
     var body: some View {
@@ -205,7 +206,8 @@ struct SidebarSection: View {
                                 }
                             },
                             project: project,
-                            onBack: onBack
+                            onBack: onBack,
+                            onLogout: onLogout
                         )
                     }
                 }
@@ -223,21 +225,25 @@ struct SidebarItem: View {
     let action: () -> Void
     let project: Project
     let onBack: (() -> Void)?
+    let onLogout: (() -> Void)?
     @State private var isHovered = false
     @State private var isPressed = false
-    
-    init(item: GulaDashboardAction, isSelected: Bool, action: @escaping () -> Void, project: Project, onBack: (() -> Void)? = nil) {
+
+    init(item: GulaDashboardAction, isSelected: Bool, action: @escaping () -> Void, project: Project, onBack: (() -> Void)? = nil, onLogout: (() -> Void)? = nil) {
         self.item = item
         self.isSelected = isSelected
         self.action = action
         self.project = project
         self.onBack = onBack
+        self.onLogout = onLogout
     }
     
     var body: some View {
         Button(action: {
             if item == .openInFinder {
                 openInFinder()
+            } else if item == .logout {
+                onLogout?()
             } else {
                 action()
             }
@@ -472,9 +478,10 @@ enum GulaDashboardAction: String, CaseIterable, Identifiable, Hashable {
     case chatAssistant = "chatAssistant"
     case openInFinder = "openInFinder"
     case settings = "settings"
-    
+    case logout = "logout"
+
     var id: String { rawValue }
-    
+
     var title: String {
         switch self {
         case .overview: return "Resumen"
@@ -485,9 +492,10 @@ enum GulaDashboardAction: String, CaseIterable, Identifiable, Hashable {
         case .chatAssistant: return "Chat Asistente"
         case .openInFinder: return "Abrir en Finder"
         case .settings: return "Configuración"
+        case .logout: return "Cerrar Sesión"
         }
     }
-    
+
     var icon: String {
         switch self {
         case .overview: return "doc.text.magnifyingglass"
@@ -498,6 +506,7 @@ enum GulaDashboardAction: String, CaseIterable, Identifiable, Hashable {
         case .chatAssistant: return "message.badge.fill"
         case .openInFinder: return "folder"
         case .settings: return "gear"
+        case .logout: return "rectangle.portrait.and.arrow.right"
         }
     }
 
@@ -510,7 +519,7 @@ enum GulaDashboardAction: String, CaseIterable, Identifiable, Hashable {
 
     static let projectItems: [GulaDashboardAction] = [.overview, .openInFinder]
     static let developmentItems: [GulaDashboardAction] = [.modules, .generateTemplate, .preCommitHooks, .apiGenerator, .chatAssistant]
-    static let toolsItems: [GulaDashboardAction] = [.settings]
+    static let toolsItems: [GulaDashboardAction] = [.settings, .logout]
 }
 
 // MARK: - Project Type Extension

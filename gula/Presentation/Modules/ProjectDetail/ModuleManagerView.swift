@@ -10,7 +10,6 @@ struct ModuleManagerView: View {
     @Binding var errorMessage: String
 
     @State private var apiKey: String = ""
-    @State private var isLoadingApiKey = false
     private let getUserApiKeyUseCase: GetUserApiKeyUseCaseProtocol
 
     @State private var branch: String = ""
@@ -35,10 +34,17 @@ struct ModuleManagerView: View {
     // Gula Status Integration
     @State private var gulaStatus: GulaStatus?
     @State private var installedModuleNames: Set<String> = []
+    @State private var installedModulesInfo: [String: String] = [:] // Maps module name to installed branch
     @State private var isLoadingGulaStatus = false
     @State private var statusLoadingProgress: Double = 0.0
     @State private var statusAnimationOffset: CGFloat = -1.0
     @State private var statusPulseScale: CGFloat = 1.0
+
+    // Computed property to check if all selectable modules are selected
+    private var isAllSelectableModulesSelected: Bool {
+        let selectableModules = availableModules.filter { $0.installationStatus == .notInstalled }
+        return !selectableModules.isEmpty && selectedModules.count == selectableModules.count
+    }
 
     init(project: Project,
          projectManager: ProjectManager,
@@ -95,16 +101,7 @@ struct ModuleManagerView: View {
                                     Text("Clave de API")
                                         .font(.system(size: 16, weight: .semibold, design: .rounded))
                                         .foregroundColor(.primary)
-                                    if isLoadingApiKey {
-                                        HStack(spacing: 6) {
-                                            ProgressView()
-                                                .scaleEffect(0.7)
-                                                .progressViewStyle(CircularProgressViewStyle(tint: .secondary))
-                                            Text("Cargando...")
-                                                .font(.system(size: 12, weight: .medium))
-                                                .foregroundColor(.secondary)
-                                        }
-                                    } else if !apiKey.isEmpty {
+                                    if !apiKey.isEmpty {
                                         HStack(spacing: 6) {
                                             Image(systemName: "checkmark.circle.fill")
                                                 .font(.system(size: 12))
@@ -150,31 +147,85 @@ struct ModuleManagerView: View {
                                         .font(.system(size: 14, weight: .semibold))
                                         .foregroundColor(.blue)
                                 }
-                                
+
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text("Branch del Repositorio")
                                         .font(.system(size: 16, weight: .semibold, design: .rounded))
                                         .foregroundColor(.primary)
-                                    Text("Selecciona la rama específica del proyecto")
-                                        .font(.system(size: 12, weight: .medium))
-                                        .foregroundColor(.secondary)
+
+                                    if isLoadingBranches {
+                                        HStack(spacing: 6) {
+                                            ProgressView()
+                                                .scaleEffect(0.7)
+                                                .progressViewStyle(CircularProgressViewStyle(tint: .blue))
+                                            Text("Cargando ramas...")
+                                                .font(.system(size: 12, weight: .medium))
+                                                .foregroundColor(.secondary)
+                                        }
+                                    } else if !availableBranches.isEmpty {
+                                        HStack(spacing: 6) {
+                                            Image(systemName: "checkmark.circle.fill")
+                                                .font(.system(size: 12))
+                                                .foregroundColor(.blue)
+                                            Text("\(availableBranches.count) ramas disponibles")
+                                                .font(.system(size: 12, weight: .medium))
+                                                .foregroundColor(.secondary)
+                                        }
+                                    } else if apiKey.isEmpty {
+                                        HStack(spacing: 6) {
+                                            Image(systemName: "info.circle.fill")
+                                                .font(.system(size: 12))
+                                                .foregroundColor(.secondary)
+                                            Text("Se cargarán automáticamente al iniciar sesión")
+                                                .font(.system(size: 12, weight: .medium))
+                                                .foregroundColor(.secondary)
+                                        }
+                                    } else {
+                                        HStack(spacing: 6) {
+                                            Image(systemName: "exclamationmark.triangle.fill")
+                                                .font(.system(size: 12))
+                                                .foregroundColor(.orange)
+                                            Text("No se encontraron ramas disponibles")
+                                                .font(.system(size: 12, weight: .medium))
+                                                .foregroundColor(.secondary)
+                                        }
+                                    }
                                 }
 
                                 Spacer()
 
-                                if isLoadingBranches {
-                                    HStack(spacing: 6) {
-                                        ProgressView()
-                                            .scaleEffect(0.8)
-                                            .progressViewStyle(CircularProgressViewStyle(tint: .blue))
-                                        Text("Cargando ramas...")
-                                            .font(.system(size: 12, weight: .medium))
-                                            .foregroundColor(.secondary)
+                                // Picker inside the card
+                                if !availableBranches.isEmpty {
+                                    Picker("", selection: $branch) {
+                                        ForEach(availableBranches, id: \.self) { branchName in
+                                            Text(branchName).tag(branchName)
+                                        }
+                                    }
+                                    .pickerStyle(.menu)
+                                    .labelsHidden()
+                                    .onChange(of: branch) { oldValue, newValue in
+                                        // Automatically load modules when branch changes
+                                        if !newValue.isEmpty && oldValue != newValue {
+                                            Task {
+                                                await loadModules()
+                                            }
+                                        }
                                     }
                                 }
                             }
-                            
-                            if availableBranches.isEmpty {
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 12)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(.ultraThinMaterial)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .strokeBorder(.secondary.opacity(0.2), lineWidth: 1)
+                                    )
+                            )
+
+                            // TextField for manual input when no branches available
+                            if availableBranches.isEmpty && !isLoadingBranches {
                                 ProfessionalTextField(
                                     title: "",
                                     placeholder: "main, develop, feature/...",
@@ -184,66 +235,11 @@ struct ModuleManagerView: View {
                                         return ProfessionalTextField.ValidationResult(isValid: true, message: nil)
                                     }
                                 )
-                            } else {
-                                Picker("", selection: $branch) {
-                                    ForEach(availableBranches, id: \.self) { branchName in
-                                        Text(branchName).tag(branchName)
-                                    }
-                                }
-                                .pickerStyle(.menu)
-                                .frame(maxWidth: .infinity)
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 12)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .fill(.ultraThinMaterial)
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 12)
-                                                .strokeBorder(.secondary.opacity(0.2), lineWidth: 1)
-                                        )
-                                )
-                            }
-                            
-                            if !availableBranches.isEmpty {
-                                Text("\(availableBranches.count) ramas disponibles")
-                                    .font(.system(size: 12))
-                                    .foregroundColor(.secondary)
-                            } else if isLoadingBranches {
-                                Text("Obteniendo ramas del repositorio...")
-                                    .font(.system(size: 12))
-                                    .foregroundColor(.secondary)
-                            } else if apiKey.isEmpty {
-                                Text("Las ramas se cargarán automáticamente al iniciar sesión")
-                                    .font(.system(size: 12))
-                                    .foregroundColor(.secondary)
-                            } else {
-                                Text("No se encontraron ramas disponibles")
-                                    .font(.system(size: 12))
-                                    .foregroundColor(.secondary)
                             }
                         }
-                        
-                        // Auto Replace Option
-                        Toggle("Reemplazar módulos existentes automáticamente", isOn: $autoReplaceModules)
-                            .font(.system(size: 14, weight: .medium))
-                            .padding(.vertical, 4)
-                        
-                        // Professional Action Buttons
+
+                        // Professional Action Buttons with Auto Replace Toggle
                         HStack(spacing: 20) {
-                            ProfessionalButton(
-                                title: "Cargar Módulos",
-                                icon: "magnifyingglass.circle.fill",
-                                gradientColors: [.green, .mint],
-                                style: .primary,
-                                isDisabled: false
-                            ) {
-                                if !isLoadingModules {
-                                    Task {
-                                        await loadModules()
-                                    }
-                                }
-                            }
-                            
                             ProfessionalButton(
                                 title: "Instalar (\(selectedModules.count))",
                                 icon: "arrow.down.circle.fill",
@@ -255,7 +251,11 @@ struct ModuleManagerView: View {
                                     await installSelectedModules()
                                 }
                             }
-                            
+
+                            // Auto Replace Option
+                            Toggle("Reemplazar módulos existentes automáticamente", isOn: $autoReplaceModules)
+                                .font(.system(size: 14, weight: .medium))
+
                             Spacer()
                         }
                     }
@@ -273,13 +273,6 @@ struct ModuleManagerView: View {
                         startLoadingAnimations()
                     } else {
                         stopLoadingAnimations()
-                    }
-                }
-                .onChange(of: isLoadingGulaStatus) { newValue in
-                    if newValue {
-                        startStatusLoadingAnimations()
-                    } else {
-                        stopStatusLoadingAnimations()
                     }
                 }
                 .onDisappear {
@@ -354,7 +347,7 @@ struct ModuleManagerView: View {
                             Spacer()
                         }
                         
-                        Text("Para ver la lista de módulos disponibles, ingresa tu clave API y ejecuta el botón 'Cargar Módulos'. Los módulos se obtendrán directamente del script gula.")
+                        Text("Los módulos se cargan automáticamente al abrir esta vista o al cambiar de rama. Se obtienen directamente del script gula.")
                             .font(.system(size: 14, weight: .medium))
                             .foregroundColor(.secondary)
                             .multilineTextAlignment(.leading)
@@ -469,189 +462,8 @@ struct ModuleManagerView: View {
                     )
                     .clipShape(RoundedRectangle(cornerRadius: 24))
                 }
-                
-                // Enhanced Gula Status Loading Animation
-                if isLoadingGulaStatus {
-                    VStack(spacing: 24) {
-                        // Animated header with gula-specific icon
-                        HStack(spacing: 16) {
-                            ZStack {
-                                // Outer ring with rotating gradient
-                                Circle()
-                                    .stroke(
-                                        AngularGradient(
-                                            gradient: Gradient(colors: [.purple, .blue, .cyan, .mint, .purple]),
-                                            center: .center,
-                                            startAngle: .degrees(0),
-                                            endAngle: .degrees(360)
-                                        ),
-                                        lineWidth: 4
-                                    )
-                                    .frame(width: 44, height: 44)
-                                    .rotationEffect(.degrees(statusAnimationOffset * 180))
-                                
-                                // Inner circle with pulsing effect
-                                Circle()
-                                    .fill(
-                                        LinearGradient(
-                                            colors: [.purple, .blue],
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        )
-                                    )
-                                    .frame(width: 32, height: 32)
-                                    .scaleEffect(statusPulseScale)
-                                    .shadow(color: .purple.opacity(0.4), radius: 8, x: 0, y: 2)
-                                
-                                // Gula status icon
-                                Image(systemName: "chart.bar.doc.horizontal")
-                                    .font(.system(size: 14, weight: .bold))
-                                    .foregroundColor(.white)
-                                    .scaleEffect(statusPulseScale * 0.8)
-                            }
-                            
-                            VStack(alignment: .leading, spacing: 6) {
-                                Text("Cargando Estado del Proyecto...")
-                                    .font(.system(size: 18, weight: .bold, design: .rounded))
-                                    .foregroundColor(.primary)
-                                
-                                Text("Consultando gula status")
-                                    .font(.system(size: 13, weight: .medium))
-                                    .foregroundColor(.secondary)
-                                    .opacity(statusPulseScale > 1.05 ? 0.6 : 1.0)
-                            }
-                            
-                            Spacer()
-                        }
-                        
-                        // Progress description with dynamic text
-                        VStack(spacing: 12) {
-                            Text("Obteniendo información de módulos instalados y estado del proyecto...")
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(.secondary)
-                                .multilineTextAlignment(.center)
-                                .opacity(statusPulseScale > 1.05 ? 0.7 : 1.0)
-                            
-                            // Enhanced progress bar with shimmer effect
-                            ZStack(alignment: .leading) {
-                                // Background track
-                                RoundedRectangle(cornerRadius: 8)
-                                    .fill(Color.secondary.opacity(0.2))
-                                    .frame(height: 6)
-                                
-                                // Animated progress fill
-                                RoundedRectangle(cornerRadius: 8)
-                                    .fill(
-                                        LinearGradient(
-                                            colors: [.purple, .blue, .cyan],
-                                            startPoint: .leading,
-                                            endPoint: .trailing
-                                        )
-                                    )
-                                    .frame(height: 6)
-                                    .scaleEffect(x: statusLoadingProgress, y: 1.0, anchor: .leading)
-                                    .animation(.easeInOut(duration: 0.3), value: statusLoadingProgress)
-                                
-                                // Shimmer overlay
-                                RoundedRectangle(cornerRadius: 8)
-                                    .fill(
-                                        LinearGradient(
-                                            colors: [
-                                                .clear,
-                                                .white.opacity(0.4),
-                                                .white.opacity(0.6),
-                                                .white.opacity(0.4),
-                                                .clear
-                                            ],
-                                            startPoint: UnitPoint(x: statusAnimationOffset, y: 0.5),
-                                            endPoint: UnitPoint(x: statusAnimationOffset + 0.3, y: 0.5)
-                                        )
-                                    )
-                                    .frame(height: 6)
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                            }
-                        }
-                        
-                        // Status indicators with animated dots
-                        HStack(spacing: 20) {
-                            ForEach(0..<4) { index in
-                                VStack(spacing: 8) {
-                                    ZStack {
-                                        Circle()
-                                            .fill(Color.secondary.opacity(0.2))
-                                            .frame(width: 24, height: 24)
-                                        
-                                        Circle()
-                                            .fill(
-                                                LinearGradient(
-                                                    colors: statusLoadingProgress > Double(index) * 0.25 
-                                                        ? [.purple, .blue] 
-                                                        : [.secondary.opacity(0.3)],
-                                                    startPoint: .topLeading,
-                                                    endPoint: .bottomTrailing
-                                                )
-                                            )
-                                            .frame(width: 16, height: 16)
-                                            .scaleEffect(statusLoadingProgress > Double(index) * 0.25 ? statusPulseScale : 0.8)
-                                            .animation(.easeInOut(duration: 0.4).delay(Double(index) * 0.1), value: statusLoadingProgress)
-                                        
-                                        if statusLoadingProgress > Double(index) * 0.25 {
-                                            Image(systemName: [
-                                                "doc.text.magnifyingglass",
-                                                "list.bullet.clipboard",
-                                                "checkmark.seal",
-                                                "sparkles"
-                                            ][index])
-                                                .font(.system(size: 8, weight: .bold))
-                                                .foregroundColor(.white)
-                                                .scaleEffect(0.7)
-                                        }
-                                    }
-                                    
-                                    Text([
-                                        "Escaneando",
-                                        "Analizando",
-                                        "Procesando",
-                                        "Finalizando"
-                                    ][index])
-                                        .font(.system(size: 10, weight: .semibold))
-                                        .foregroundColor(
-                                            statusLoadingProgress > Double(index) * 0.25 
-                                                ? .primary 
-                                                : .secondary.opacity(0.6)
-                                        )
-                                        .animation(.easeInOut(duration: 0.3), value: statusLoadingProgress)
-                                }
-                            }
-                        }
-                        .padding(.top, 8)
-                    }
-                    .padding(.horizontal, 32)
-                    .padding(.vertical, 28)
-                    .background(
-                        RoundedRectangle(cornerRadius: 24)
-                            .fill(.ultraThinMaterial)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 24)
-                                    .strokeBorder(
-                                        LinearGradient(
-                                            colors: [Color.purple.opacity(0.3), Color.blue.opacity(0.2)],
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        ),
-                                        lineWidth: 1.5
-                                    )
-                            )
-                            .shadow(color: .purple.opacity(0.1), radius: 12, x: 0, y: 4)
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: 24))
-                    .transition(.asymmetric(
-                        insertion: .move(edge: .top).combined(with: .opacity),
-                        removal: .move(edge: .bottom).combined(with: .opacity)
-                    ))
-                }
-                
-                if !availableModules.isEmpty {
+
+                if !availableModules.isEmpty && !isLoadingModules {
                     VStack(alignment: .leading, spacing: 24) {
                         // Section Header with enhanced styling
                         HStack(spacing: 16) {
@@ -669,8 +481,8 @@ struct ModuleManagerView: View {
                             
                             // Enhanced Select All Button
                             ProfessionalButton(
-                                title: selectedModules.count == availableModules.count ? "Deseleccionar Todo" : "Seleccionar Todo",
-                                icon: selectedModules.count == availableModules.count ? "checkmark.square.fill" : "square",
+                                title: isAllSelectableModulesSelected ? "Deseleccionar Todo" : "Seleccionar Todo",
+                                icon: isAllSelectableModulesSelected ? "checkmark.square.fill" : "square",
                                 gradientColors: [.blue, .purple],
                                 style: .outline
                             ) {
@@ -777,46 +589,53 @@ struct ModuleManagerView: View {
 
 
     private func loadApiKey() async {
-        isLoadingApiKey = true
         do {
             let apiKeyEntity = try await getUserApiKeyUseCase.execute()
             await MainActor.run {
                 self.apiKey = apiKeyEntity.key
+                #if DEBUG
                 print("✅ API key loaded successfully for ModuleManager")
+                #endif
             }
 
             // Automatically load branches after API key is loaded
             await loadAvailableBranches()
         } catch {
+            #if DEBUG
             print("⚠️ Could not load API key: \(error)")
+            #endif
             await MainActor.run {
                 // API key will remain empty, user needs to authenticate first
                 self.errorMessage = "No se pudo cargar la clave API. Por favor, inicia sesión primero."
                 self.showingError = true
             }
         }
-        isLoadingApiKey = false
     }
 
     private func loadModules() async {
         isLoadingModules = true
         selectedModules.removeAll()
-        
+
         do {
+            #if DEBUG
             print("🔄 Loading modules with API key: \(apiKey)")
             print("🌿 Branch: \(branch.isEmpty ? "default" : branch)")
-            
+            #endif
+
             // First, refresh gula status to get latest installed modules (with enhanced animation)
             await loadGulaStatus()
-            
+
             let result = try await projectManager.listModules(
                 apiKey: apiKey,
                 branch: branch.isEmpty ? nil : branch
             )
-            
+
+            #if DEBUG
             print("📋 Module list output received")
+            #endif
             moduleListOutput = result
-            
+
+            #if DEBUG
             // Debug: print each line to see the exact format
             let lines = result.components(separatedBy: .newlines)
             for (index, line) in lines.enumerated() {
@@ -825,16 +644,21 @@ struct ModuleManagerView: View {
                     print("Line \(index): '\(trimmed)'")
                 }
             }
-            
+            #endif
+
             parseModulesFromOutput(result)
-            
+
+            #if DEBUG
             print("✅ Parsed \(availableModules.count) modules with installation status")
+            #endif
         } catch {
+            #if DEBUG
             print("❌ Error loading modules: \(error)")
+            #endif
             errorMessage = error.localizedDescription
             showingError = true
         }
-        
+
         isLoadingModules = false
     }
     
@@ -860,17 +684,25 @@ struct ModuleManagerView: View {
                 gulaStatus = status
                 // Extract installed module names from gula status
                 installedModuleNames = Set(status.installedModules.map { $0.name.lowercased() })
+                // Create mapping of module name to installed branch
+                installedModulesInfo = Dictionary(uniqueKeysWithValues: status.installedModules.map { ($0.name.lowercased(), $0.branch) })
+                #if DEBUG
                 print("📊 Gula Status: Found \(installedModuleNames.count) installed modules: \(installedModuleNames)")
+                print("📊 Branch info: \(installedModulesInfo)")
+                #endif
             }
             
             await updateStatusProgress(1.0, stepDescription: "Finalizando")
             try? await Task.sleep(nanoseconds: 300_000_000) // 0.3 seconds
             
         } catch {
+            #if DEBUG
             print("❌ Error loading gula status: \(error)")
+            #endif
             await MainActor.run {
                 gulaStatus = nil
                 installedModuleNames = []
+                installedModulesInfo = [:]
             }
         }
         
@@ -891,40 +723,51 @@ struct ModuleManagerView: View {
     
     private func loadAvailableBranches() async {
         guard !apiKey.isEmpty else {
+            #if DEBUG
             print("⚠️ API key is empty, cannot load branches")
+            #endif
             return
         }
-        
+
         isLoadingBranches = true
         availableBranches = []
-        
+
         do {
+            #if DEBUG
             print("🌿 Loading available branches with API key for project: \(project.name)")
+            #endif
             let branches = try await projectManager.getAvailableBranches(apiKey: apiKey, for: project)
             
             await MainActor.run {
                 self.availableBranches = branches
-                
+
                 // Set default branch if none selected
                 if self.branch.isEmpty && !branches.isEmpty {
                     // Prefer 'main' or 'develop' if available, otherwise first branch
                     if branches.contains("main") {
                         self.branch = "main"
                     } else if branches.contains("develop") {
-                        self.branch = "develop"  
+                        self.branch = "develop"
                     } else {
                         self.branch = branches.first ?? ""
                     }
                 }
-                
+
                 self.isLoadingBranches = false
             }
-            
+
+            #if DEBUG
             print("✅ Branches loaded successfully: \(branches)")
+            #endif
+
+            // Automatically load modules after branches are loaded
+            await loadModules()
         } catch {
             await MainActor.run {
                 self.isLoadingBranches = false
+                #if DEBUG
                 print("❌ Error loading branches: \(error)")
+                #endif
                 // Optionally show error to user
                 if let projectError = error as? ProjectError {
                     switch projectError {
@@ -941,20 +784,26 @@ struct ModuleManagerView: View {
     
     private func parseModulesFromOutput(_ output: String) {
         var modules = Module.parseFromGulaOutput(output)
-        
-        // Update installation status based on gula status information
+
+        // Update installation status and branch based on gula status information
         for i in 0..<modules.count {
             let moduleName = modules[i].name.lowercased()
             if installedModuleNames.contains(moduleName) {
                 modules[i].installationStatus = .installed
-                print("✅ Module '\(modules[i].name)' marked as installed from gula status")
+                modules[i].installedBranch = installedModulesInfo[moduleName]
+                #if DEBUG
+                print("✅ Module '\(modules[i].name)' marked as installed from gula status, branch: \(modules[i].installedBranch ?? "unknown")")
+                #endif
             } else {
                 modules[i].installationStatus = .notInstalled
+                modules[i].installedBranch = nil
             }
         }
-        
+
         availableModules = modules
+        #if DEBUG
         print("📝 Updated \(modules.count) modules with installation status from gula status")
+        #endif
     }
     
     private func toggleModuleSelection(_ module: Module) {
@@ -1055,13 +904,14 @@ struct ModuleManagerView: View {
         // Refresh gula status to get updated installation information
         await loadGulaStatus()
         
-        // Update modules list with new installation status
+        // Update modules list with new installation status and branch
         if !availableModules.isEmpty {
             var updatedModules = availableModules
             for i in 0..<updatedModules.count {
                 let moduleName = updatedModules[i].name.lowercased()
                 if installedModuleNames.contains(moduleName) {
                     updatedModules[i].installationStatus = .installed
+                    updatedModules[i].installedBranch = installedModulesInfo[moduleName]
                 }
             }
             availableModules = updatedModules

@@ -5,14 +5,16 @@ import SwiftUI
 struct ProjectDetailView: View {
     let project: Project
     let onBack: () -> Void
+    let onLogout: () -> Void
     @State private var projectManager = ProjectManager.shared
     @State private var viewModel: ProjectDetailViewModel
     @State private var selectedAction: GulaDashboardAction? = .overview
     @State private var showingModuleList = false
-    
-    init(project: Project, onBack: @escaping () -> Void, viewModel: ProjectDetailViewModel = ProjectDetailViewModel()) {
+
+    init(project: Project, onBack: @escaping () -> Void, onLogout: @escaping () -> Void, viewModel: ProjectDetailViewModel = ProjectDetailViewModel()) {
         self.project = project
         self.onBack = onBack
+        self.onLogout = onLogout
         self._viewModel = State(wrappedValue: viewModel)
     }
     
@@ -22,7 +24,8 @@ struct ProjectDetailView: View {
             ProjectDetailSidebar(
                 selection: $selectedAction,
                 project: project,
-                onBack: onBack
+                onBack: onBack,
+                onLogout: onLogout
             )
             .navigationSplitViewColumnWidth(min: 280, ideal: 320, max: 400)
         } detail: {
@@ -48,6 +51,7 @@ private struct ProjectDetailSidebar: View {
     @Binding var selection: GulaDashboardAction?
     let project: Project
     let onBack: () -> Void
+    let onLogout: () -> Void
     
     var body: some View {
         VStack(spacing: 0) {
@@ -77,7 +81,8 @@ private struct ProjectDetailSidebar: View {
                         title: "Herramientas",
                         items: GulaDashboardAction.toolsItems,
                         selection: $selection,
-                        project: project
+                        project: project,
+                        onLogout: onLogout
                     )
                 }
                 .padding(.vertical, 16)
@@ -168,6 +173,13 @@ private struct ProjectDetailContent: View {
                 selectedAction: $selectedAction,
                 projectManager: projectManager
             )
+        case .logout:
+            // Logout is handled by the sidebar action, stay on overview
+            ProjectOverviewView(
+                project: project,
+                selectedAction: $selectedAction,
+                projectManager: projectManager
+            )
         }
     }
 }
@@ -183,7 +195,8 @@ private struct ProjectDetailContent: View {
     
     return ProjectDetailView(
         project: sampleProject,
-        onBack: { print("Back pressed") }
+        onBack: { print("Back pressed") },
+        onLogout: { print("Logout pressed") }
     )
 }
 

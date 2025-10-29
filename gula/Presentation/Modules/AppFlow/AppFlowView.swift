@@ -65,17 +65,16 @@ struct AppFlowView: View {
                     }
                 }
             } else {
-                MainContentView(project: projectManager.currentProject!) {
-                    projectManager.currentProject = nil
-                }
-                .frame(minWidth: 900, minHeight: 600)
-                .toolbar {
-                    ToolbarItem(placement: .primaryAction) {
-                        UserMenuButton {
-                            handleLogout()
-                        }
+                MainContentView(
+                    project: projectManager.currentProject!,
+                    onBack: {
+                        projectManager.currentProject = nil
+                    },
+                    onLogout: {
+                        handleLogout()
                     }
-                }
+                )
+                .frame(minWidth: 900, minHeight: 600)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

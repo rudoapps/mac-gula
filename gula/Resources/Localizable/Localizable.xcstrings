@@ -600,9 +600,6 @@
     "Cargada automáticamente desde tu cuenta" : {
 
     },
-    "Cargando Estado del Proyecto..." : {
-
-    },
     "Cargando Módulos..." : {
 
     },
@@ -610,9 +607,6 @@
 
     },
     "Cargando templates..." : {
-
-    },
-    "Cargando..." : {
 
     },
     "Cerrar logs" : {
@@ -850,9 +844,6 @@
     "Exportar" : {
 
     },
-    "Finalizando" : {
-
-    },
     "Finalizando..." : {
 
     },
@@ -951,9 +942,6 @@
     "Intentar de nuevo" : {
 
     },
-    "Las ramas se cargarán automáticamente al iniciar sesión" : {
-
-    },
     "Limpiar" : {
 
     },
@@ -967,6 +955,9 @@
 
     },
     "Los elementos que marques como favoritos aparecerán aquí" : {
+
+    },
+    "Los módulos se cargan automáticamente al abrir esta vista o al cambiar de rama. Se obtienen directamente del script gula." : {
 
     },
     "Los proyectos que abras aparecerán aquí" : {
@@ -1017,16 +1008,10 @@
     "O instalar manualmente:" : {
 
     },
-    "Obteniendo información de módulos instalados y estado del proyecto..." : {
-
-    },
     "Obteniendo información del proyecto..." : {
 
     },
     "Obteniendo la lista de módulos disponibles desde gula CLI. Por favor espera..." : {
-
-    },
-    "Obteniendo ramas del repositorio..." : {
 
     },
     "Ocultar código" : {
@@ -1045,12 +1030,6 @@
           }
         }
       }
-    },
-    "Para ver la lista de módulos disponibles, ingresa tu clave API y ejecuta el botón 'Cargar Módulos'. Los módulos se obtendrán directamente del script gula." : {
-
-    },
-    "Perfil" : {
-
     },
     "Por favor, espera mientras se genera el template" : {
 
@@ -1118,10 +1097,10 @@
     "Saltar verificación (Debug)" : {
 
     },
-    "Selecciona al menos un DTO para importar" : {
+    "Se cargarán automáticamente al iniciar sesión" : {
 
     },
-    "Selecciona la rama específica del proyecto" : {
+    "Selecciona al menos un DTO para importar" : {
 
     },
     "Selecciona los hooks que deseas configurar para tu proyecto. Puedes elegir específicamente cuáles instalar." : {
