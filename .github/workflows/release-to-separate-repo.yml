@@ -105,17 +105,30 @@ jobs:
         echo "${{ secrets.SPARKLE_PRIVATE_KEY }}" > sparkle_private_key
         chmod 600 sparkle_private_key
 
+        echo "🔍 Verifying setup..."
+        echo "DMG file: $(ls -lh Gula-${{ steps.version.outputs.version }}.dmg 2>&1)"
+        echo "Key file: $(ls -lh sparkle_private_key 2>&1)"
+        echo "Sign tool: $(ls -lh ./bin/sign_update 2>&1)"
+
         echo "✍️  Signing DMG..."
-        if ! SIGNATURE=$(./bin/sign_update "Gula-${{ steps.version.outputs.version }}.dmg" sparkle_private_key); then
-          echo "❌ Error: Failed to sign DMG"
+        set -x
+        ./bin/sign_update "Gula-${{ steps.version.outputs.version }}.dmg" sparkle_private_key > signature_output.txt 2>&1
+        SIGN_EXIT_CODE=$?
+        set +x
+
+        if [ $SIGN_EXIT_CODE -ne 0 ]; then
+          echo "❌ Error: sign_update failed with exit code $SIGN_EXIT_CODE"
+          echo "Output:"
+          cat signature_output.txt
           exit 1
         fi
 
+        SIGNATURE=$(cat signature_output.txt)
         echo "signature=$SIGNATURE" >> $GITHUB_OUTPUT
         echo "✅ DMG signed successfully: $SIGNATURE"
 
-        # Clean up private key
-        rm -f sparkle_private_key
+        # Clean up
+        rm -f sparkle_private_key signature_output.txt
 
     - name: Get DMG file size
       id: filesize
