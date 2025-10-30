@@ -376,7 +376,7 @@ class ProjectManager {
 
         do {
             // SystemRepository already has 5 minute timeout for long operations
-            let result = try await systemRepository.executeCommand(command)
+            let result = try await systemRepository.executeCommand(command) 
             let elapsed = Date().timeIntervalSince(startTime)
 
             #if DEBUG

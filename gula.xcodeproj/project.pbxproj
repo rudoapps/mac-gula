@@ -10,6 +10,7 @@
 		C14EA3C82E81C3E8004810A8 /* TripleA in Frameworks */ = {isa = PBXBuildFile; productRef = E3A1C06D35550317B63B7F87 /* TripleA */; };
 		C18AACED2E77208800D26D17 /* appcast.xml in Resources */ = {isa = PBXBuildFile; fileRef = C18AACEC2E77208800D26D17 /* appcast.xml */; };
 		C1D14A912EA0EB1A00569E50 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = D2D759018AF2AD736436DB59 /* GoogleSignIn */; };
+		C1SPARKLE001E77A00D26D17 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = C1SPARKLE002E77A00D26D17 /* Sparkle */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -61,6 +62,7 @@
 			files = (
 				C1D14A912EA0EB1A00569E50 /* GoogleSignIn in Frameworks */,
 				C14EA3C82E81C3E8004810A8 /* TripleA in Frameworks */,
+				C1SPARKLE001E77A00D26D17 /* Sparkle in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -174,6 +176,7 @@
 			packageReferences = (
 				26C700542DB49CD129E844A8 /* XCRemoteSwiftPackageReference "TripleA" */,
 				F4DB1D094C577B6A276BF3DC /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+				C1SPARKLE003E77A00D26D17 /* XCRemoteSwiftPackageReference "Sparkle" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 8F2AC8E92DA0029300E66B45 /* Products */;
@@ -529,6 +532,14 @@
 				minimumVersion = 2.3.0;
 			};
 		};
+		C1SPARKLE003E77A00D26D17 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sparkle-project/Sparkle";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.7.3;
+			};
+		};
 		F4DB1D094C577B6A276BF3DC /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
@@ -540,6 +551,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		C1SPARKLE002E77A00D26D17 /* Sparkle */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C1SPARKLE003E77A00D26D17 /* XCRemoteSwiftPackageReference "Sparkle" */;
+			productName = Sparkle;
+		};
 		D2D759018AF2AD736436DB59 /* GoogleSignIn */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = F4DB1D094C577B6A276BF3DC /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;

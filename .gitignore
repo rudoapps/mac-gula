@@ -60,11 +60,18 @@ build/
 # Sparkle
 sparkle_private_key
 sparkle_private_key.pem
+sparkle_public_key.pem
 sparkle_edkey.txt
 keys_output.txt
 sparkle.tar.xz
+sparkle.zip
 bin/
 ExportOptions.plist
+*.backup
+
+# Sparkle tools
+Sparkle-*.zip
+Sparkle-*/
 
 # GitHub Actions artifacts
 *.dmg

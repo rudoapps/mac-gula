@@ -1,13 +1,24 @@
 import SwiftUI
 import GoogleSignIn
+import Sparkle
 
 @available(macOS 15.0, *)
 @main
 struct gulaApp: App {
 
+    // Inicializar el servicio de actualizaciones
+    private let sparkleUpdateService = SparkleUpdateService.shared
+
     init() {
         // Configurar Google Sign-In
         configureGoogleSignIn()
+
+        // Inicializar Sparkle
+        _ = sparkleUpdateService
+
+        #if DEBUG
+        print("✅ App inicializada con soporte de actualizaciones automáticas")
+        #endif
     }
     
     private func configureGoogleSignIn() {
@@ -51,6 +62,15 @@ struct gulaApp: App {
 #if os(macOS)
         .windowStyle(.hiddenTitleBar)
         .windowToolbarStyle(.unified)
+        .commands {
+            // Comando para buscar actualizaciones
+            CommandGroup(after: .appInfo) {
+                Button("Buscar actualizaciones...") {
+                    sparkleUpdateService.checkForUpdates()
+                }
+                .keyboardShortcut("u", modifiers: [.command, .shift])
+            }
+        }
 #endif
     }
 }
