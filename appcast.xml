@@ -35,7 +35,61 @@
                 sparkle:edSignature="SIGNATURE_HERE" />
         </item>
         -->
-        
+
+        <!-- Version 1.0.6 - Latest update -->
+        <item>
+            <title>Gula 1.0.6</title>
+            <link>https://github.com/rudoapps/mac-gula/releases/tag/v1.0.6</link>
+            <description><![CDATA[
+                <h2>Gula 1.0.6</h2>
+                <p>Nuevas mejoras y correcciones de bugs</p>
+
+                <h3>Mejoras en esta versión:</h3>
+                <ul>
+                    <li>✅ Mejoras de rendimiento</li>
+                    <li>✅ Correcciones de bugs</li>
+                    <li>✅ Sistema de actualizaciones mejorado</li>
+                </ul>
+            ]]></description>
+            <pubDate>jue, 30 oct 2025 14:12:49 +0000</pubDate>
+            <guid isPermaLink="false">gula-1.0.6</guid>
+            <sparkle:version>7</sparkle:version>
+            <sparkle:shortVersionString>1.0.6</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
+            <enclosure
+                url="https://github.com/rudoapps/mac-gula/releases/download/v1.0.6/Gula-1.0.6.zip"
+                length="4848269"
+                type="application/octet-stream"
+                sparkle:edSignature="mDQ4BlmhPlMgK3aMzp/9fnPoEMHVlnkTQ4grRNFyR6KoDziILJi7vM9D0LrZobS+wLkYMUS1a8/SI6KzATJ/CA==" />
+        </item>
+
+        <!-- Version 1.0.5 - Test update -->
+        <item>
+            <title>Gula 1.0.5</title>
+            <link>https://github.com/rudoapps/mac-gula/releases/tag/v1.0.5</link>
+            <description><![CDATA[
+                <h2>Gula 1.0.5 - Actualización de prueba</h2>
+                <p>Esta versión incluye mejoras y correcciones.</p>
+
+                <h3>Mejoras en esta versión:</h3>
+                <ul>
+                    <li>✅ Mejoras de rendimiento</li>
+                    <li>✅ Correcciones de bugs</li>
+                    <li>✅ Actualización del sistema de versiones</li>
+                </ul>
+            ]]></description>
+            <pubDate>Thu, 30 Oct 2025 13:00:00 +0000</pubDate>
+            <guid isPermaLink="false">gula-1.0.5</guid>
+            <sparkle:version>6</sparkle:version>
+            <sparkle:shortVersionString>1.0.5</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
+            <enclosure
+                url="https://github.com/rudoapps/mac-gula/releases/download/v1.0.5/Gula-1.0.5.zip"
+                length="3000000"
+                type="application/octet-stream"
+                sparkle:edSignature="PLACEHOLDER_SIGNATURE" />
+        </item>
+
         <!-- Current version entry (1.0.3) - Base version with Sparkle configured -->
         <item>
             <title>Gula 1.0.3</title>

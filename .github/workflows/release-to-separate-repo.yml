@@ -25,6 +25,18 @@ jobs:
         echo "version=$VERSION" >> $GITHUB_OUTPUT
         echo "Version: $VERSION"
 
+    - name: Get build number from project
+      id: build_number
+      run: |
+        BUILD_NUMBER=$(xcodebuild -project gula.xcodeproj -showBuildSettings 2>&1 | grep "CURRENT_PROJECT_VERSION" | head -1 | awk '{print $3}')
+        echo "build_number=$BUILD_NUMBER" >> $GITHUB_OUTPUT
+        echo "Build Number: $BUILD_NUMBER"
+
+        # Also get marketing version for verification
+        MARKETING_VERSION=$(xcodebuild -project gula.xcodeproj -showBuildSettings 2>&1 | grep "MARKETING_VERSION" | head -1 | awk '{print $3}')
+        echo "marketing_version=$MARKETING_VERSION" >> $GITHUB_OUTPUT
+        echo "Marketing Version: $MARKETING_VERSION"
+
     - name: Build app
       run: |
         xcodebuild -project gula.xcodeproj \
@@ -176,7 +188,7 @@ jobs:
             ]]></description>
             <pubDate>$PUBDATE</pubDate>
             <guid isPermaLink="false">gula-${{ steps.version.outputs.version }}</guid>
-            <sparkle:version>${{ steps.version.outputs.version }}</sparkle:version>
+            <sparkle:version>${{ steps.build_number.outputs.build_number }}</sparkle:version>
             <sparkle:shortVersionString>${{ steps.version.outputs.version }}</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
             <enclosure
@@ -187,10 +199,20 @@ jobs:
         </item>
         EOF
 
+        # Display what was generated
+        echo "================================================"
+        echo "Generated appcast entry:"
+        echo "  Version (tag): ${{ steps.version.outputs.version }}"
+        echo "  Build Number:  ${{ steps.build_number.outputs.build_number }}"
+        echo "  Marketing Ver: ${{ steps.build_number.outputs.marketing_version }}"
+        echo "================================================"
+        cat new_entry.xml
+        echo "================================================"
+
         # Add new entry to the top of the channel (after language tag)
         sed -i '' '/<language>es<\/language>/r new_entry.xml' appcast.xml
 
-        echo "Updated appcast.xml with new release"
+        echo "✅ Updated appcast.xml with new release"
 
         # Cleanup
         rm new_entry.xml
