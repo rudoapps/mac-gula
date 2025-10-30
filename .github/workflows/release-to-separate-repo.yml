@@ -168,7 +168,8 @@ jobs:
         gh release create "v${{ steps.version.outputs.version }}" \
           "Gula-${{ steps.version.outputs.version }}.dmg" \
           --title "Gula ${{ steps.version.outputs.version }}" \
-          --notes "## Gula ${{ steps.version.outputs.version }}
+          --notes "$(cat <<'EOF'
+## Gula ${{ steps.version.outputs.version }}
 
 ### Descarga
 - [Download Gula-${{ steps.version.outputs.version }}.dmg](https://github.com/rudoapps/mac-gula-releases/releases/download/v${{ steps.version.outputs.version }}/Gula-${{ steps.version.outputs.version }}.dmg)
@@ -183,7 +184,9 @@ Esta versión incluye verificación automática de actualizaciones vía Sparkle.
 
 ---
 **Tamaño del archivo:** ${{ steps.filesize.outputs.size }} bytes
-**Firma Sparkle:** \`${{ steps.sparkle.outputs.signature }}\`"
+**Firma Sparkle:** ${{ steps.sparkle.outputs.signature }}
+EOF
+)"
       env:
         GH_TOKEN: ${{ secrets.RELEASES_REPO_TOKEN }}
 
