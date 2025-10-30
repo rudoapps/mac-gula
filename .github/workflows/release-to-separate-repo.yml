@@ -91,7 +91,10 @@ jobs:
 
     - name: Generate Sparkle signature
       id: sparkle
+      shell: bash {0}
       run: |
+        set +e  # Don't exit on error, we want to capture the output
+
         echo "📦 Downloading Sparkle tools..."
         curl -L -o sparkle.zip https://github.com/sparkle-project/Sparkle/releases/download/2.7.3/Sparkle-for-Swift-Package-Manager.zip
         unzip -q sparkle.zip
@@ -107,19 +110,29 @@ jobs:
 
         echo "🔍 Verifying setup..."
         echo "DMG file: $(ls -lh Gula-${{ steps.version.outputs.version }}.dmg 2>&1)"
+        echo "Key file size: $(wc -c < sparkle_private_key) bytes (should be ~88)"
         echo "Key file: $(ls -lh sparkle_private_key 2>&1)"
         echo "Sign tool: $(ls -lh ./bin/sign_update 2>&1)"
 
         echo "✍️  Signing DMG..."
-        set -x
         ./bin/sign_update "Gula-${{ steps.version.outputs.version }}.dmg" sparkle_private_key > signature_output.txt 2>&1
         SIGN_EXIT_CODE=$?
-        set +x
 
         if [ $SIGN_EXIT_CODE -ne 0 ]; then
+          echo ""
           echo "❌ Error: sign_update failed with exit code $SIGN_EXIT_CODE"
-          echo "Output:"
+          echo ""
+          echo "=== Error Output ==="
           cat signature_output.txt
+          echo "==================="
+          echo ""
+          echo "⚠️  The private key file is only $(wc -c < sparkle_private_key) bytes"
+          echo "⚠️  It should be approximately 88 bytes (one line of base64)"
+          echo ""
+          echo "Please verify your SPARKLE_PRIVATE_KEY secret:"
+          echo "1. Go to ~/mac-gula-releases/private_key.txt"
+          echo "2. Copy the ENTIRE content (should be one long line)"
+          echo "3. Update the GitHub secret with the complete key"
           exit 1
         fi
 
