@@ -136,7 +136,8 @@ jobs:
           exit 1
         fi
 
-        SIGNATURE=$(cat signature_output.txt)
+        # Extract only the signature value from sparkle:edSignature="..."
+        SIGNATURE=$(cat signature_output.txt | sed -n 's/.*sparkle:edSignature="\([^"]*\)".*/\1/p')
         echo "signature=$SIGNATURE" >> $GITHUB_OUTPUT
         echo "✅ DMG signed successfully: $SIGNATURE"
 
