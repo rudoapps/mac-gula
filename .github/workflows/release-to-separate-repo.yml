@@ -1,0 +1,206 @@
+name: Release to Separate Repo
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-and-release:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout code repo
+      uses: actions/checkout@v4
+
+    - name: Set up Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: latest-stable
+
+    - name: Get version from tag
+      id: version
+      run: |
+        VERSION=${GITHUB_REF#refs/tags/v}
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "Version: $VERSION"
+
+    - name: Build app
+      run: |
+        xcodebuild -project gula.xcodeproj \
+          -scheme gula \
+          -configuration Release \
+          -derivedDataPath build/ \
+          -archivePath build/gula.xcarchive \
+          archive \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO \
+          DEVELOPMENT_TEAM="" \
+          PROVISIONING_PROFILE_SPECIFIER=""
+
+    - name: Export app
+      run: |
+        cat > ExportOptions.plist << EOF
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+        <plist version="1.0">
+        <dict>
+            <key>method</key>
+            <string>mac-application</string>
+            <key>signingStyle</key>
+            <string>manual</string>
+            <key>teamID</key>
+            <string></string>
+            <key>provisioningProfiles</key>
+            <dict/>
+        </dict>
+        </plist>
+        EOF
+
+        xcodebuild -exportArchive \
+          -archivePath build/gula.xcarchive \
+          -exportPath build/export \
+          -exportOptionsPlist ExportOptions.plist \
+          -allowProvisioningUpdates
+
+    - name: Create DMG
+      run: |
+        brew install create-dmg
+
+        create-dmg \
+          --volname "Gula ${{ steps.version.outputs.version }}" \
+          --window-pos 200 120 \
+          --window-size 600 300 \
+          --icon-size 100 \
+          --icon "gula.app" 175 120 \
+          --hide-extension "gula.app" \
+          --app-drop-link 425 120 \
+          --no-internet-enable \
+          "Gula-${{ steps.version.outputs.version }}.dmg" \
+          "build/export/" || echo "DMG creado con warnings"
+
+    - name: Generate Sparkle signature
+      id: sparkle
+      run: |
+        curl -L -o sparkle.zip https://github.com/sparkle-project/Sparkle/releases/download/2.7.3/Sparkle-for-Swift-Package-Manager.zip
+        unzip sparkle.zip
+
+        if [[ -n "${{ secrets.SPARKLE_PRIVATE_KEY }}" ]]; then
+          echo "${{ secrets.SPARKLE_PRIVATE_KEY }}" > sparkle_private_key
+          SIGNATURE=$(./bin/sign_update "Gula-${{ steps.version.outputs.version }}.dmg" sparkle_private_key)
+          echo "signature=$SIGNATURE" >> $GITHUB_OUTPUT
+          echo "DMG signed: $SIGNATURE"
+        else
+          echo "⚠️  No private key found. Add SPARKLE_PRIVATE_KEY as a GitHub secret."
+          echo "signature=UNSIGNED" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Get DMG file size
+      id: filesize
+      run: |
+        SIZE=$(stat -f%z "Gula-${{ steps.version.outputs.version }}.dmg")
+        echo "size=$SIZE" >> $GITHUB_OUTPUT
+        echo "DMG size: $SIZE bytes"
+
+    - name: Clone releases repository
+      run: |
+        git clone https://x-access-token:${{ secrets.RELEASES_REPO_TOKEN }}@github.com/rudoapps/mac-gula-releases.git releases-repo
+
+    - name: Update appcast.xml in releases repo
+      run: |
+        cd releases-repo
+
+        # Get current date in RFC 2822 format
+        PUBDATE=$(date -R)
+
+        # Create new entry for appcast
+        cat > new_entry.xml << EOF
+        <item>
+            <title>Gula ${{ steps.version.outputs.version }}</title>
+            <link>https://github.com/rudoapps/mac-gula-releases/releases/tag/v${{ steps.version.outputs.version }}</link>
+            <description><![CDATA[
+                <h2>Gula ${{ steps.version.outputs.version }}</h2>
+                <p>Nueva versión disponible!</p>
+
+                <h3>Cambios:</h3>
+                <p>Ver las <a href="https://github.com/rudoapps/mac-gula-releases/releases/tag/v${{ steps.version.outputs.version }}">notas de la versión</a> para más detalles.</p>
+            ]]></description>
+            <pubDate>$PUBDATE</pubDate>
+            <guid isPermaLink="false">gula-${{ steps.version.outputs.version }}</guid>
+            <sparkle:version>${{ steps.version.outputs.version }}</sparkle:version>
+            <sparkle:shortVersionString>${{ steps.version.outputs.version }}</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
+            <enclosure
+                url="https://github.com/rudoapps/mac-gula-releases/releases/download/v${{ steps.version.outputs.version }}/Gula-${{ steps.version.outputs.version }}.dmg"
+                length="${{ steps.filesize.outputs.size }}"
+                type="application/octet-stream"
+                sparkle:edSignature="${{ steps.sparkle.outputs.signature }}" />
+        </item>
+        EOF
+
+        # Add new entry to the top of the channel (after language tag)
+        sed -i '' '/<language>es<\/language>/r new_entry.xml' appcast.xml
+
+        echo "Updated appcast.xml with new release"
+
+        # Cleanup
+        rm new_entry.xml
+
+    - name: Copy DMG to releases repo
+      run: |
+        cp "Gula-${{ steps.version.outputs.version }}.dmg" releases-repo/
+
+    - name: Commit and push to releases repo
+      run: |
+        cd releases-repo
+
+        git config user.name "GitHub Actions"
+        git config user.email "actions@github.com"
+        git add .
+        git commit -m "Release v${{ steps.version.outputs.version }}"
+        git push
+
+    - name: Create GitHub Release in releases repo
+      run: |
+        cd releases-repo
+
+        gh release create "v${{ steps.version.outputs.version }}" \
+          "Gula-${{ steps.version.outputs.version }}.dmg" \
+          --title "Gula ${{ steps.version.outputs.version }}" \
+          --notes "## Gula ${{ steps.version.outputs.version }}
+
+### Descarga
+- [Download Gula-${{ steps.version.outputs.version }}.dmg](https://github.com/rudoapps/mac-gula-releases/releases/download/v${{ steps.version.outputs.version }}/Gula-${{ steps.version.outputs.version }}.dmg)
+
+### Instalación
+1. Descarga el archivo DMG
+2. Ábrelo y arrastra Gula.app a tu carpeta de Aplicaciones
+3. Ejecuta Gula desde Aplicaciones
+
+### Actualizaciones Automáticas
+Esta versión incluye verificación automática de actualizaciones vía Sparkle.
+
+---
+**Tamaño del archivo:** ${{ steps.filesize.outputs.size }} bytes
+**Firma Sparkle:** \`${{ steps.sparkle.outputs.signature }}\`"
+      env:
+        GH_TOKEN: ${{ secrets.RELEASES_REPO_TOKEN }}
+
+    - name: Create summary in code repo (optional)
+      uses: softprops/action-gh-release@v1
+      with:
+        body: |
+          ## Gula ${{ steps.version.outputs.version }}
+
+          Esta release ha sido publicada en el [repositorio de releases](https://github.com/rudoapps/mac-gula-releases/releases/tag/v${{ steps.version.outputs.version }}).
+
+          ### Descarga
+          - [Descargar desde el repo de releases](https://github.com/rudoapps/mac-gula-releases/releases/download/v${{ steps.version.outputs.version }}/Gula-${{ steps.version.outputs.version }}.dmg)
+
+          ### AppCast
+          - [Ver appcast.xml](https://raw.githubusercontent.com/rudoapps/mac-gula-releases/main/appcast.xml)
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
