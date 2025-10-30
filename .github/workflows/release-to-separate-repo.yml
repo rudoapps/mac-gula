@@ -110,12 +110,12 @@ jobs:
 
         echo "🔍 Verifying setup..."
         echo "DMG file: $(ls -lh Gula-${{ steps.version.outputs.version }}.dmg 2>&1)"
-        echo "Key file size: $(wc -c < sparkle_private_key) bytes (should be ~88)"
+        echo "Key file size: $(wc -c < sparkle_private_key) bytes (should be ~44)"
         echo "Key file: $(ls -lh sparkle_private_key 2>&1)"
         echo "Sign tool: $(ls -lh ./bin/sign_update 2>&1)"
 
         echo "✍️  Signing DMG..."
-        ./bin/sign_update "Gula-${{ steps.version.outputs.version }}.dmg" sparkle_private_key > signature_output.txt 2>&1
+        ./bin/sign_update --ed-key-file sparkle_private_key "Gula-${{ steps.version.outputs.version }}.dmg" > signature_output.txt 2>&1
         SIGN_EXIT_CODE=$?
 
         if [ $SIGN_EXIT_CODE -ne 0 ]; then
@@ -127,7 +127,7 @@ jobs:
           echo "==================="
           echo ""
           echo "⚠️  The private key file is only $(wc -c < sparkle_private_key) bytes"
-          echo "⚠️  It should be approximately 88 bytes (one line of base64)"
+          echo "⚠️  It should be approximately 44 bytes (one line of base64)"
           echo ""
           echo "Please verify your SPARKLE_PRIVATE_KEY secret:"
           echo "1. Go to ~/mac-gula-releases/private_key.txt"
