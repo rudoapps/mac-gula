@@ -78,23 +78,44 @@ jobs:
           --app-drop-link 425 120 \
           --no-internet-enable \
           "Gula-${{ steps.version.outputs.version }}.dmg" \
-          "build/export/" || echo "DMG creado con warnings"
+          "build/export/" || true
+
+        # Verify DMG was created
+        if [ ! -f "Gula-${{ steps.version.outputs.version }}.dmg" ]; then
+          echo "❌ Error: DMG file was not created"
+          exit 1
+        fi
+
+        echo "✅ DMG created successfully"
+        ls -lh "Gula-${{ steps.version.outputs.version }}.dmg"
 
     - name: Generate Sparkle signature
       id: sparkle
       run: |
+        echo "📦 Downloading Sparkle tools..."
         curl -L -o sparkle.zip https://github.com/sparkle-project/Sparkle/releases/download/2.7.3/Sparkle-for-Swift-Package-Manager.zip
-        unzip sparkle.zip
+        unzip -q sparkle.zip
 
-        if [[ -n "${{ secrets.SPARKLE_PRIVATE_KEY }}" ]]; then
-          echo "${{ secrets.SPARKLE_PRIVATE_KEY }}" > sparkle_private_key
-          SIGNATURE=$(./bin/sign_update "Gula-${{ steps.version.outputs.version }}.dmg" sparkle_private_key)
-          echo "signature=$SIGNATURE" >> $GITHUB_OUTPUT
-          echo "DMG signed: $SIGNATURE"
-        else
-          echo "⚠️  No private key found. Add SPARKLE_PRIVATE_KEY as a GitHub secret."
-          echo "signature=UNSIGNED" >> $GITHUB_OUTPUT
+        if [[ -z "${{ secrets.SPARKLE_PRIVATE_KEY }}" ]]; then
+          echo "❌ Error: SPARKLE_PRIVATE_KEY secret is not set"
+          exit 1
         fi
+
+        echo "🔑 Using Sparkle private key from secrets..."
+        echo "${{ secrets.SPARKLE_PRIVATE_KEY }}" > sparkle_private_key
+        chmod 600 sparkle_private_key
+
+        echo "✍️  Signing DMG..."
+        if ! SIGNATURE=$(./bin/sign_update "Gula-${{ steps.version.outputs.version }}.dmg" sparkle_private_key); then
+          echo "❌ Error: Failed to sign DMG"
+          exit 1
+        fi
+
+        echo "signature=$SIGNATURE" >> $GITHUB_OUTPUT
+        echo "✅ DMG signed successfully: $SIGNATURE"
+
+        # Clean up private key
+        rm -f sparkle_private_key
 
     - name: Get DMG file size
       id: filesize
