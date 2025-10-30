@@ -170,24 +170,22 @@ jobs:
       run: |
         cd releases-repo
 
-        cat > release_notes.md <<EOF
-## Gula ${VERSION}
-
-### Descarga
-- [Download Gula-${VERSION}.dmg](https://github.com/rudoapps/mac-gula-releases/releases/download/v${VERSION}/Gula-${VERSION}.dmg)
-
-### Instalación
-1. Descarga el archivo DMG
-2. Ábrelo y arrastra Gula.app a tu carpeta de Aplicaciones
-3. Ejecuta Gula desde Aplicaciones
-
-### Actualizaciones Automáticas
-Esta versión incluye verificación automática de actualizaciones vía Sparkle.
-
----
-**Tamaño del archivo:** ${FILE_SIZE} bytes
-**Firma Sparkle:** ${SIGNATURE}
-EOF
+        echo "## Gula ${VERSION}" > release_notes.md
+        echo "" >> release_notes.md
+        echo "### Descarga" >> release_notes.md
+        echo "- [Download Gula-${VERSION}.dmg](https://github.com/rudoapps/mac-gula-releases/releases/download/v${VERSION}/Gula-${VERSION}.dmg)" >> release_notes.md
+        echo "" >> release_notes.md
+        echo "### Instalación" >> release_notes.md
+        echo "1. Descarga el archivo DMG" >> release_notes.md
+        echo "2. Ábrelo y arrastra Gula.app a tu carpeta de Aplicaciones" >> release_notes.md
+        echo "3. Ejecuta Gula desde Aplicaciones" >> release_notes.md
+        echo "" >> release_notes.md
+        echo "### Actualizaciones Automáticas" >> release_notes.md
+        echo "Esta versión incluye verificación automática de actualizaciones vía Sparkle." >> release_notes.md
+        echo "" >> release_notes.md
+        echo "---" >> release_notes.md
+        echo "**Tamaño del archivo:** ${FILE_SIZE} bytes" >> release_notes.md
+        echo "**Firma Sparkle:** ${SIGNATURE}" >> release_notes.md
 
         gh release create "v${VERSION}" \
           "Gula-${VERSION}.dmg" \
