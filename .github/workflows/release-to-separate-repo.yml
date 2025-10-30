@@ -162,14 +162,19 @@ jobs:
         git push
 
     - name: Create GitHub Release in releases repo
+      env:
+        VERSION: ${{ steps.version.outputs.version }}
+        FILE_SIZE: ${{ steps.filesize.outputs.size }}
+        SIGNATURE: ${{ steps.sparkle.outputs.signature }}
+        GH_TOKEN: ${{ secrets.RELEASES_REPO_TOKEN }}
       run: |
         cd releases-repo
 
         cat > release_notes.md <<EOF
-## Gula ${{ steps.version.outputs.version }}
+## Gula ${VERSION}
 
 ### Descarga
-- [Download Gula-${{ steps.version.outputs.version }}.dmg](https://github.com/rudoapps/mac-gula-releases/releases/download/v${{ steps.version.outputs.version }}/Gula-${{ steps.version.outputs.version }}.dmg)
+- [Download Gula-${VERSION}.dmg](https://github.com/rudoapps/mac-gula-releases/releases/download/v${VERSION}/Gula-${VERSION}.dmg)
 
 ### Instalación
 1. Descarga el archivo DMG
@@ -180,16 +185,14 @@ jobs:
 Esta versión incluye verificación automática de actualizaciones vía Sparkle.
 
 ---
-**Tamaño del archivo:** ${{ steps.filesize.outputs.size }} bytes
-**Firma Sparkle:** ${{ steps.sparkle.outputs.signature }}
+**Tamaño del archivo:** ${FILE_SIZE} bytes
+**Firma Sparkle:** ${SIGNATURE}
 EOF
 
-        gh release create "v${{ steps.version.outputs.version }}" \
-          "Gula-${{ steps.version.outputs.version }}.dmg" \
-          --title "Gula ${{ steps.version.outputs.version }}" \
+        gh release create "v${VERSION}" \
+          "Gula-${VERSION}.dmg" \
+          --title "Gula ${VERSION}" \
           --notes-file release_notes.md
-      env:
-        GH_TOKEN: ${{ secrets.RELEASES_REPO_TOKEN }}
 
     - name: Create summary in code repo (optional)
       uses: softprops/action-gh-release@v1
