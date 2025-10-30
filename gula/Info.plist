@@ -8,7 +8,7 @@
 	<!-- Debug: URL del repo de releases (para testing) -->
 	<!-- Release: URL del repo de releases (producción) -->
 	<key>SUPublicEDKey</key>
-	<string>+BOntVOzwPutvXQGowY8OEd5eCdCvjcn6WpVVk9uaAY=</string>
+	<string>11MM9rve3qw5UtLY+dAo+FtwLVa55fC+u5JkZW/eC/M=</string>
 	<key>SUEnableAutomaticChecks</key>
 	<true/>
 	<key>SUScheduledCheckInterval</key>

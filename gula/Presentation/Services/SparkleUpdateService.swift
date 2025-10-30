@@ -19,6 +19,11 @@ class SparkleUpdateService {
 
     init() {
         setupUpdater()
+
+        #if DEBUG
+        // En Debug, verificar actualizaciones al inicio después de 3 segundos
+        checkForUpdatesOnLaunch()
+        #endif
     }
 
     // MARK: - Setup
@@ -49,6 +54,19 @@ class SparkleUpdateService {
             print("❌ [DEBUG] Error: No se pudo obtener el updater de Sparkle")
             #endif
         }
+    }
+
+    /// Verifica actualizaciones automáticamente al iniciar la app (solo en Debug)
+    private func checkForUpdatesOnLaunch() {
+        #if DEBUG
+        print("🔧 [DEBUG] Programando verificación automática al inicio...")
+
+        // Esperar 3 segundos para que la app termine de cargar
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) { [weak self] in
+            print("🔧 [DEBUG] Verificando actualizaciones automáticamente...")
+            self?.checkForUpdates(nil)
+        }
+        #endif
     }
 
     // MARK: - Public Methods
