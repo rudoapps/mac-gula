@@ -7,8 +7,7 @@
 	<!-- Esto permite usar diferentes URLs para Debug y Release -->
 	<!-- Debug: URL del repo de releases (para testing) -->
 	<!-- Release: URL del repo de releases (producción) -->
-	<key>SUPublicEDKey</key>
-	<string>11MM9rve3qw5UtLY+dAo+FtwLVa55fC+u5JkZW/eC/M=</string>
+	<!-- NOTA: SUPublicEDKey se configura en project.pbxproj como INFOPLIST_KEY_SUPublicEDKey -->
 	<key>SUEnableAutomaticChecks</key>
 	<true/>
 	<key>SUScheduledCheckInterval</key>
