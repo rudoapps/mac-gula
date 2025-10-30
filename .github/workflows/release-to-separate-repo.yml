@@ -165,10 +165,7 @@ jobs:
       run: |
         cd releases-repo
 
-        gh release create "v${{ steps.version.outputs.version }}" \
-          "Gula-${{ steps.version.outputs.version }}.dmg" \
-          --title "Gula ${{ steps.version.outputs.version }}" \
-          --notes "$(cat <<'EOF'
+        cat > release_notes.md <<EOF
 ## Gula ${{ steps.version.outputs.version }}
 
 ### Descarga
@@ -186,7 +183,11 @@ Esta versión incluye verificación automática de actualizaciones vía Sparkle.
 **Tamaño del archivo:** ${{ steps.filesize.outputs.size }} bytes
 **Firma Sparkle:** ${{ steps.sparkle.outputs.signature }}
 EOF
-)"
+
+        gh release create "v${{ steps.version.outputs.version }}" \
+          "Gula-${{ steps.version.outputs.version }}.dmg" \
+          --title "Gula ${{ steps.version.outputs.version }}" \
+          --notes-file release_notes.md
       env:
         GH_TOKEN: ${{ secrets.RELEASES_REPO_TOKEN }}
 
