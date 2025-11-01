@@ -24,7 +24,7 @@ struct LoginView: View {
                         .fontWeight(.light)
                         .font(.system(size:60))
                         .padding(.bottom, 24)
-
+                    /*
                     emailTextField
                     passwordTextField
 
@@ -43,7 +43,7 @@ struct LoginView: View {
                             isFieldEmptyCheckedFromView = viewModel.email.isEmpty || viewModel.password.isEmpty
                             viewModel.login()
                         }
-                    }
+                    }*/
                     if isSocialLoginActived {
                         socialLoginView
                             .padding(.top, 24)

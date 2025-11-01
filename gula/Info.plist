@@ -3,15 +3,14 @@
 <plist version="1.0">
 <dict>
 	<!-- Sparkle Automatic Updates Configuration -->
-	<!-- NOTA: El SUFeedURL se configura programáticamente en SparkleUpdateService.swift -->
-	<!-- Esto permite usar diferentes URLs para Debug y Release -->
-	<!-- Debug: URL del repo de releases (para testing) -->
-	<!-- Release: URL del repo de releases (producción) -->
-	<!-- NOTA: SUPublicEDKey se configura en project.pbxproj como INFOPLIST_KEY_SUPublicEDKey -->
+	<key>SUFeedURL</key>
+	<string>https://raw.githubusercontent.com/rudoapps/mac-gula-releases/main/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>11MM9rve3qw5UtLY+dAo+FtwLVa55fC+u5JkZW/eC/M=</string>
 	<key>SUEnableAutomaticChecks</key>
 	<true/>
 	<key>SUScheduledCheckInterval</key>
-	<integer>86400</integer>
+	<integer>3600</integer>
 	<key>SUAllowsAutomaticUpdates</key>
 	<true/>
 
